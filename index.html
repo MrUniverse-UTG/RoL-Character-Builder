@@ -410,7 +410,13 @@ const LINEAGES = [
    langs:{speak:['Sybus','Gaian'], read:['Sybus','Gaian']},
    desc:'Feline Humanoids that are mobile and sturdy.',
    traits:['Highlander','Kogon'],
-   features:'Catlike Reflexes (Major): Use a Quick action to move up to 15 ft without provoking Opportunity Strikes (once per round). Mountain Climber (Minor): Gain a Climb Speed equal to your base Speed. — OR — For the Hunt (Major): Use a Quick action to move up to 30 ft until end of turn (once per round). Stubborn (Minor): When you start your turn at 0 HP, regain up to 12 HP (once per Intermission).'},
+   traitDetails:{
+     Highlander:{label:'Highlander', desc:'Nimble Abysians with more Humanoid features in their face and limbs.',
+       features:'Catlike Reflexes (Major Trait): Use a Quick action to move up to 15 ft without provoking Opportunity Strikes. Cannot use more than once per round.\n\nMountain Climber (Minor Trait): Gain a Climb Speed equal to your base Speed.'},
+     Kogon:{label:'Kogon', desc:'Thicker Abysians with more feline-like physiology in their faces and limbs.',
+       features:'For the Hunt (Major Trait): Use a Quick action to move up to 30 ft until the end of your turn. Cannot use more than once per round.\n\nStubborn (Minor Trait): When you start your turn at 0 HP, regain up to 12 HP. Cannot use again until you finish an Intermission.'},
+   },
+   features:'Choose Highlander or Kogon sub-group below.'},
   {name:'Dryvorn',  type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
    desc:'Dragon-blessed Humanoids attuned to a special element.',
@@ -445,7 +451,13 @@ const LINEAGES = [
    langs:{speak:['Sylvan','Gaian'], read:['Sylvan','Gaian']},
    desc:'Plant-based Humanoids with a connection to knowledge and wisdom.',
    traits:['Sunlight','Midnight'],
-   features:'Photosynthesis (Sunlight): During a Light or Full Rest in sunlight, regain extra Recovery Dice. — OR — Bioluminescence (Midnight): Your body emits light in a 10-ft radius; gain Nightvision.'},
+   traitDetails:{
+     Sunlight:{label:'Sunlight Sylvanik', desc:'Sylvaniks who thrive in daylight and open spaces.',
+       features:'Photosynthesis (Major Trait): During a Light or Full Rest taken in sunlight, you regain additional Recovery Dice equal to your Empathy Rank.\n\nSolar Skin (Minor Trait): While in direct sunlight, gain a +1 modifier to all Empathy checks.'},
+     Midnight:{label:'Midnight Sylvanik', desc:'Sylvaniks adapted to darkness and shadow.',
+       features:'Bioluminescence (Minor Trait): Your body emits light in a 10-ft radius. You gain Nightvision up to 60 feet.\n\nNight Bloom (Major Trait): During a Light or Full Rest taken in darkness, you regain additional Recovery Dice equal to your Wits Rank.'},
+   },
+   features:'Choose Sunlight or Midnight sub-group below.'},
   {name:'Armorai',  type:'Otherworldly',size:'Medium', speed:30,  height:"5'–6'",
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
    desc:'Living crystals that infect suits of armor to gain a body.',
@@ -642,7 +654,14 @@ function goToStep(n) {
   updateProgress();
   updateNavBtns();
   window.scrollTo({top:0, behavior:'smooth'});
+  if (n===2) renderSkillList();
+  if (n===3) { renderLineageGrid(); if (ch.lineage) renderLineageDetail(); }
+  if (n===4) { renderClassGrid(); renderClassSkillChoices(); }
+  if (n===5) renderSpecialtyGrid();
+  if (n===6) renderLifepath();
   if (n===7) renderStatusPoints();
+  if (n===8) renderTalentStep();
+  if (n===9) renderDetailsStep();
   if (n===10) renderSummary();
 }
 
@@ -686,9 +705,15 @@ function validateStep(step) {
       const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
       if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
       return true;
-    case 3:
+    case 3: {
       if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
+      const lg3 = LINEAGES.find(l=>l.name===ch.lineage);
+      if (lg3 && lg3.traits.length > 1 && lg3.traitDetails && !ch.lineageTrait) {
+        alert(`Please choose a ${ch.lineage} sub-group (${lg3.traits.join(' or ')}) before continuing.`);
+        return false;
+      }
       return true;
+    }
     case 4:
       if (!ch.cls) { alert('Please choose a Class.'); return false; }
       const cls = CLASSES.find(c=>c.name===ch.cls);
@@ -868,12 +893,22 @@ function renderLineageGrid() {
 
 function selectLineage(name) {
   ch.lineage = name;
-  const lg = LINEAGES.find(l=>l.name===name);
+  ch.lineageTrait = null; // reset sub-trait when lineage changes
   renderLineageGrid();
+  renderLineageDetail();
+}
+
+function renderLineageDetail() {
+  if (!ch.lineage) return;
+  const lg = LINEAGES.find(l=>l.name===ch.lineage);
   const detail = document.getElementById('lineage-detail');
   detail.style.display = 'block';
-  detail.innerHTML = `
-    <div class="option-card selected" style="cursor:default">
+
+  const hasSubTraits = lg.traits.length > 1 && lg.traitDetails;
+
+  // Base info card
+  let html = `
+    <div class="option-card selected" style="cursor:default;margin-bottom:${hasSubTraits?'16px':'0'}">
       <div class="card-title" style="font-size:1.1rem">${lg.name} — Features</div>
       <div class="card-stats" style="margin:8px 0">
         <span class="stat-badge size">Size: ${lg.size}</span>
@@ -883,11 +918,49 @@ function selectLineage(name) {
         <span class="stat-badge">Reads: ${lg.langs.read.join(', ')}</span>
       </div>
       <div class="card-body" style="margin-top:10px">${lg.features}</div>
-      ${lg.traits.length > 1 ? `<div style="margin-top:10px;font-family:var(--font-ui);font-size:.85rem"><strong>Trait Sub-group:</strong> ${lg.traits.join(' or ')}</div>` : ''}
-    </div>
-  `;
-  // Update talent fields on step 8
-  ch.lineageBenefits = `${lg.name} Lineage: ${lg.features}`;
+    </div>`;
+
+  // Sub-trait chooser for Abysian and Sylvanik
+  if (hasSubTraits) {
+    html += `
+      <div style="margin-bottom:8px">
+        <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:10px">
+          Choose your ${lg.name} sub-group:
+        </div>
+        <div class="option-grid cols2">
+          ${lg.traits.map(traitKey => {
+            const td = lg.traitDetails[traitKey];
+            const isSelected = ch.lineageTrait === traitKey;
+            return `
+              <div class="option-card ${isSelected?'selected':''}" onclick="selectLineageTrait('${traitKey}')">
+                <div class="card-title">${td.label}</div>
+                <div class="card-body" style="margin-bottom:8px">${td.desc}</div>
+                <div style="font-family:var(--font-ui);font-size:.82rem;color:#444;white-space:pre-line">${td.features}</div>
+              </div>`;
+          }).join('')}
+        </div>
+        ${!ch.lineageTrait ? '<div class="warn-box" style="margin-top:10px">Please choose a sub-group before continuing.</div>' : ''}
+      </div>`;
+  }
+
+  detail.innerHTML = html;
+  // Update lineage benefits for step 8
+  updateLineageBenefits();
+}
+
+function selectLineageTrait(traitKey) {
+  ch.lineageTrait = traitKey;
+  renderLineageDetail();
+}
+
+function updateLineageBenefits() {
+  if (!ch.lineage) return;
+  const lg = LINEAGES.find(l=>l.name===ch.lineage);
+  if (lg.traitDetails && ch.lineageTrait && lg.traitDetails[ch.lineageTrait]) {
+    ch.lineageBenefits = `${lg.name} (${lg.traitDetails[ch.lineageTrait].label}): ${lg.traitDetails[ch.lineageTrait].features}`;
+  } else {
+    ch.lineageBenefits = `${lg.name} Lineage: ${lg.features}`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

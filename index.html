@@ -310,7 +310,8 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
       <textarea id="talent-lineage" rows="3" readonly style="background:#f8f7f4"></textarea>
     </div>
   </div>
-  <label class="field-label" style="margin-top:8px">Additional Talents (up to 9 — enter name, one per line)</label>
+  <div id="talent-browser" style="margin-bottom:20px"></div>
+  <label class="field-label" style="margin-bottom:8px">Your Selected Talents (Level 1 — all Rank 1)</label>
   <div id="talent-slots"></div>
 </div>
 
@@ -667,6 +668,7 @@ function goToStep(n) {
   updateProgress();
   updateNavBtns();
   window.scrollTo({top:0, behavior:'smooth'});
+  if (n===1) { renderArrayPicker(); if (ch.array !== null) renderAttrAssign(); }
   if (n===2) renderSkillList();
   if (n===3) { renderLineageGrid(); if (ch.lineage) renderLineageDetail(); }
   if (n===4) { renderClassGrid(); renderClassSkillChoices(); }
@@ -1211,9 +1213,12 @@ function getAvailableTalents() {
 }
 
 function renderTalentStep() {
-  // Auto-fill specialty and lineage
   const specEl = document.getElementById('talent-specialty');
   const lgEl   = document.getElementById('talent-lineage');
+  const autoEl = document.getElementById('auto-talents');
+  const browserEl = document.getElementById('talent-browser');
+  // Guard: if key elements don't exist yet, skip
+  if (!specEl || !autoEl || !browserEl) return;
   if (ch.specialty) {
     specEl.value = ch.specialty + ' Specialty Talent (Rank 1)';
     ch.specialtyTalent = ch.specialty + ' Specialty Talent';
@@ -1227,7 +1232,6 @@ function renderTalentStep() {
   const isMartial  = cls && (cls.name==='Fighter'||cls.name==='Vagabond');
   const isSorcery  = cls && (cls.name==='Magi'||cls.name==='Druid');
 
-  const autoEl = document.getElementById('auto-talents');
   autoEl.innerHTML = `
     <div class="info-box">
       <strong>Auto-granted from ${ch.cls||'your Class'}:</strong> Access to ${cls?cls.talents:'—'}.
@@ -1247,7 +1251,6 @@ function renderTalentStep() {
   if (isSorcery) sections.push({label:'Sorcery Talents', list: SORCERY_TALENTS, type:'sorcery'});
   sections.push({label:'General Talents', list: GENERAL_TALENTS, type:'general'});
 
-  const browserEl = document.getElementById('talent-browser');
   browserEl.innerHTML = sections.map(sec => `
     <div style="margin-bottom:20px">
       <h3 style="font-family:var(--font-ui);font-size:.9rem;font-weight:700;
@@ -1318,7 +1321,8 @@ function renderTalentSlots() {
 // STEP 9 — DETAILS
 // ═══════════════════════════════════════════════════════════════
 function renderDetailsStep() {
-  // Show specialty starting gear suggestion
+  const weaponSlots = document.getElementById('weapon-slots');
+  if (!weaponSlots) return; // not in DOM yet
   const gearBox = document.getElementById('suggested-gear-box');
   if (gearBox && ch.specialty && STARTING_GEAR[ch.specialty]) {
     const gearList = STARTING_GEAR[ch.specialty];
@@ -1641,26 +1645,25 @@ function startOver() {
 // INIT
 // ═══════════════════════════════════════════════════════════════
 function initAllSteps() {
+  // Safe init: only render steps that have been reached, or render defensively
   renderArrayPicker();
   if (ch.array !== null) {
-    document.getElementById('attr-assign').style.display = 'grid';
-    renderAttrAssign();
+    const aa = document.getElementById('attr-assign');
+    if (aa) { aa.style.display = 'grid'; renderAttrAssign(); }
   }
   renderSkillList();
   renderLineageGrid();
   if (ch.lineage) {
-    const lg = LINEAGES.find(l=>l.name===ch.lineage);
-    if (lg) {
-      const detail = document.getElementById('lineage-detail');
-      detail.style.display = 'block';
-    }
+    const detail = document.getElementById('lineage-detail');
+    if (detail) { detail.style.display = 'block'; renderLineageDetail(); }
   }
   renderClassGrid();
   if (ch.cls) renderClassSkillChoices();
   renderSpecialtyGrid();
   renderLifepath();
-  renderTalentStep();
-  renderDetailsStep();
+  // Only render step 8 & 9 if their key containers exist
+  if (document.getElementById('talent-browser')) renderTalentStep();
+  if (document.getElementById('weapon-slots'))   renderDetailsStep();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

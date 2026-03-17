@@ -220,6 +220,11 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <h2>Step 1 — Allocate Attributes</h2>
     <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
   </div>
+  <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
+    <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--muted)">Have a saved character?</div>
+    <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-early').click()">📂 Load Saved Progress</button>
+    <input type="file" id="load-file-early" accept=".json" style="display:none" onchange="loadJSON(event)">
+  </div>
   <div class="info-box">Choose an array, then assign each number to one Attribute. The class bonus in Step 4 adds +1 to one Attribute, bringing the total to 6 by the end of creation.</div>
   <div class="array-grid" id="array-picker"></div>
   <div id="attr-assign" style="display:none"></div>
@@ -317,7 +322,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
   </div>
   <div class="form-row cols2">
     <div><label class="field-label">Character Name *</label><input type="text" id="char-name" placeholder="Enter name..."></div>
-    <div><label class="field-label">Level</label><input type="number" id="char-level" value="1" min="1" max="20"></div>
+    <div><label class="field-label">Level</label><input type="number" id="char-level" value="1" min="1" max="1" readonly style="background:#f8f7f4;color:var(--muted)"><div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);margin-top:4px">This builder creates Level 1 characters only.</div></div>
   </div>
   <div class="form-row cols3">
     <div><label class="field-label">Height</label><input type="text" id="char-height" placeholder="e.g. 5'10&quot;"></div>
@@ -329,6 +334,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
   </div>
 
   <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Gear & Weapons</h3>
+  <div id="suggested-gear-box" style="display:none;margin-bottom:16px"></div>
   <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:14px">Record up to 5 weapons/spell attacks and up to 6 equipment slots.</p>
 
   <div id="weapon-slots"></div>
@@ -535,19 +541,19 @@ const SPECIALTIES = {
   Guardian:    {cls:'Fighter',  resource:'Focus Points',  desc:'Formidable knights in Plate armor who protect allies and absorb punishment. Specialty Talent ranks up automatically at certain levels.'},
   Berserker:   {cls:'Fighter',  resource:'Stamina Points', desc:'Wild warriors who embrace pain and deal devastating damage through reckless ferocity.'},
   Engineer:    {cls:'Fighter',  resource:'Energy Points',  desc:'Master tacticians who deploy innovative Constructs to control the battlefield.'},
-  Pugilist:    {cls:'Fighter',  resource:null,             desc:'Unarmed combat masters who shift between powerful stances to amplify their prowess.'},
+  Pugilist:    {cls:'Fighter',  resource:'Stamina Points',             desc:'Unarmed combat masters who shift between powerful stances to amplify their prowess.'},
   Sharpshooter:{cls:'Vagabond', resource:'Focus Points',   desc:'Precision marksmen who strike from afar with unparalleled accuracy.'},
   Elemancer:   {cls:'Vagabond', resource:'Energy Points',  desc:'Warriors who infuse their attacks with elemental forces through the ancient art of Elemancy.'},
   Alchemist:   {cls:'Vagabond', resource:'Energy Points',  desc:'Crafters of potent Elixirs, Poisons, and Oils who prepare extensively before battle.'},
   Reaver:      {cls:'Vagabond', resource:'Stamina Points', desc:'Dark art practitioners who draw power from Reapers of the Necropolis.'},
   Spellweaver: {cls:'Magi',     resource:'Focus Points',   desc:'Knowledge channelers who empower and amplify their Spellcraft for maximum effect.'},
-  Warlock:     {cls:'Magi',     resource:'Energy Points',  desc:'Pact-makers who draw power from otherworldly entities and forbidden Sorce.'},
+  Warlock:     {cls:'Magi',     resource:'Contracts (special resource)',  desc:'Pact-makers who draw power from otherworldly entities and forbidden Sorce.'},
   Oracle:      {cls:'Magi',     resource:'Focus Points',   desc:'Gifted seers who perceive thoughts, read fate, and predict enemies\' movements.'},
   Witch:       {cls:'Magi',     resource:'Stamina Points', desc:'Enchanters who bend chaotic wild magic to bewitch and manipulate.'},
   Shapeshifter:{cls:'Druid',    resource:'Stamina Points', desc:'Druids who transform into animal forms and emulate the myriad creatures of nature.'},
   Summoner:    {cls:'Druid',    resource:'Energy Points',  desc:'Druid-bonded spirit callers who summon powerful companions from the Shroud.'},
   Sonneteer:   {cls:'Druid',    resource:'Focus Points',   desc:'Word-wielders who use song and speech to empower allies and enchant foes.'},
-  Cleric:      {cls:'Druid',    resource:null,             desc:'Divine healers who channel ideals to mend wounds and bolster allies\' spirits.'},
+  Cleric:      {cls:'Druid',    resource:'Energy Points',             desc:'Divine healers who channel ideals to mend wounds and bolster allies\' spirits.'},
 };
 
 const LIFEPATH = {
@@ -615,6 +621,14 @@ const LIFEPATH = {
   ],
 };
 
+
+// ── Talent Lists ───────────────────────────────────────────────────────
+const MARTIAL_TALENTS = ['Boar Style', 'Brawler', 'Calvary Fighter', 'Crane Style', 'Defender', 'Dragon Style', 'Duelist', 'Ignore Pain', 'Mantis Style', 'Master of Defense', 'Opportunist', 'Porcupine Style', 'Primal Style', 'Rabbit Style', 'Rubber Style', 'Sniper Style', 'Tiger Style', 'Tortoise Style', 'Viper Style', 'Wolf Style'];
+const SORCERY_TALENTS = ['Elemental Attunement', 'Innate Magic', 'Megamind', 'Mental Shield', 'Runic Magic', 'Spell Slinger', 'Study of Aeromancy', 'Study of Blood', 'Study of Contagion', 'Study of Cryomancy', 'Study of Death', 'Study of Displacement', 'Study of Divinity', 'Study of Geomancy', 'Study of Illusion', 'Study of Pyromancy', 'Study of Recovery', 'Study of Shadows', 'Twist Magicka', 'War Caster'];
+const GENERAL_TALENTS = ['Academic', 'Angelic Blood', 'Animal Ally', 'Animal Friendship', 'Backseat Braining', 'Caster Initiate', 'Demonic Blood', 'Field Medic', 'Full Dodge', 'Heckler', 'Inspiring', 'Intimidating', 'Keen Eyes', 'Linguist', 'Look Over There', 'Luck of the Gods', 'Master Spy', 'Min Max', 'Mobile', 'Naturally Gifted', 'Skilled', 'Sneaky', 'Steady Hands', 'Steel Body', 'Steel Mind', 'Steel Muscles', 'Steel Nerves', 'Strong Arm', 'Sturdy', 'Vigilant', 'Warfare Initiate'];
+
+// ── Starting Gear by Specialty ─────────────────────────────────────────
+const STARTING_GEAR = {'Guardian': ['Short sword, hand axe, or hammer', 'Small shield', 'Quilted Vest or Layered Plate Armor'], 'Berserker': ['Long sword, mace, or battle axe', 'Quilted Vest or Layered Plate armor'], 'Engineer': ['Shortsword or flintlock pistol', 'Small shield or bullet pouch', 'Quilted Vest or Layered Plate armor', 'Engineer tool kit'], 'Pugilist': ['Quilted Vest or Layered Plate armor'], 'Sharpshooter': ['Short bow, pistol, or light crossbow', 'Arrow quiver, bolt pouch, or bullet pouch', 'Quilted Vest or Light Leather armor'], 'Elemancer': ['Short sword, mace, battle axe, or dagger', 'Quilted Vest or Light Leather armor'], 'Alchemist': ['Short sword or short bow', 'Dagger or arrow quiver', 'Quilted Vest or Light Leather armor', 'Alchemy kit'], 'Reaver': ['Short sword or short bow', 'Dagger or arrow quiver', 'Quilted Vest or Light Leather armor'], 'Spellweaver': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Warlock': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Oracle': ['Arcane wand or arcane staff', 'Quilted Vest or Light Leather armor'], 'Witch': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Shapeshifter': ['Arcane wand or longsword', 'Reinforced Tunic or Brigandine armor set'], 'Summoner': ['Arcane wand, shortbow with arrow quiver, or shortsword', 'Quilted Vest or Light Leather armor'], 'Sonneteer': ['Arcane wand or arcane instrument', '2 daggers', 'Quilted Vest armor'], 'Cleric': ['Arcane staff or mace', 'Quilted Vest or Layered Plate armor']};
 // ═══════════════════════════════════════════════════════════════
 // CHARACTER STATE
 // ═══════════════════════════════════════════════════════════════
@@ -642,8 +656,7 @@ let ch = {
 
 let currentStep = 1;
 const TOTAL_STEPS = 10;
-</script>
-<script>
+
 // ═══════════════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════════
@@ -1186,6 +1199,17 @@ function renderStatusPoints() {
 // ═══════════════════════════════════════════════════════════════
 // STEP 8 — TALENTS
 // ═══════════════════════════════════════════════════════════════
+function getAvailableTalents() {
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  if (!cls) return [];
+  const isMartial  = cls.name==='Fighter' || cls.name==='Vagabond';
+  const isSorcery  = cls.name==='Magi'    || cls.name==='Druid';
+  const pool = [...GENERAL_TALENTS];
+  if (isMartial) pool.push(...MARTIAL_TALENTS);
+  if (isSorcery) pool.push(...SORCERY_TALENTS);
+  return pool.sort();
+}
+
 function renderTalentStep() {
   // Auto-fill specialty and lineage
   const specEl = document.getElementById('talent-specialty');
@@ -1195,51 +1219,124 @@ function renderTalentStep() {
     ch.specialtyTalent = ch.specialty + ' Specialty Talent';
   }
   if (ch.lineage) {
-    const lg = LINEAGES.find(l=>l.name===ch.lineage);
-    const featureText = `${lg.name}: ${lg.features.substring(0,200)}...`;
-    lgEl.value = featureText;
-    ch.lineageBenefits = featureText;
+    updateLineageBenefits();
+    lgEl.value = ch.lineageBenefits || '';
   }
+
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  const isMartial  = cls && (cls.name==='Fighter'||cls.name==='Vagabond');
+  const isSorcery  = cls && (cls.name==='Magi'||cls.name==='Druid');
 
   const autoEl = document.getElementById('auto-talents');
-  const cls = CLASSES.find(c=>c.name===ch.cls);
   autoEl.innerHTML = `
     <div class="info-box">
-      <strong>Auto-granted from ${ch.cls || 'Class'}:</strong> Access to ${cls ? cls.talents : '—'}.
-      ${ch.cls==='Magi'||ch.cls==='Druid' ? `Spellcasting Attribute: ${CLASSES.find(c=>c.name===ch.cls).spellcasting}.` : ''}
+      <strong>Auto-granted from ${ch.cls||'your Class'}:</strong> Access to ${cls?cls.talents:'—'}.
+      ${isSorcery ? `Spellcasting Attribute: ${cls.spellcasting}.` : ''}
     </div>
-  `;
+    <div class="info-box" style="margin-top:8px">
+      At Level 1 you may select <strong>up to 2 General Talents</strong>
+      ${isMartial ? 'and <strong>up to 1 Martial Talent</strong>' : ''}
+      ${isSorcery ? 'and <strong>up to 1 Sorcery Talent</strong>'  : ''}
+      from the lists below. All are taken at <strong>Rank 1</strong>.
+    </div>`;
 
+  // Talent browser
+  const pool = getAvailableTalents();
+  const sections = [];
+  if (isMartial) sections.push({label:'Martial Talents', list: MARTIAL_TALENTS, type:'martial'});
+  if (isSorcery) sections.push({label:'Sorcery Talents', list: SORCERY_TALENTS, type:'sorcery'});
+  sections.push({label:'General Talents', list: GENERAL_TALENTS, type:'general'});
+
+  const browserEl = document.getElementById('talent-browser');
+  browserEl.innerHTML = sections.map(sec => `
+    <div style="margin-bottom:20px">
+      <h3 style="font-family:var(--font-ui);font-size:.9rem;font-weight:700;
+                 text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+                 margin-bottom:10px">${sec.label}</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">
+        ${sec.list.map(t => {
+          const alreadyPicked = (ch.talents||[]).includes(t);
+          return `<button onclick="addTalent('${t.replace(/'/g,"\\'")}', this)"
+            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;
+                   cursor:pointer;border-radius:20px;transition:all .12s;
+                   border:2px solid ${alreadyPicked?'var(--safe)':'var(--rule)'};
+                   background:${alreadyPicked?'#d1fae5':'#fff'};
+                   color:${alreadyPicked?'var(--safe)':'var(--ink)'}"
+            ${alreadyPicked?'disabled':''}>
+            ${t} ${alreadyPicked?'✓':''}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  renderTalentSlots();
+}
+
+function addTalent(name, btn) {
+  if (!ch.talents) ch.talents = Array(9).fill('');
+  const emptyIdx = ch.talents.findIndex(t => !t);
+  if (emptyIdx === -1) { alert('All 9 talent slots are filled. Remove one first.'); return; }
+  ch.talents[emptyIdx] = name;
+  renderTalentStep();
+}
+
+function removeTalent(idx) {
+  ch.talents[idx] = '';
+  renderTalentStep();
+}
+
+function renderTalentSlots() {
   const container = document.getElementById('talent-slots');
   container.innerHTML = '';
-  for (let i = 0; i < 9; i++) {
+
+  const filled = (ch.talents||[]).map((t,i)=>({t,i})).filter(x=>x.t);
+  const empty  = (ch.talents||[]).map((t,i)=>({t,i})).filter(x=>!x.t);
+  const all    = [...filled, ...empty.slice(0, 9-filled.length)];
+
+  all.slice(0,9).forEach(({t,i}) => {
     const row = document.createElement('div');
-    row.className = 'form-row cols2';
-    row.style.marginBottom = '8px';
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:7px';
     row.innerHTML = `
-      <div>
-        <label class="field-label">Talent ${i+1}</label>
-        <input type="text" value="${ch.talents[i]||''}"
-               placeholder="e.g. Tiger Style, Primal Style..."
-               onchange="ch.talents[${i}]=this.value">
-      </div>
-      <div>
-        <label class="field-label">Rank</label>
-        <select class="full" onchange="ch.talentRanks=(ch.talentRanks||[]); ch.talentRanks[${i}]=+this.value">
-          <option value="1">Rank 1</option><option value="2">Rank 2</option>
-          <option value="3">Rank 3</option><option value="4">Rank 4</option>
-          <option value="5">Rank 5</option>
-        </select>
-      </div>
+      <span style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;
+                   color:var(--muted);min-width:20px;text-align:right">${i+1}</span>
+      <input type="text" value="${t||''}"
+             style="flex:1;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;
+                    font-family:var(--font-ui);font-size:.88rem"
+             placeholder="Type or click a talent above..."
+             onchange="ch.talents[${i}]=this.value;renderTalentStep()">
+      ${t ? `<button onclick="removeTalent(${i})"
+               style="padding:5px 10px;background:#fee2e2;border:1px solid #fca5a5;
+                      border-radius:6px;cursor:pointer;font-size:.8rem;color:var(--danger);
+                      font-family:var(--font-ui);font-weight:600">✕</button>` : ''}
     `;
     container.appendChild(row);
-  }
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
 // STEP 9 — DETAILS
 // ═══════════════════════════════════════════════════════════════
 function renderDetailsStep() {
+  // Show specialty starting gear suggestion
+  const gearBox = document.getElementById('suggested-gear-box');
+  if (gearBox && ch.specialty && STARTING_GEAR[ch.specialty]) {
+    const gearList = STARTING_GEAR[ch.specialty];
+    gearBox.style.display = 'block';
+    gearBox.innerHTML = `
+      <div class="info-box">
+        <strong>${ch.specialty} Starting Gear:</strong>
+        <ul style="margin:6px 0 0 18px">
+          ${gearList.map(g=>`<li>${g}</li>`).join('')}
+        </ul>
+        <div style="margin-top:8px">
+          <button onclick="applyStartingGear()" class="btn btn-secondary"
+                  style="padding:6px 14px;font-size:.82rem">
+            ✦ Auto-fill Equipment Slots from Starting Gear
+          </button>
+        </div>
+      </div>`;
+  }
   // Weapon slots
   const wContainer = document.getElementById('weapon-slots');
   wContainer.innerHTML = '';
@@ -1481,9 +1578,6 @@ async function exportPDF() {
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => set(talentFields[i], t));
 
-    // Flatten form (makes fields visible without need for Acrobat)
-    form.flatten();
-
     const filledBytes = await pdf.save();
     const blob = new Blob([filledBytes], { type:'application/pdf' });
     const url = URL.createObjectURL(blob);
@@ -1528,6 +1622,14 @@ function loadJSON(event) {
     }
   };
   reader.readAsText(file);
+}
+
+function applyStartingGear() {
+  if (!ch.specialty || !STARTING_GEAR[ch.specialty]) return;
+  const gear = STARTING_GEAR[ch.specialty];
+  // Fill equipment slots (armor is slot 0, others go to belt/back)
+  gear.forEach((item, i) => { if (i < 6) ch.equip[i] = item; });
+  renderDetailsStep();
 }
 
 function startOver() {

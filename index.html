@@ -204,11 +204,12 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <div class="prog-step" data-step="3"><div class="prog-dot">3</div><div class="prog-label">Lineage</div></div>
     <div class="prog-step" data-step="4"><div class="prog-dot">4</div><div class="prog-label">Class</div></div>
     <div class="prog-step" data-step="5"><div class="prog-dot">5</div><div class="prog-label">Specialty</div></div>
-    <div class="prog-step" data-step="6"><div class="prog-dot">6</div><div class="prog-label">Lifepath</div></div>
-    <div class="prog-step" data-step="7"><div class="prog-dot">7</div><div class="prog-label">Status Points</div></div>
-    <div class="prog-step" data-step="8"><div class="prog-dot">8</div><div class="prog-label">Talents</div></div>
-    <div class="prog-step" data-step="9"><div class="prog-dot">9</div><div class="prog-label">Details</div></div>
-    <div class="prog-step" data-step="10"><div class="prog-dot">10</div><div class="prog-label">Export</div></div>
+    <div class="prog-step" data-step="6"><div class="prog-dot">6</div><div class="prog-label">Gear</div></div>
+    <div class="prog-step" data-step="7"><div class="prog-dot">7</div><div class="prog-label">Lifepath</div></div>
+    <div class="prog-step" data-step="8"><div class="prog-dot">8</div><div class="prog-label">Status Points</div></div>
+    <div class="prog-step" data-step="9"><div class="prog-dot">9</div><div class="prog-label">Talents</div></div>
+    <div class="prog-step" data-step="10"><div class="prog-dot">10</div><div class="prog-label">Details</div></div>
+    <div class="prog-step" data-step="11"><div class="prog-dot">11</div><div class="prog-label">Export</div></div>
   </div>
 </div>
 
@@ -269,8 +270,17 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
   <div class="option-grid cols2" id="specialty-grid"></div>
 </div>
 
-<!-- ═══════════ STEP 6: LIFEPATH ═══════════ -->
+<!-- ═══════════ STEP 6: GEAR ═══════════ -->
 <div class="step-panel" id="step-6">
+  <div class="step-header">
+    <h2>Step 6 — Starting Gear &amp; Currency</h2>
+    <p>Your Specialty determines the gear and currency you begin the game with.</p>
+  </div>
+  <div id="gear-step-content"></div>
+</div>
+
+<!-- ═══════════ STEP 7: LIFEPATH ═══════════ -->
+<div class="step-panel" id="step-7">
   <div class="step-header">
     <h2>Step 6 — Create a Lifepath</h2>
     <p>Click a row to select it, or type your own. These shape your character's backstory.</p>
@@ -279,7 +289,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 </div>
 
 <!-- ═══════════ STEP 7: STATUS POINTS ═══════════ -->
-<div class="step-panel" id="step-7">
+<div class="step-panel" id="step-8">
   <div class="step-header">
     <h2>Step 7 — Status Points</h2>
     <p>Your stats are calculated automatically from your Attributes.</p>
@@ -292,7 +302,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 </div>
 
 <!-- ═══════════ STEP 8: TALENTS ═══════════ -->
-<div class="step-panel" id="step-8">
+<div class="step-panel" id="step-9">
   <div class="step-header">
     <h2>Step 8 — Record Talents</h2>
     <p>Write down the Talents gained from your Lineage, Specialty, and any General Talents you've selected. These appear on page 3 of your character sheet.</p>
@@ -316,7 +326,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 </div>
 
 <!-- ═══════════ STEP 9: DETAILS ═══════════ -->
-<div class="step-panel" id="step-9">
+<div class="step-panel" id="step-10">
   <div class="step-header">
     <h2>Step 9 — Character Details</h2>
     <p>Fill in your character's name, appearance, and starting gear.</p>
@@ -334,14 +344,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <div><label class="field-label">Character Notes / Appearance</label><textarea id="char-notes" rows="4" placeholder="Appearance, background notes, personality details..."></textarea></div>
   </div>
 
-  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Gear & Weapons</h3>
-  <div id="suggested-gear-box" style="display:none;margin-bottom:16px"></div>
-  <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:14px">Record up to 5 weapons/spell attacks and up to 6 equipment slots.</p>
-
-  <div id="weapon-slots"></div>
-
-  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Equipment Inventory</h3>
-  <div id="equip-slots"></div>
+  <div id="suggested-gear-box" style="display:none"></div>
 
   <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Currency</h3>
   <div class="form-row cols3">
@@ -355,7 +358,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 </div>
 
 <!-- ═══════════ STEP 10: EXPORT ═══════════ -->
-<div class="step-panel" id="step-10">
+<div class="step-panel" id="step-11">
   <div class="step-header">
     <h2>Step 10 — Export Character Sheet</h2>
     <p>Review your character, then export to the Realms of Legacy PDF character sheet.</p>
@@ -413,78 +416,142 @@ const SKILLS = {
 };
 
 const LINEAGES = [
-  {name:'Abysian',  type:'Traditional', size:'Medium', speed:30,  height:"5'–8'",
+  {name:'Abysian', type:'Traditional', size:'Medium', speed:30, height:"5'–8'",
    langs:{speak:['Sybus','Gaian'], read:['Sybus','Gaian']},
-   desc:'Feline Humanoids that are mobile and sturdy.',
+   desc:'Feline Humanoids that are mobile and sturdy. Mature at 30, live to ~150.',
    traits:['Highlander','Kogon'],
    traitDetails:{
-     Highlander:{label:'Highlander', desc:'Nimble Abysians with more Humanoid features in their face and limbs.',
-       features:'Catlike Reflexes (Major Trait): Use a Quick action to move up to 15 ft without provoking Opportunity Strikes. Cannot use more than once per round.\n\nMountain Climber (Minor Trait): Gain a Climb Speed equal to your base Speed.'},
-     Kogon:{label:'Kogon', desc:'Thicker Abysians with more feline-like physiology in their faces and limbs.',
-       features:'For the Hunt (Major Trait): Use a Quick action to move up to 30 ft until the end of your turn. Cannot use more than once per round.\n\nStubborn (Minor Trait): When you start your turn at 0 HP, regain up to 12 HP. Cannot use again until you finish an Intermission.'},
+     Highlander:{
+       label:'Highlander',
+       desc:'These nimble Abysians have more Humanoid features and physiology in their face and limbs.',
+       features:`Catlike Reflexes (Major Trait): You can use a Quick action to move up to 15 feet without provoking Opportunity Strikes. You cannot use this trait more than once in a round.
+
+Mountain Climber (Minor Trait): Gain a Climb Speed equal to your base Speed.`
+     },
+     Kogon:{
+       label:'Kogon',
+       desc:'These thicker Abysians have a more feline-like physiology in their faces and limbs.',
+       features:`For the Hunt (Major Trait): You can use a Quick action to move up to 30 feet until the end of your turn. You cannot use this trait more than once in a round.
+
+Stubborn (Minor Trait): When you start your turn with 0 HP, you can use this trait to regain up to 12 HP. You cannot use this trait again until you finish an Intermission.`
+     },
    },
-   features:'Choose Highlander or Kogon sub-group below.'},
-  {name:'Dryvorn',  type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   features:'Choose a sub-group below.'},
+
+  {name:'Dryvorn', type:'Traditional', size:'Medium', speed:30, height:"4'–7'",
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
-   desc:'Dragon-blessed Humanoids attuned to a special element.',
-   traits:['Dragon Bloodline (choose one)'],
-   features:'Draconic Ancestry: Choose a Dragon Bloodline for elemental resistance and a breath weapon. Draconic Sight: Nightvision up to 60 feet.'},
-  {name:'Fueglins', type:'Traditional', size:'Small',  speed:30,  height:"2'–4'",
+   desc:'Dragon-blessed Humanoids attuned to a special element. Mature at 19, live to ~135.',
+   traits:['Dragon Bloodline'],
+   features:`Dragon Breath (Major Trait): You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is dependent on your Dragon Bloodline. The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.
+
+Dragon Resistance (Minor Trait): Your HP gains resistance to the damage type associated with your Dragon Bloodline.
+
+Dragon Bloodlines — choose one: Ravano (Red, Fire) | Golgun (Green, Acid) | Voivern (Black, Necrotic) | Sargon (Yellow, Radiant) | Byvern (White, Frost) | Thundron (Blue, Electric)`},
+
+  {name:'Fueglins', type:'Traditional', size:'Small', speed:30, height:"3'–4'",
    langs:{speak:['Fuegi','Gaian'], read:['Sylvan','Gaian']},
-   desc:'Small fungus people that can consume corpses to gain memories.',
-   traits:['Fungal'],
-   features:'Memory Consumption: By spending 10 min consuming a corpse, you can access the deceased\'s recent memories. Spore Cloud: Once per Intermission, release spores in a 10-ft radius causing a -1 modifier to checks for nearby creatures.'},
-  {name:'Guodons',  type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   desc:'Small fungus people who can consume corpses to gain memories. Mature at 10, live to ~80.',
+   traits:['Fueglin'],
+   features:`Small and Nimble (Major Trait): When you make a Move save and fail, you can use this trait to gain 1 success. You cannot use this trait on a Pushed check. Once you use this trait, you cannot use it again until you finish an Intermission. If you take this trait in a mixed Lineage or as part of an otherworldly Lineage, your creature size becomes Small.
+
+Taste of the Past (Minor Trait): You gain a +2 modifier on Endure checks against Poisons or Diseases gained from eating contaminated meat. When near a corpse, you can use this trait to consume a part of it. When you do so, you gain one memory of the creature whose corpse you consumed. You can pick a time and day when you think the creature was alive, and the GM determines what is revealed in that memory. Memories can be clear or cryptic. You cannot gain more than one memory from a single dead creature with this trait. Once you've used this trait three times, you must finish a Light or Full Rest before you can use it again.`},
+
+  {name:'Guodons', type:'Traditional', size:'Medium', speed:30, height:"6'–8'",
    langs:{speak:['Godun','Gaian'], read:['Eldar','Gaian']},
-   desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia.',
-   traits:['Titan-Touched'],
-   features:'Titanic Resilience: Resistance to one damage type of your choice. Titan\'s Will: Once per Full Rest, when you would be reduced to 0 HP, remain at 1 HP instead.'},
-  {name:'Humans',   type:'Traditional', size:'Small/Medium', speed:30, height:"3'–6'",
+   desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia. Mature at 20, live to ~120.',
+   traits:['Guodon'],
+   features:`Titan Blood (Major Trait): When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.
+
+Thick Build (Minor Trait): You can wield heavy weapons and shields in one hand but cannot wield more than one at once.`},
+
+  {name:'Humans', type:'Traditional', size:'Small or Medium', speed:30, height:"3'–6'",
    langs:{speak:['Hunon','Gaian'], read:['Aquon','Gaian']},
-   desc:'Resilient Humanoids that spread and adapt to other societies.',
-   traits:['Adaptive'],
-   features:'Adaptive Nature: Gain one additional General Talent at character creation. Determined: Once per Long Rest, reroll any one die after seeing the result.'},
-  {name:'Ocotos',   type:'Traditional', size:'Medium', speed:30,  height:"4'–6'",
+   desc:'Resilient Humanoids that spread and adapt to other societies. Mature at 24, live to ~80.',
+   traits:['Human'],
+   features:`Human Recovery (Major Trait): After you roll dice to gain a Wound, you can use this trait to change one of those dice results to a 1. Once you use this trait, you can't use it again until you finish an Intermission.
+
+Beyond Limits (Minor Trait): You can Push a check that you have gained a success in, potentially making it a critical or supercritical success but also risking a Break. Once you have used this trait, you can't do so again until you finish an Intermission.`},
+
+  {name:'Ocotos', type:'Traditional', size:'Medium', speed:30, height:"4'–6'",
    langs:{speak:['Aquon','Gaian'], read:['Aquon','Gaian']},
-   desc:'Cephalopod Humanoids — last surviving nobility from the lost world.',
-   traits:['Noble Cephalopod'],
-   features:'Chromatic Skin: Use a Quick action to camouflage, gaining Hidden if stationary. Ink Cloud: Once per Intermission, create a 10-ft radius ink cloud (obscures vision in water/air).'},
-  {name:'Pridae',   type:'Traditional', size:'Medium', speed:30,  height:"4'–6'",
+   desc:'Cephalopod Humanoids — last surviving nobility from the lost world. Mature at 18, live to ~92.',
+   traits:['Ocoto'],
+   features:`Colorful Skin (Major Trait): Ocotos can change the color of their skin at will and match it to their surroundings. When not wearing Plate armor, Ocotos can use a Quick action to Camouflage. While in Camouflage, you gain the Obscured Condition against creatures that are more than 5 feet away from you. Camouflage lasts until you attack, cast a Spell, or physically interact with another creature. While in Camouflage, every 1 foot of movement costs 2 feet of Speed.
+
+Deep Sea Creature (Minor Trait): You can breathe underwater and have a Swim Speed equal to your base Speed. Your HP also gains resistance against Force damage.`},
+
+  {name:'Pridae', type:'Traditional', size:'Medium', speed:30, height:"4'–6'",
    langs:{speak:['Prado','Gaian'], read:['Sybus','Gaian']},
-   desc:'Insectoid creatures from the deep underground of Gaia.',
-   traits:['Evolved Purpose (choose one)'],
-   features:'Evolved Purpose: Select one of several evolutionary traits from your colony. Chitinous Hide: Natural DP equal to 2 while unarmored.'},
-  {name:'Sylvaniks',type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   desc:'Insectoid creatures from the deep underground of Gaia. Mature at 15, live to ~90.',
+   traits:['Pridae'],
+   features:`Evolved Purpose (Major Trait): Pridae in a colony are often given an evolutionary trait that can vary from colony to colony. When making a Pridae, select one of the following traits to gain. Once chosen, this trait cannot be changed.
+• Hardened Shell: Your max DP when wearing an armor set is increased by 5 (doubled at Level 10). If not wearing an armor set, you gain Natural DP equal to this bonus.
+• Small Wings: You have a pair of small hidden wings. Use a Quick action to gain a Fly Speed equal to your base Speed until the end of your turn.
+• Enhanced Antennae: You can telepathically speak with creatures you can see within 30 feet. You understand each other as long as both speak a common language.
+
+Additional Arms (Minor Trait): Pridae have two additional smaller arms. These arms function like regular arms except they cannot use weapons without the Light Feature, nor wield shields. You can use these arms to perform the Interact action as a Free action once per turn.`},
+
+  {name:'Sylvaniks', type:'Traditional', size:'Medium', speed:30, height:"5'–7'",
    langs:{speak:['Sylvan','Gaian'], read:['Sylvan','Gaian']},
-   desc:'Plant-based Humanoids with a connection to knowledge and wisdom.',
+   desc:'Plant-based Humanoids with a connection to knowledge and wisdom. Mature at 30, live to ~600.',
    traits:['Sunlight','Midnight'],
    traitDetails:{
-     Sunlight:{label:'Sunlight Sylvanik', desc:'Sylvaniks who thrive in daylight and open spaces.',
-       features:'Photosynthesis (Major Trait): During a Light or Full Rest taken in sunlight, you regain additional Recovery Dice equal to your Empathy Rank.\n\nSolar Skin (Minor Trait): While in direct sunlight, gain a +1 modifier to all Empathy checks.'},
-     Midnight:{label:'Midnight Sylvanik', desc:'Sylvaniks adapted to darkness and shadow.',
-       features:'Bioluminescence (Minor Trait): Your body emits light in a 10-ft radius. You gain Nightvision up to 60 feet.\n\nNight Bloom (Major Trait): During a Light or Full Rest taken in darkness, you regain additional Recovery Dice equal to your Wits Rank.'},
+     Sunlight:{
+       label:'Sunlight',
+       desc:'Sunlight Sylvaniks.',
+       features:`One with Nature (Major Trait): You gain the ability to talk with Beasts and commune with Plants. When communing with a Plant, you must touch it over the course of 1 minute, and the Plant must be alive. During that minute, you see the Plant's memories of its surroundings in the past 24 hours.
+
+Blessed Health (Minor Trait): You know how to make the most out of your meditations. When you expend a Recovery die toward your HP or MP, you replenish an additional 2 Status Points per Recovery die spent.`
+     },
+     Midnight:{
+       label:'Midnight',
+       desc:'Midnight Sylvaniks.',
+       features:`Mind Over Matter (Major Trait): When you start your turn with the Dazed or Shocked condition, you can use this trait as a Free Action to cleanse yourself of it. Once you use this trait, you cannot use it again until you finish an Intermission.
+
+Enhanced Meditation (Minor Trait): When you expend a Recovery die toward your Sorce Points, you replenish an additional 3 Sorce Points per Recovery die spent.`
+     },
    },
-   features:'Choose Sunlight or Midnight sub-group below.'},
-  {name:'Armorai',  type:'Otherworldly',size:'Medium', speed:30,  height:"5'–6'",
+   features:'Choose a sub-group below.'},
+
+  {name:'Armorai', type:'Otherworldly', size:'Medium', speed:30, height:"5'–6'",
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
-   desc:'Living crystals that infect suits of armor to gain a body.',
-   traits:['Crystal Construct'],
-   features:'Crystalline Body: You do not need to eat, sleep, or breathe. Living Armor: Your armor slots are part of your body; donning/doffing takes 1 minute instead of 5.'},
-  {name:'Darkaen',  type:'Otherworldly',size:'Medium', speed:30,  height:"5'–7'",
-   langs:{speak:['Abyssal','Gaian'], read:['Abyssal','Gaian']},
-   desc:'Demons created from the souls of Gaians.',
-   traits:['Demon-Touched'],
-   features:'Shadow Step: Once per Short Rest, teleport up to 30 ft to an unoccupied space you can see in dim light or darkness. Dark Resistance: Resistance to Necrotic damage.'},
-  {name:'Ozonian',  type:'Otherworldly',size:'Small/Medium', speed:30, height:"3'–6'",
-   langs:{speak:['One traditional language'],read:['One traditional language']},
+   desc:'Living crystals that infect suits of armor to gain a body. Constructs — do not age.',
+   traits:['Armorai'],
+   features:`Construct Nature: Your HP is special as you are completely made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. You can still wear and benefit from armor sets as normal. When you wear an armor set, you attach it to your body as a fortification instead of wearing it. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you.
+
+Iron Veins: You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You still must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.
+
+Creatures of Logic: You gain resistance to Fear damage but have a -4 modifier on all Empathy checks. When creating or playing as an Armorai, you can choose not to follow this path, removing the Creatures of Logic trait from your Lineage Talent.`},
+
+  {name:'Darkaen', type:'Otherworldly', size:'Medium', speed:30, height:"4'–6'",
+   langs:{speak:['Demoid','Gaian'], read:['Demoid','Gaian']},
+   desc:'Demons created from the souls of Gaians. Mature at 18, live to ~666 years.',
+   traits:['Darkaen'],
+   features:`Night Flight: You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.
+
+Shadow Eyes: You gain Gloom Vision.
+
+Unholy: Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.`},
+
+  {name:'Ozonian', type:'Otherworldly', size:'Small or Medium', speed:30, height:"3'–6'",
+   langs:{speak:["One traditional language (player's choice)",'Gaian'], read:["One traditional language (player's choice)",'Gaian']},
    desc:'Humanoid Slimes with the ability to shift and look like other Lineages.',
-   traits:['Ooze Form'],
-   features:'Shapeshifter: Use a Standard action to change your appearance to any Lineage you have observed. You retain your own stats. Amorphous: You can squeeze through spaces as small as 1 inch.'},
-  {name:'Undead',   type:'Otherworldly',size:'Varies', speed:30,  height:'Varies',
+   traits:['Ozonian'],
+   features:`Fluid Identity: As a Standard action, you can change your physical appearance to look and feel like another Humanoid that is the same size as you. This includes their race, sex, skin color, hair length, and height (slightly). You cannot change your voice, and your clothes and equipment do not change. If you transform into a race with additional limbs, you grow those limbs, but they are vestigial and cannot be used outside of basic movement.
+
+Slippery: When Grappled, you can spend a Quick action to end the Condition on yourself. You may also squeeze through openings as if you were one size smaller.
+
+Liquid Form: Your HP gains vulnerability to Frost damage. When your HP is struck with Frost damage and you are in the identity of a different creature, your Fluid Identity cracks and you return to normal.`},
+
+  {name:'Undead', type:'Otherworldly', size:'Varies', speed:30, height:'Varies',
    langs:{speak:['Necrosis','Gaian'], read:['Necrosis','Gaian']},
-   desc:'A soul bound to their corpse or another\'s.',
-   traits:['Undead Nature'],
-   features:'Undying: You do not need to eat, breathe, or sleep. You are immune to Disease. Death Defying: Once per Full Rest, when reduced to 0 HP, drop to 1 HP instead.'},
+   desc:'A soul bound to their corpse or another\'s. Cannot age.',
+   traits:['Undead'],
+   features:`Repurposed: Choose the traditional Lineage that your body and head were originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.
+
+Build-a-Body: You can remove and replace limbs from your body. It takes 5 minutes for your body to adjust and control the new limb. Because of this, the Wounds Damaged Arm, Damaged Leg, Destroyed Arm, and Destroyed Leg can be cleansed during an Intermission so long as you have a spare humanoid corpse with the proper limb intact.
+
+Undead Nature: Healing to HP received from magic and alchemy is halved. You do not need to eat, drink, breathe, or sleep.`},
 ];
 
 const CLASSES = [
@@ -539,20 +606,20 @@ const CLASSES = [
 ];
 
 const SPECIALTIES = {
-  Guardian:    {cls:'Fighter',  resource:'Focus Points',  desc:'Formidable knights in Plate armor who protect allies and absorb punishment. Specialty Talent ranks up automatically at certain levels.'},
+  Guardian:    {cls:'Fighter',  resource:'Stamina Points',  desc:'Formidable knights in Plate armor who protect allies and absorb punishment. Specialty Talent ranks up automatically at certain levels.'},
   Berserker:   {cls:'Fighter',  resource:'Stamina Points', desc:'Wild warriors who embrace pain and deal devastating damage through reckless ferocity.'},
   Engineer:    {cls:'Fighter',  resource:'Energy Points',  desc:'Master tacticians who deploy innovative Constructs to control the battlefield.'},
   Pugilist:    {cls:'Fighter',  resource:'Stamina Points',             desc:'Unarmed combat masters who shift between powerful stances to amplify their prowess.'},
   Sharpshooter:{cls:'Vagabond', resource:'Focus Points',   desc:'Precision marksmen who strike from afar with unparalleled accuracy.'},
-  Elemancer:   {cls:'Vagabond', resource:'Energy Points',  desc:'Warriors who infuse their attacks with elemental forces through the ancient art of Elemancy.'},
+  Elemancer:   {cls:'Vagabond', resource:'Focus Points',  desc:'Warriors who infuse their attacks with elemental forces through the ancient art of Elemancy.'},
   Alchemist:   {cls:'Vagabond', resource:'Energy Points',  desc:'Crafters of potent Elixirs, Poisons, and Oils who prepare extensively before battle.'},
-  Reaver:      {cls:'Vagabond', resource:'Stamina Points', desc:'Dark art practitioners who draw power from Reapers of the Necropolis.'},
+  Reaver:      {cls:'Vagabond', resource:'Energy Points', desc:'Dark art practitioners who draw power from Reapers of the Necropolis.'},
   Spellweaver: {cls:'Magi',     resource:'Focus Points',   desc:'Knowledge channelers who empower and amplify their Spellcraft for maximum effect.'},
   Warlock:     {cls:'Magi',     resource:'Contracts (special resource)',  desc:'Pact-makers who draw power from otherworldly entities and forbidden Sorce.'},
-  Oracle:      {cls:'Magi',     resource:'Focus Points',   desc:'Gifted seers who perceive thoughts, read fate, and predict enemies\' movements.'},
-  Witch:       {cls:'Magi',     resource:'Stamina Points', desc:'Enchanters who bend chaotic wild magic to bewitch and manipulate.'},
-  Shapeshifter:{cls:'Druid',    resource:'Stamina Points', desc:'Druids who transform into animal forms and emulate the myriad creatures of nature.'},
-  Summoner:    {cls:'Druid',    resource:'Energy Points',  desc:'Druid-bonded spirit callers who summon powerful companions from the Shroud.'},
+  Oracle:      {cls:'Magi',     resource:'Stamina Points',   desc:'Gifted seers who perceive thoughts, read fate, and predict enemies\' movements.'},
+  Witch:       {cls:'Magi',     resource:'Energy Points', desc:'Enchanters who bend chaotic wild magic to bewitch and manipulate.'},
+  Shapeshifter:{cls:'Druid',    resource:'Energy Points', desc:'Druids who transform into animal forms and emulate the myriad creatures of nature.'},
+  Summoner:    {cls:'Druid',    resource:'Stamina Points',  desc:'Druid-bonded spirit callers who summon powerful companions from the Shroud.'},
   Sonneteer:   {cls:'Druid',    resource:'Focus Points',   desc:'Word-wielders who use song and speech to empower allies and enchant foes.'},
   Cleric:      {cls:'Druid',    resource:'Energy Points',             desc:'Divine healers who channel ideals to mend wounds and bolster allies\' spirits.'},
 };
@@ -629,34 +696,26 @@ const SORCERY_TALENTS = ['Elemental Attunement', 'Innate Magic', 'Megamind', 'Me
 const GENERAL_TALENTS = ['Academic', 'Angelic Blood', 'Animal Ally', 'Animal Friendship', 'Backseat Braining', 'Caster Initiate', 'Demonic Blood', 'Field Medic', 'Full Dodge', 'Heckler', 'Inspiring', 'Intimidating', 'Keen Eyes', 'Linguist', 'Look Over There', 'Luck of the Gods', 'Master Spy', 'Min Max', 'Mobile', 'Naturally Gifted', 'Skilled', 'Sneaky', 'Steady Hands', 'Steel Body', 'Steel Mind', 'Steel Muscles', 'Steel Nerves', 'Strong Arm', 'Sturdy', 'Vigilant', 'Warfare Initiate'];
 
 // ── Starting Gear by Specialty ─────────────────────────────────────────
-const STARTING_GEAR = {'Guardian': ['Short sword, hand axe, or hammer', 'Small shield', 'Quilted Vest or Layered Plate Armor'], 'Berserker': ['Long sword, mace, or battle axe', 'Quilted Vest or Layered Plate armor'], 'Engineer': ['Shortsword or flintlock pistol', 'Small shield or bullet pouch', 'Quilted Vest or Layered Plate armor', 'Engineer tool kit'], 'Pugilist': ['Quilted Vest or Layered Plate armor'], 'Sharpshooter': ['Short bow, pistol, or light crossbow', 'Arrow quiver, bolt pouch, or bullet pouch', 'Quilted Vest or Light Leather armor'], 'Elemancer': ['Short sword, mace, battle axe, or dagger', 'Quilted Vest or Light Leather armor'], 'Alchemist': ['Short sword or short bow', 'Dagger or arrow quiver', 'Quilted Vest or Light Leather armor', 'Alchemy kit'], 'Reaver': ['Short sword or short bow', 'Dagger or arrow quiver', 'Quilted Vest or Light Leather armor'], 'Spellweaver': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Warlock': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Oracle': ['Arcane wand or arcane staff', 'Quilted Vest or Light Leather armor'], 'Witch': ['Arcane wand or arcane staff', 'Quilted Vest armor'], 'Shapeshifter': ['Arcane wand or longsword', 'Reinforced Tunic or Brigandine armor set'], 'Summoner': ['Arcane wand, shortbow with arrow quiver, or shortsword', 'Quilted Vest or Light Leather armor'], 'Sonneteer': ['Arcane wand or arcane instrument', '2 daggers', 'Quilted Vest armor'], 'Cleric': ['Arcane staff or mace', 'Quilted Vest or Layered Plate armor']};
-// ═══════════════════════════════════════════════════════════════
-// CHARACTER STATE
-// ═══════════════════════════════════════════════════════════════
-let ch = {
-  array: null,
-  attrs: {STR:null, AGI:null, WIT:null, EMP:null},
-  skills: {},          // key: rank (1 = selected, 2 = class bonus on top)
-  lineage: null,
-  lineageTrait: null,
-  cls: null,
-  clsSkillChoices: {}, // key: skill, true = chosen
-  specialty: null,
-  lifepath: {upbringing:null, culture:null, personality:null, value:null, upset:null, decisions:null, viewOfOthers:null},
-  lifepathCustom: {},
-  name:'', level:1, height:'', weight:'', age:'', notes:'',
-  weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
-  equip: Array(6).fill(''),
-  currency: {silver:0, gold:0, pluther:0},
-  notable: Array(10).fill(''),
-  talents: Array(9).fill(''),
-  specialtyTalent:'',
-  lineageBenefits:'',
-  step: 1,
+const STARTING_GEAR = {
+  Guardian:    {silver:20, items:['Short sword, hand axe, or hammer','Small shield','Quilted Vest or Layered Plate Armor','Backpack']},
+  Berserker:   {silver:20, items:['Long sword, mace, or battle axe','Quilted Vest or Layered Plate armor','Backpack']},
+  Engineer:    {silver:20, items:['Shortsword or flintlock pistol','Small shield or bullet pouch','Quilted Vest or Layered Plate armor','Engineer tool kit','Backpack']},
+  Pugilist:    {silver:20, items:['Quilted Vest or Layered Plate armor','Backpack']},
+  Sharpshooter:{silver:20, items:['Short bow, pistol, or light crossbow','Arrow quiver, bolt pouch, or bullet pouch','Quilted Vest or Light Leather armor','Backpack']},
+  Elemancer:   {silver:20, items:['Short sword, mace, battle axe, or dagger','Quilted Vest or Light Leather armor','Backpack']},
+  Alchemist:   {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Alchemy kit','Backpack']},
+  Reaver:      {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Backpack']},
+  Spellweaver: {silver:20, items:['Arcane wand or arcane staff','Quilted Vest armor','Backpack']},
+  Warlock:     {silver:20, items:['Arcane wand or arcane staff','Quilted Vest armor','Backpack']},
+  Oracle:      {silver:20, items:['Arcane wand or arcane staff','Quilted Vest or Light Leather armor','Backpack']},
+  Witch:       {silver:20, items:['Arcane wand or arcane staff','Quilted Vest armor','Backpack']},
+  Shapeshifter:{silver:20, items:['Arcane wand or a longsword','Reinforced Tunic or Brigandine armor set','Backpack']},
+  Summoner:    {silver:20, items:['Arcane wand, shortbow with arrow quiver, or shortsword','Quilted Vest or Light Leather armor','Backpack']},
+  Sonneteer:   {silver:20, items:['Arcane wand or arcane instrument','2 daggers','Quilted Vest armor','Backpack']},
+  Cleric:      {silver:20, items:['Arcane staff or mace','Quilted Vest or Layered Plate armor','Backpack']},
 };
-
 let currentStep = 1;
-const TOTAL_STEPS = 10;
+const TOTAL_STEPS = 11;
 
 // ═══════════════════════════════════════════════════════════════
 // NAVIGATION
@@ -668,16 +727,17 @@ function goToStep(n) {
   updateProgress();
   updateNavBtns();
   window.scrollTo({top:0, behavior:'smooth'});
-  if (n===1) { renderArrayPicker(); if (ch.array !== null) renderAttrAssign(); }
-  if (n===2) renderSkillList();
-  if (n===3) { renderLineageGrid(); if (ch.lineage) renderLineageDetail(); }
-  if (n===4) { renderClassGrid(); renderClassSkillChoices(); }
-  if (n===5) renderSpecialtyGrid();
-  if (n===6) renderLifepath();
-  if (n===7) renderStatusPoints();
-  if (n===8) renderTalentStep();
-  if (n===9) renderDetailsStep();
-  if (n===10) renderSummary();
+  if (n===1)  { renderArrayPicker(); if (ch.array !== null) renderAttrAssign(); }
+  if (n===2)  renderSkillList();
+  if (n===3)  { renderLineageGrid(); if (ch.lineage) renderLineageDetail(); }
+  if (n===4)  { renderClassGrid(); renderClassSkillChoices(); }
+  if (n===5)  renderSpecialtyGrid();
+  if (n===6)  renderGearStep();
+  if (n===7)  renderLifepath();
+  if (n===8)  renderStatusPoints();
+  if (n===9)  renderTalentStep();
+  if (n===10) renderDetailsStep();
+  if (n===11) renderSummary();
 }
 
 function nextStep() {
@@ -740,9 +800,13 @@ function validateStep(step) {
     case 5:
       if (!ch.specialty) { alert('Please choose a Specialty.'); return false; }
       return true;
-    case 9:
-      if (!ch.name.trim()) { alert('Please enter a character name.'); return false; }
+    case 10: {
+      // Sync name from DOM before validating
+      const nameEl = document.getElementById('char-name');
+      if (nameEl) ch.name = nameEl.value.trim();
+      if (!ch.name || !ch.name.trim()) { alert('Please enter a character name.'); return false; }
       return true;
+    }
     default: return true;
   }
 }
@@ -1140,7 +1204,8 @@ function renderLifepath() {
 }
 
 function selectLifepath(key, value) {
-  ch.lifepath[key] = value;
+  // Toggle: clicking selected row deselects it
+  ch.lifepath[key] = (ch.lifepath[key] === value) ? null : value;
   renderLifepath();
 }
 
@@ -1244,45 +1309,58 @@ function renderTalentStep() {
       from the lists below. All are taken at <strong>Rank 1</strong>.
     </div>`;
 
-  // Talent browser
-  const pool = getAvailableTalents();
-  const sections = [];
-  if (isMartial) sections.push({label:'Martial Talents', list: MARTIAL_TALENTS, type:'martial'});
-  if (isSorcery) sections.push({label:'Sorcery Talents', list: SORCERY_TALENTS, type:'sorcery'});
-  sections.push({label:'General Talents', list: GENERAL_TALENTS, type:'general'});
+  // Count how many of each type already chosen
+  const pickedMartial = (ch.talents||[]).filter(t => MARTIAL_TALENTS.includes(t)).length;
+  const pickedSorcery = (ch.talents||[]).filter(t => SORCERY_TALENTS.includes(t)).length;
+  const pickedGeneral = (ch.talents||[]).filter(t => GENERAL_TALENTS.includes(t)).length;
+  const MAX_MARTIAL = 1; const MAX_SORCERY = 1; const MAX_GENERAL = 2;
 
-  browserEl.innerHTML = sections.map(sec => `
-    <div style="margin-bottom:20px">
-      <h3 style="font-family:var(--font-ui);font-size:.9rem;font-weight:700;
-                 text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
-                 margin-bottom:10px">${sec.label}</h3>
+  const sections = [];
+  if (isMartial) sections.push({label:`Martial Talents (choose ${MAX_MARTIAL})`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
+  if (isSorcery) sections.push({label:`Sorcery Talents (choose ${MAX_SORCERY})`,list:SORCERY_TALENTS,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
+  sections.push({label:`General Talents (choose up to ${MAX_GENERAL})`,list:GENERAL_TALENTS,type:'general',picked:pickedGeneral,max:MAX_GENERAL});
+
+  browserEl.innerHTML = sections.map(sec => {
+    const atMax = sec.picked >= sec.max;
+    return `<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <h3 style="font-family:var(--font-ui);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">${sec.label}</h3>
+        <span style="font-family:var(--font-ui);font-size:.8rem;font-weight:700;color:${sec.picked>=sec.max?'var(--safe)':'var(--accent-dk)'};background:${sec.picked>=sec.max?'#d1fae5':'var(--accent-lt)'};padding:2px 8px;border-radius:12px">${sec.picked}/${sec.max}</span>
+      </div>
       <div style="display:flex;flex-wrap:wrap;gap:7px">
         ${sec.list.map(t => {
-          const alreadyPicked = (ch.talents||[]).includes(t);
-          return `<button onclick="addTalent('${t.replace(/'/g,"\\'")}', this)"
-            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;
-                   cursor:pointer;border-radius:20px;transition:all .12s;
-                   border:2px solid ${alreadyPicked?'var(--safe)':'var(--rule)'};
-                   background:${alreadyPicked?'#d1fae5':'#fff'};
-                   color:${alreadyPicked?'var(--safe)':'var(--ink)'}"
-            ${alreadyPicked?'disabled':''}>
-            ${t} ${alreadyPicked?'✓':''}
+          const picked = (ch.talents||[]).includes(t);
+          const disabled = !picked && atMax;
+          const isViewing = ch._viewingTalent === t;
+          return `<button onclick="${disabled?'':("toggleTalentView('" + t.replace(/'/g,"\\'") + "')")}"
+            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:${disabled?'not-allowed':'pointer'};border-radius:20px;transition:all .12s;border:2px solid ${picked?'var(--safe)':isViewing?'var(--accent)':'var(--rule)'};background:${picked?'#d1fae5':isViewing?'var(--accent-lt)':'#fff'};color:${picked?'var(--safe)':isViewing?'var(--accent-dk)':'var(--ink)'};opacity:${disabled?'0.4':'1'}">
+            ${t}${picked?' ✓':''}
           </button>`;
         }).join('')}
       </div>
-    </div>
-  `).join('');
+      ${(ch.talents||[]).includes(sec.list.find(t=>ch._viewingTalent===t)||'__none__') || ch._viewingTalent && sec.list.includes(ch._viewingTalent) ? `
+        <div style="margin-top:12px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div>
+              <div style="font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--accent-dk)">${ch._viewingTalent}</div>
+              <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted)">${MARTIAL_TALENTS.includes(ch._viewingTalent)?'Martial Talent':SORCERY_TALENTS.includes(ch._viewingTalent)?'Sorcery Talent':'General Talent'}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              ${!(ch.talents||[]).includes(ch._viewingTalent)?
+                `<button onclick="addTalentFromView('${(ch._viewingTalent||'').replace(/'/g,"\'")}')" style="padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-weight:600;font-size:.85rem">+ Select</button>`:
+                `<button onclick="removeTalentByName('${(ch._viewingTalent||'').replace(/'/g,"\'")}')" style="padding:6px 14px;background:#fee2e2;color:var(--danger);border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-weight:600;font-size:.85rem">✕ Remove</button>`}
+              <button onclick="ch._viewingTalent=null;renderTalentStep()" style="padding:6px 10px;background:#f0f0f0;border:1px solid var(--rule);border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-size:.82rem">✕</button>
+            </div>
+          </div>
+          <div style="font-family:var(--font-ui);font-size:.85rem;color:#333;line-height:1.5">${getTalentDescription(ch._viewingTalent||'')}</div>
+        </div>` : ''}
+    </div>`;
+  }).join('');
 
   renderTalentSlots();
 }
 
-function addTalent(name, btn) {
-  if (!ch.talents) ch.talents = Array(9).fill('');
-  const emptyIdx = ch.talents.findIndex(t => !t);
-  if (emptyIdx === -1) { alert('All 9 talent slots are filled. Remove one first.'); return; }
-  ch.talents[emptyIdx] = name;
-  renderTalentStep();
-}
+function addTalent(name, btn) { addTalentFromView(name); }
 
 function removeTalent(idx) {
   ch.talents[idx] = '';
@@ -1635,6 +1713,193 @@ function applyStartingGear() {
   gear.forEach((item, i) => { if (i < 6) ch.equip[i] = item; });
   renderDetailsStep();
 }
+
+function renderGearStep() {
+  const el = document.getElementById('gear-step-content');
+  if (!el) return;
+  if (!ch.specialty || !STARTING_GEAR[ch.specialty]) {
+    el.innerHTML = '<div class="warn-box">Please choose a Specialty in Step 5 first.</div>';
+    return;
+  }
+  const gear = STARTING_GEAR[ch.specialty];
+  // Auto-set currency if not already set
+  if (!ch.currency.silver && gear.silver) ch.currency.silver = gear.silver;
+
+  el.innerHTML = `
+    <div class="info-box" style="margin-bottom:20px">
+      <strong>${ch.specialty} Starting Gear</strong>
+      <ul style="margin:8px 0 0 18px">
+        ${gear.items.map(g=>`<li>${g}</li>`).join('')}
+      </ul>
+    </div>
+    <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px;margin-bottom:16px">
+      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:12px">Starting Currency</h3>
+      <div class="form-row cols3">
+        <div>
+          <label class="field-label">Silver</label>
+          <input type="number" id="gear-silver" value="${ch.currency.silver||gear.silver||0}" min="0"
+                 onchange="ch.currency.silver=+this.value">
+        </div>
+        <div>
+          <label class="field-label">Gold</label>
+          <input type="number" id="gear-gold" value="${ch.currency.gold||0}" min="0"
+                 onchange="ch.currency.gold=+this.value">
+        </div>
+        <div>
+          <label class="field-label">Pluther</label>
+          <input type="number" id="gear-pluther" value="${ch.currency.pluther||0}" min="0"
+                 onchange="ch.currency.pluther=+this.value">
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:6px">Equipment Inventory</h3>
+      <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+        Your starting gear has been suggested below. Edit as needed — choose one option where multiple are offered.
+      </p>
+      ${['Armor Slot','Back Slot 1','Back Slot 2','Belt Slot 1','Belt Slot 2','Kit Slot'].map((slot,i) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <label style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;color:var(--muted);
+                        text-transform:uppercase;min-width:90px">${slot}</label>
+          <input type="text" value="${ch.equip[i]||''}"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--rule);border-radius:6px;
+                        font-family:var(--font-ui);font-size:.88rem"
+                 placeholder="Empty"
+                 onchange="ch.equip[${i}]=this.value">
+        </div>
+      `).join('')}
+    </div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn btn-secondary" style="font-size:.85rem;padding:8px 14px"
+              onclick="autoFillGear()">✦ Auto-fill from Starting Gear</button>
+    </div>
+  `;
+}
+
+function autoFillGear() {
+  if (!ch.specialty || !STARTING_GEAR[ch.specialty]) return;
+  const items = [...STARTING_GEAR[ch.specialty].items];
+  // Slot 0 = armor, rest go to back/belt in order
+  let slotIdx = 0;
+  items.forEach(item => {
+    if (slotIdx < 6) { ch.equip[slotIdx] = item; slotIdx++; }
+  });
+  renderGearStep();
+}
+
+
+function toggleTalentView(name) {
+  ch._viewingTalent = (ch._viewingTalent === name) ? null : name;
+  renderTalentStep();
+}
+
+function addTalentFromView(name) {
+  if (!ch.talents) ch.talents = Array(9).fill('');
+  // Check limits
+  const isMartial = MARTIAL_TALENTS.includes(name);
+  const isSorcery = SORCERY_TALENTS.includes(name);
+  const isGeneral = GENERAL_TALENTS.includes(name);
+  if (isMartial && ch.talents.filter(t=>MARTIAL_TALENTS.includes(t)).length >= 1) {
+    alert('You can only select 1 Martial Talent at Level 1.'); return;
+  }
+  if (isSorcery && ch.talents.filter(t=>SORCERY_TALENTS.includes(t)).length >= 1) {
+    alert('You can only select 1 Sorcery Talent at Level 1.'); return;
+  }
+  if (isGeneral && ch.talents.filter(t=>GENERAL_TALENTS.includes(t)).length >= 2) {
+    alert('You can only select up to 2 General Talents at Level 1.'); return;
+  }
+  const emptyIdx = ch.talents.findIndex(t => !t);
+  if (emptyIdx === -1) { alert('All talent slots are filled. Remove one first.'); return; }
+  ch.talents[emptyIdx] = name;
+  renderTalentStep();
+}
+
+function removeTalentByName(name) {
+  if (!ch.talents) return;
+  const idx = ch.talents.indexOf(name);
+  if (idx !== -1) { ch.talents[idx] = ''; }
+  if (ch._viewingTalent === name) ch._viewingTalent = null;
+  renderTalentStep();
+}
+
+function getTalentDescription(name) {
+  const descs = {
+    "Boar Style": "Rank 1: Boar's Temper (A) — Spend 2 Sorce Points: charge up to 10 ft in a line and make a melee attack. If you moved at least 10 ft in a straight line, base damage increases by 2. | Rank 2: Charge up to 20 ft. | Rank 3: +4 damage instead of +2. | Rank 4: +2 extra damage per 5 ft moved (max +12). | Rank 5: Charge through hostile creatures.",
+    "Brawler": "Rank 1: Spend 2 Sorce Points to Grapple on an Opportunity Strike. | Rank 2: Grapple creatures one size larger (-1 modifier). | Rank 3: Grappled creature gets -3 to attack non-grappling creatures. | Rank 4: Grapple two sizes larger (-2 modifier). | Rank 5: Spend 6 SP to give Grappled creature the Restrained Condition.",
+    "Calvary Fighter": "Rank 1: While mounted, physical damage your mount receives is halved. | Rank 2: Spend 2 SP to redirect attacks targeting your mount to target you instead. | Rank 3: Your Beast mount can use its melee attacks with a -3 modifier. | Rank 4: Gain +4 base damage on melee attacks after moving 10 ft in a straight line while mounted. | Rank 5: +2 base damage on melee attacks while mounted; +4 against unmounted smaller targets.",
+    "Crane Style": "Rank 1: Crane's Grace (P) — Spend 2 SP + Quick action to leap 10 ft without provoking Opportunity Strikes. | Rank 2: Leap up to 15 ft. | Rank 3: Flutter (A) — Spend 4 SP, make melee attack, then leap 15 ft. | Rank 4: After using Crane's Grace or Flutter, benefit from Disengage. | Rank 5: Crane's Grace becomes Minor action; Flutter becomes Free action after any melee attack.",
+    "Defender": "Rank 1: Guard (P) — Reaction: when an ally within 5 ft is attacked, Block or Parry for them. | Rank 2: Spend 2 SP instead of Reaction to Guard. | Rank 3: Spend 3 SP to redirect half the damage to yourself. | Rank 4: Spend 2 SP as Free Action to Assist an ally's Might or Move save. | Rank 5: Spend 4 SP to enter Defender Stance — Guard and Block/Parry without Reaction.",
+    "Dragon Style": "Rank 1: Piercing Blow (P) — Spend 3 SP: 20-ft line hits all creatures with Ranged Weapon damage. | Rank 2: Line extends to 40 ft. | Rank 3: Spread Blow (P) — Spend 6 SP: 20-ft cone. | Rank 4: All Powers deal +4 damage. | Rank 5: Explosive Blow (P) — Spend 9 SP: 20-ft radius explosion at target point.",
+    "Duelist": "Rank 1: Riposte (P) — If your Parry prevents a melee hit, spend 2 SP to deal half your weapon damage to the attacker. | Rank 2: Parry Ranged and Spell attacks. | Rank 3: Spend 3 SP as Free Action to Parry instead of Reaction. | Rank 4: Riposte deals full damage. | Rank 5: Spend 4 SP to reroll up to 3 dice when you Parry.",
+    "Ignore Pain": "Rank 1: Toughen Up (P) — Reaction: reduce damage by 4 (min 1). Cannot reduce Fear or Psychic damage. | Rank 2: Spend 2 SP as Free Action instead of Reaction. | Rank 3: Works on Fear and Psychic damage. | Rank 4: Spend 2 extra SP to increase reduction to 12. | Rank 5: Didn't Hear No Bell — if damage reduces HP/MP to 0, spend 2 SP to regain up to 24.",
+    "Mantis Style": "Rank 1: Multi Strike (A) — Spend 3 SP: attack with two 1h weapons. First weapon deals full damage, second deals half. | Rank 2: First off-hand attack only has -2 modifier. | Rank 3: First off-hand attack only has -1 modifier. | Rank 4: Multi Strike second weapon deals full damage. | Rank 5: After successful Multi Strike, use it again as Quick action with -1 modifier.",
+    "Master of Defense": "Rank 1: While wearing armor or natural armor, max DP increases by 4. | Rank 2: +8 additional DP (total +12). | Rank 3: +12 additional (total +24). | Rank 4: +16 additional (total +40). | Rank 5: +20 additional (total +60).",
+    "Opportunist": "Rank 1: When a creature willingly enters your weapon's reach for the first time on a turn, make an Opportunity Strike. | Rank 2: Spend 2 SP as Free Action instead of Reaction. | Rank 3: Spend 4 SP to Opportunity Strike a creature that Disengaged. | Rank 4: Cripple — On Opportunity Strike hit, spend 3 SP to halve enemy Speed. | Rank 5: Cripple reduces Speed to 0.",
+    "Porcupine Style": "Rank 1: While wielding a shield, use it as a melee weapon with base Blunt damage equal to double its defense modifier. | Rank 2: Counter (P) — After Blocking a melee attack, spend 4 SP to deal shield damage to attacker. | Rank 3: When you Block a melee attack, attacker within 5 ft takes 2 Blunt damage. | Rank 4: Shield base damage +4. | Rank 5: Pummel (P) — Spend 6 SP after shield hit to Shove creature Prone.",
+    "Primal Style": "Rank 1: Cleave (P) — After hitting with a Melee Attack, spend 3 SP as Quick action to deal weapon damage to another creature within reach. | Rank 2: Cleave as Minor action. | Rank 3: Cleave as Free action. | Rank 4: Spend 6 SP to Cleave up to 2 creatures. | Rank 5: Spend 9 SP to Cleave up to 4 creatures.",
+    "Rabbit Style": "Rank 1: With Haste (P) — Once per turn, spend 2 SP as Free action to increase Speed by 10 ft until end of turn. | Rank 2: While Hasted, run across water and up walls. | Rank 3: While Hasted, Hasten as Quick Action. | Rank 4: While Hasted, Hasten as Free Action (2 SP). | Rank 5: Bonus Speed increases to +30 and you benefit from Disengage.",
+    "Rubber Style": "Rank 1: Bounce Strike (P) — After hitting with a Ranged Attack, spend 3 SP as Quick action: deal weapon damage to another creature within 15 ft. | Rank 2: As Minor action. | Rank 3: As Free action. | Rank 4: Spend 6 SP to target a third creature. | Rank 5: Spend 9 SP to target a fourth creature.",
+    "Sniper Style": "Rank 1: When your Ranged Attack benefits from Aim, gain +1 additional modifier (total +2). | Rank 2: Spend 2 SP as Free action to Aim (once per turn). | Rank 3: Spend 2 SP to reroll one die on an Aimed Ranged Attack. | Rank 4: Aimed Ranged Attack hits deal +2 base damage. | Rank 5: Spend remaining Speed to boost Aim — +2 base damage per 10 Speed spent (max +10).",
+    "Tiger Style": "Rank 1: When you hit with a Melee Attack benefiting from Wind-Up, base damage increases by 2. | Rank 2: Spend 2 SP as Free action to Wind-Up (once per turn). | Rank 3: Spend 2 SP to reroll one die on a Wind-Up Melee Attack. | Rank 4: Wind-Up total bonus becomes +4. | Rank 5: Using Wind-Up while already Wind-Up creates Mega-Wind-Up: reroll 2 dice, +8 base damage.",
+    "Tortoise Style": "Rank 1: Fortify (P) — While wielding a shield, spend up to 3 SP as Quick action to gain 12 Temp DP for 1 minute. | Rank 2: Apply shield modifier as positive modifier on Move saves. | Rank 3: Spend 2 SP instead of Reaction to Block. | Rank 4: Fortify grants Temp DP with resistance to Slash, Pierce, and Blunt. | Rank 5: Spend 4 SP to reroll up to 3 dice when Blocking.",
+    "Viper Style": "Rank 1: Leg Strike (A) — Standard action, -3 modifier: on success, all creature Speeds reduced by 20 ft until your next turn. | Rank 2: Arm Strike (A) — Standard action, -3 modifier: on success, creature base damage reduced by 4. | Rank 3: Both penalties reduced to -2. | Rank 4: Leg Strike: also -2 to Agility. Arm Strike: also -2 to Strength. | Rank 5: Head Strike (A) — -4 modifier; on hit, creature gains Slowed.",
+    "Wolf Style": "Rank 1: Flank (P) — When you and an ally are within 5 ft of a hostile creature, you are Flanking. Flanking grants +1 modifier to melee attacks against that creature. | Rank 2: Flanking increases melee base damage by 2. | Rank 3: Team Effort (P) — On first Flank each turn, one ally also gains Rank 1 and 2 Flank benefits. | Rank 4: +2 modifier and +4 base damage for you and ally. | Rank 5: Team Strike (A) — While Flanking, spend 4 SP: make a melee attack; hit or miss, ally makes Opportunity Strike at -3.",
+    "Elemental Attunement": "Rank 1: Pick one element (Fire, Frost, Electric, or Acid). Spells dealing that damage type deal +4 extra damage. | Rank 2: Your attuned-element Spells ignore resistances. | Rank 3: +8 extra damage. | Rank 4: Your HP and DP gain resistance to your attuned element. | Rank 5: +12 extra damage.",
+    "Innate Magic": "Rank 1: Learn a Rank 1 Spell from any Study as an Innate Spell — always prepared, no Arcane Foci needed for its check. | Rank 2: Learn a Rank 2 Innate Spell. | Rank 3: Learn a Rank 3 Innate Spell. | Rank 4: Learn a Rank 4 Innate Spell. | Rank 5: Learn a Rank 5 Innate Spell.",
+    "Megamind": "Rank 1: Choose 1 known Rank 1 Spell as your Signature Spell — always prepared, gains +2 Power Levels or reduced cost. | Rank 2: All Rank 0 Spells always prepared. | Rank 3: Choose a Rank 2 Signature Spell. | Rank 4: All Spells always prepared. | Rank 5: Choose a Rank 3 Signature Spell.",
+    "Mental Shield": "Rank 1: When you take non-Fear/Psychic damage, use a Reaction to redirect up to 10 of the damage to MP (max half). | Rank 2: Redirect up to 20 damage. | Rank 3: When you take Fear damage, Reaction to halve it. | Rank 4: Redirect any amount (max half). | Rank 5: Spend 2 SP as Free Action instead of Reaction.",
+    "Runic Magic": "Rank 1: Inscribe runes on objects/surfaces. Learn one Runic Inscription from: Cover, Accuracy, Elements, or Alarm. | Rank 2: Learn a second Inscription. | Rank 3: Learn a third (Protection and Harm now available). | Rank 4: Have up to 2 Runes active. | Rank 5: Move a Rune to a new location as a Quick Action.",
+    "Spell Slinger": "Rank 1: On initiative, make a Spell check instead (for a specific Study). Must wield Arcane Foci. Treated as a Skill check that can be Pushed. | Rank 2: No Arcane Foci needed; +2 modifier. | Rank 3: Use highest Study Rank for any Study; +1 more modifier (total +3). | Rank 4: On success, first Spell gains +2 Power Levels or -3 SP cost. | Rank 5: Cast a Standard/Quick Spell as a Minor action on your first turn.",
+    "Twist Magicka": "Rank 1: Gain 1 Magicka — choose from: Distant (double range, 2 SP), Extend (double duration, 2 SP), Elemental (change damage type, 2 SP), Careful (immune creatures, 2-6 SP). | Rank 2: Gain a second Magicka. | Rank 3: Third Magicka (Quick and Subtle Magicka available). | Rank 4: Fourth Magicka (Double and Explosive available). | Rank 5: Use up to 2 Magicka per turn.",
+    "War Caster": "Rank 1: When making an Endure save to maintain focus after taking non-Fear/Psychic damage, gain +2 modifier. | Rank 2: Encant (Quick action): next Spell check gets +1 modifier. | Rank 3: On an Opportunity Strike, cast a Rank 1 or lower Spell at the triggering creature. | Rank 4: Ignore Hand and Tongue components. | Rank 5: Once per Light/Full Rest — if you fail an Endure save to maintain focus, gain 1 success.",
+    "Study of Aeromancy": "Rank 1 Spells: Jolt (lightning bolt in a line), Bellowing Shout (thunderous deafen), Lightning Arc (jumping lightning), Fast as Light (increase a creature's Speed). Each rank unlocks spells of that rank from Aeromancy.",
+    "Study of Blood": "Rank 1 Spells: Vampiric Slash (melee, regain HP), Infatuate (enchant NPC attitude), Enthrall Person (force positive attitude), Infuse Confuse (disorient creature). Each rank unlocks higher-rank Blood spells.",
+    "Study of Contagion": "Rank 1 Spells: Acid Dart, Sicken Pulse (hinder resistance to Poison/Disease), Toxic Wave (poisonous cone), Witherplague (Disease that hinders attacks and healing). Each rank unlocks higher-rank Contagion spells.",
+    "Study of Cryomancy": "Rank 1 Spells: Ice Spear, Sculpt Ice, Daggers of Ice (homing ice daggers), Ice Barrier (resist Slash/Pierce/Blunt damage). Each rank unlocks higher-rank Cryomancy spells.",
+    "Study of Death": "Rank 1 Spells: Reaper Scythe (necrotic scythe weapon), Recompose (extend corpse freshness), Summon Skeleservant, Death Speech (speak with the dead). Each rank unlocks higher-rank Death spells.",
+    "Study of Displacement": "Rank 1 Spells: Pocketswap (steal from distance), Infini Pocket (personal pocket dimension), Body Swap (swap places with an ally), Minor Portals (two linked portals). Each rank unlocks higher-rank Displacement spells.",
+    "Study of Divinity": "Rank 1 Spells: Blessing of Protection (reduce damage taken), Searing Flare (radiant bolt), Vengeful Smite (empowered attack), Blessing of Pacifism (harder to target). Each rank unlocks higher-rank Divinity spells.",
+    "Study of Geomancy": "Rank 1 Spells: Earth Bend (terrain pillars), Rock Catapault (hurl a rock), Repair Minerals (restore armor DP), Spiked Terrain (earth spikes). Each rank unlocks higher-rank Geomancy spells.",
+    "Study of Illusion": "Rank 1 Spells: Lesser Illusion (small image/sound), Fashionate (change your appearance), Greater Illusion (large image you speak through), Create Disguise (disguise as another creature). Each rank unlocks higher-rank Illusion spells.",
+    "Study of Pyromancy": "Rank 1 Spells: Dancing Flame (light source), Fire Ray (beam of flame), Burst Self (fiery explosion), Fire Missile (homing fire ball). Each rank unlocks higher-rank Pyromancy spells.",
+    "Study of Recovery": "Rank 1 Spells: Transfer Life (give HP to ally), Dislocate (force push), Reinvigorate (restore HP), Calm Emotions (restore MP). Each rank unlocks higher-rank Recovery spells.",
+    "Study of Shadows": "Rank 1 Spells: Feed Fear (enhance Fear spells), Manipulate Darkness (create/shape darkness), Terrifying Gloom (Shadow Gloom dealing Fear damage), Fall (Fear damage that may force Prone). Each rank unlocks higher-rank Shadows spells.",
+    "Academic": "Gain an additional language. Gain +2 modifier on Analyze checks related to scholarly knowledge.",
+    "Angelic Blood": "Your HP and DP gain resistance to Radiant damage. +2 modifier on Endure saves against instant-kill effects.",
+    "Animal Ally": "Befriend a small or tiny Beast as a loyal companion that follows your commands (does not fight unless made a Companion).",
+    "Animal Friendship": "You can speak with Beasts and they understand you.",
+    "Backseat Braining": "When an ally within 30 ft makes a Wits-based check, use a Free Action to grant them +2 modifier.",
+    "Caster Initiate": "Learn one Rank 0 Spell from any Study. You can cast it using Wits or Empathy.",
+    "Demonic Blood": "Your HP gains resistance to Necrotic damage. +2 modifier on Insight saves against being Charmed or Frightened.",
+    "Field Medic": "Bandage/Galvanize without a medical kit within 5 ft. +2 modifier on Medical checks.",
+    "Full Dodge": "Once per round, when targeted by an attack or effect, use a Reaction to gain Dodge benefits against that attack.",
+    "Heckler": "Quick action: Taunt a creature within 30 ft. They make an Insight save or get -1 modifier on attacks against creatures other than you.",
+    "Inspiring": "Quick action: inspire an ally within 30 ft — they gain +2 modifier on their next check. Recharges on Intermission.",
+    "Intimidating": "+2 modifier on Intimidate checks. Once per Intermission, a successful Intimidate imposes -1 on target's attacks until your next turn.",
+    "Keen Eyes": "Once per turn (Free action): spot Hidden creatures within 30 ft. +2 modifier on Scout checks.",
+    "Linguist": "Learn two additional languages of your choice.",
+    "Look Over There": "Quick action: one creature within 30 ft makes an Insight save or loses their Reaction until your next turn.",
+    "Luck of the Gods": "Once per Full Rest: after rolling any dice, reroll all of them and take the new result.",
+    "Master Spy": "+2 modifier on Hide and Manipulate checks. Pick locks and disable traps with Finesse (no kit required).",
+    "Min Max": "Choose one Attribute. All checks using that Attribute as the highest Rank in the dice pool gain +1 modifier.",
+    "Mobile": "Your Speed increases by 10 feet.",
+    "Naturally Gifted": "Choose one Skill. That Skill's Rank increases by 1 (up to normal cap).",
+    "Skilled": "Gain 2 additional Skill Points to spend immediately.",
+    "Sneaky": "+2 modifier on Hide checks. When you attack a creature unaware of you, your first attack gains +1 modifier.",
+    "Steady Hands": "+2 modifier on Finesse checks. Ignore penalty for using fine tools in stressful situations.",
+    "Steel Body": "Your max DP increases by 4.",
+    "Steel Mind": "Your max MP increases by 4.",
+    "Steel Muscles": "Your max HP increases by 4.",
+    "Steel Nerves": "+2 modifier on Endure saves and checks to resist Conditions.",
+    "Strong Arm": "+2 modifier on Might checks. When you Push or Shove a creature, the effect distance increases by 5 feet.",
+    "Sturdy": "When you would gain the Prone Condition from an attack, use a Reaction to prevent it.",
+    "Vigilant": "You cannot be Surprised. +2 modifier on initiative checks.",
+    "Warfare Initiate": "Learn one Rank 1 Martial Talent of your choice, even if you do not normally have access to Martial Talents.",
+  };
+  return descs[name] || "Select this talent to use it at Rank 1. Full talent details are in the Realms of Legacy Talents chapter.";
+}
+
+
 
 function startOver() {
   if (!confirm('Start over? All progress will be lost.')) return;

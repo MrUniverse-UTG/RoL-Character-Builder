@@ -2,12 +2,6 @@
 
 A step-by-step character creation wizard for the Realms of Legacy TTRPG.
 
-## Setup
-
-1. Upload all files to a GitHub repository
-2. Enable GitHub Pages (Settings → Pages → Source: main branch, / root)
-3. Visit `https://yourusername.github.io/yourrepo/`
-
 ## Files
 
 - `index.html` — the complete character builder (all game data embedded)

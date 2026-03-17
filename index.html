@@ -220,7 +220,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <h2>Step 1 — Allocate Attributes</h2>
     <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
   </div>
-  <div class="info-box">The sum of all Attribute Ranks must equal 6. No single Attribute may exceed Rank 6.</div>
+  <div class="info-box">Choose an array, then assign each number to one Attribute. The class bonus in Step 4 adds +1 to one Attribute, bringing the total to 6 by the end of creation.</div>
   <div class="array-grid" id="array-picker"></div>
   <div id="attr-assign" style="display:none"></div>
 </div>
@@ -608,7 +608,7 @@ const LIFEPATH = {
 // ═══════════════════════════════════════════════════════════════
 let ch = {
   array: null,
-  attrs: {STR:0, AGI:0, WIT:0, EMP:0},
+  attrs: {STR:null, AGI:null, WIT:null, EMP:null},
   skills: {},          // key: rank (1 = selected, 2 = class bonus on top)
   lineage: null,
   lineageTrait: null,
@@ -677,10 +677,10 @@ function updateNavBtns() {
 function validateStep(step) {
   switch(step) {
     case 1:
-      if (!ch.array) { alert('Please choose an attribute array.'); return false; }
+      if (ch.array === null) { alert('Please choose an attribute array.'); return false; }
       const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
-      const allAssigned = Object.values(ch.attrs).every(v => v !== undefined);
-      if (attrSum !== 6) { alert('All array values must be assigned. The sum must equal 6.'); return false; }
+      const expectedSum = ARRAYS[ch.array].nums.reduce((a,b)=>a+b,0);
+      if (attrSum !== expectedSum) { alert('Please assign all four values from your chosen array to your Attributes before continuing.'); return false; }
       return true;
     case 2:
       const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
@@ -724,7 +724,7 @@ function renderArrayPicker() {
 
 function selectArray(idx) {
   ch.array = idx;
-  ch.attrs = {STR:0, AGI:0, WIT:0, EMP:0};
+  ch.attrs = {STR:null, AGI:null, WIT:null, EMP:null};
   renderArrayPicker();
   renderAttrAssign();
   document.getElementById('attr-assign').style.display = 'grid';
@@ -733,34 +733,56 @@ function selectArray(idx) {
 function renderAttrAssign() {
   const nums = [...ARRAYS[ch.array].nums];
   const container = document.getElementById('attr-assign');
+  // Track which values have been assigned to other attrs
+  const usedByOthers = {};
+  ATTRIBUTES.forEach(a => {
+    const v = ch.attrs[a.key];
+    if (v !== null && v !== undefined && v !== '') {
+      usedByOthers[a.key] = v;
+    }
+  });
+
   container.innerHTML = `
     <div class="info-box" style="grid-column:1/-1">Assign each number to one Attribute. Each number can only be used once.</div>
-    ${ATTRIBUTES.map(attr => `
+    ${ATTRIBUTES.map(attr => {
+      const currentVal = ch.attrs[attr.key];
+      const isAssigned = currentVal !== null && currentVal !== undefined && currentVal !== '';
+      return `
       <div class="attr-slot">
         <div class="attr-name">${attr.name}</div>
         <div class="attr-desc">${attr.desc}</div>
-        <select class="rank-select" onchange="assignAttr('${attr.key}',+this.value)">
+        <select class="rank-select" onchange="assignAttr('${attr.key}', this.value)">
           <option value="">— assign rank —</option>
-          ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${ch.attrs[attr.key]===n?'selected':''}>${n}</option>`).join('')}
+          ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${isAssigned && currentVal===n?'selected':''}>${n}</option>`).join('')}
         </select>
-        <div style="margin-top:8px;font-family:var(--font-ui);font-size:.82rem;color:var(--muted)">Current: <strong>${ch.attrs[attr.key] || 0}</strong></div>
-      </div>
-    `).join('')}
+        <div style="margin-top:8px;font-family:var(--font-ui);font-size:.82rem;color:var(--muted)">
+          Current: <strong>${isAssigned ? currentVal : '—'}</strong>
+        </div>
+      </div>`;
+    }).join('')}
   `;
 }
 
 function assignAttr(key, val) {
-  const nums = ARRAYS[ch.array].nums;
-  // Check if this value is already used elsewhere
-  const otherUsed = ATTRIBUTES.filter(a=>a.key!==key).map(a=>ch.attrs[a.key]);
-  const usedCount = otherUsed.filter(v=>v===val).length;
-  const totalCount = nums.filter(n=>n===val).length;
-  if (val && usedCount >= totalCount) {
-    alert(`The value ${val} is already used by another Attribute.`);
+  // val comes from this.value (always a string); convert properly
+  if (val === '' || val === null || val === undefined) {
+    ch.attrs[key] = null;
     renderAttrAssign();
     return;
   }
-  ch.attrs[key] = val || 0;
+  const numVal = parseInt(val, 10);
+  const nums = ARRAYS[ch.array].nums;
+  // Check if this value is already used by another attribute
+  const otherUsed = ATTRIBUTES.filter(a=>a.key!==key).map(a=>ch.attrs[a.key]);
+  const usedCount = otherUsed.filter(v=>v===numVal).length;
+  const totalCount = nums.filter(n=>n===numVal).length;
+  if (usedCount >= totalCount) {
+    alert(`The value ${numVal} is already assigned to another Attribute.`);
+    renderAttrAssign();
+    return;
+  }
+  ch.attrs[key] = numVal;
+  renderAttrAssign();
   updateSkillPips();
 }
 

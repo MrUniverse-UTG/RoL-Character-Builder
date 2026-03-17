@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms of Legacy — Character Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink:#1c1c24;--paper:#faf9f6;--muted:#6b6878;--rule:#e0ddd6;
+  --accent:#4a3f8f;--accent-lt:#ede9fb;--accent-dk:#2e2660;
+  --gold:#b8860b;--gold-lt:#fef9e7;
+  --danger:#991b1b;--safe:#1a5c2a;
+  --head-bg:#1c1c24;--head-txt:#f0eee8;
+  --card-bg:#ffffff;--card-border:#e0ddd6;
+  --step-active:#4a3f8f;--step-done:#1a5c2a;--step-todo:#c8c4d4;
+  --r:8px;--font-body:'Crimson Pro',Georgia,serif;--font-ui:'DM Sans',system-ui,sans-serif;
+  --shadow:0 2px 12px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:1.05rem;line-height:1.6;color:var(--ink);background:var(--paper);min-height:100vh}
+
+/* Header */
+#topbar{background:var(--head-bg);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#topbar h1{font-family:var(--font-body);font-size:1.25rem;color:var(--head-txt);font-weight:700;flex:1}
+#topbar .subtitle{font-family:var(--font-ui);font-size:.8rem;color:rgba(255,255,255,.5);font-weight:400}
+
+/* Progress bar */
+#progress-wrap{background:#fff;border-bottom:1px solid var(--rule);padding:16px 20px;overflow-x:auto}
+#progress{display:flex;gap:0;min-width:600px;max-width:900px;margin:0 auto}
+.prog-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
+.prog-step::before{content:'';position:absolute;top:14px;left:-50%;right:50%;height:2px;background:var(--step-todo);z-index:0}
+.prog-step:first-child::before{display:none}
+.prog-step.done::before{background:var(--step-done)}
+.prog-step.active::before{background:var(--step-active)}
+.prog-dot{width:28px;height:28px;border-radius:50%;background:var(--step-todo);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:.75rem;font-weight:700;position:relative;z-index:1;transition:background .2s}
+.prog-step.done .prog-dot{background:var(--step-done)}
+.prog-step.active .prog-dot{background:var(--step-active);box-shadow:0 0 0 3px var(--accent-lt)}
+.prog-step.clickable:hover .prog-dot{filter:brightness(1.15)}
+.prog-label{font-family:var(--font-ui);font-size:.7rem;font-weight:600;color:var(--muted);margin-top:5px;text-align:center;white-space:nowrap}
+.prog-step.active .prog-label{color:var(--accent-dk)}
+.prog-step.done .prog-label{color:var(--safe)}
+
+/* Main layout */
+#main{max-width:860px;margin:0 auto;padding:28px 20px 80px}
+
+/* Step panels */
+.step-panel{display:none}
+.step-panel.active{display:block}
+.step-header{margin-bottom:24px}
+.step-header h2{font-family:var(--font-body);font-size:1.8rem;color:var(--accent-dk);margin-bottom:4px}
+.step-header p{color:var(--muted);font-family:var(--font-ui);font-size:.92rem}
+
+/* Cards / option grids */
+.option-grid{display:grid;gap:12px}
+.option-grid.cols2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.option-grid.cols3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.option-grid.cols4{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+
+.option-card{background:var(--card-bg);border:2px solid var(--card-border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s;user-select:none}
+.option-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.option-card.selected{border-color:var(--accent);background:var(--accent-lt);box-shadow:0 0 0 3px rgba(74,63,143,.15)}
+.option-card .card-title{font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:4px}
+.option-card .card-tag{font-family:var(--font-ui);font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.option-card .card-body{font-size:.88rem;color:#444;line-height:1.45}
+.option-card .card-stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.stat-badge{background:#f0eff8;border:1px solid #c8c4d4;border-radius:4px;padding:2px 8px;font-family:var(--font-ui);font-size:.75rem;font-weight:600;color:var(--accent-dk)}
+.stat-badge.bonus{background:#e8f5e9;border-color:#81c784;color:var(--safe)}
+.stat-badge.size{background:var(--gold-lt);border-color:#c8a415;color:#7a5000}
+
+/* Array picker */
+.array-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.array-card{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:16px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s}
+.array-card:hover{border-color:var(--accent)}
+.array-card.selected{border-color:var(--accent);background:var(--accent-lt)}
+.array-nums{display:flex;justify-content:center;gap:10px;margin-bottom:10px}
+.array-num{width:44px;height:44px;border-radius:8px;background:var(--head-bg);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:1.3rem;font-weight:700}
+.array-card .card-hint{font-family:var(--font-ui);font-size:.8rem;color:var(--muted)}
+
+/* Attribute assignment */
+#attr-assign{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.attr-slot{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:14px}
+.attr-slot label{font-family:var(--font-ui);font-weight:700;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px}
+.attr-slot .attr-name{font-weight:700;color:var(--accent-dk);font-size:1rem;margin-bottom:4px}
+.attr-slot .attr-desc{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.rank-select{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.9rem;background:#fff;color:var(--ink);cursor:pointer}
+.rank-display{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-ui);font-size:1.1rem;font-weight:700;color:var(--accent-dk)}
+.rank-display.locked{color:var(--safe)}
+
+/* Skill selector */
+.skill-section{margin-bottom:20px}
+.skill-section h3{font-family:var(--font-ui);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.skill-chip{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border:2px solid var(--rule);border-radius:6px;cursor:pointer;transition:border-color .12s,background .12s;font-family:var(--font-ui);font-size:.88rem;font-weight:500}
+.skill-chip:hover:not(.disabled){border-color:var(--accent)}
+.skill-chip.selected{border-color:var(--accent);background:var(--accent-lt);color:var(--accent-dk);font-weight:700}
+.skill-chip.disabled{opacity:.4;cursor:not-allowed}
+.skill-chip.class-bonus{border-color:#81c784;background:#e8f5e9;color:var(--safe)}
+.skill-chip .rank-pip{width:20px;height:20px;border-radius:4px;background:var(--rule);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.skill-chip.selected .rank-pip{background:var(--accent);color:#fff}
+.skill-chip.class-bonus .rank-pip{background:var(--safe);color:#fff}
+
+/* Counter */
+.selection-counter{font-family:var(--font-ui);font-size:.88rem;color:var(--muted);margin-bottom:14px}
+.selection-counter strong{color:var(--accent-dk)}
+.selection-counter.done strong{color:var(--safe)}
+.selection-counter.over strong{color:var(--danger)}
+
+/* Info box */
+.info-box{background:var(--accent-lt);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:10px 14px;margin:12px 0;font-family:var(--font-ui);font-size:.88rem;color:var(--accent-dk)}
+.warn-box{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 var(--r) var(--r) 0;padding:10px 14px;margin:12px 0;font-family:var(--font-ui);font-size:.88rem;color:#92400e}
+
+/* Stat summary panel */
+#stat-summary{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--rule);padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;z-index:50}
+.stat-pill{display:flex;align-items:center;gap:6px;padding:4px 12px;background:var(--paper);border:1px solid var(--rule);border-radius:20px;font-family:var(--font-ui);font-size:.82rem}
+.stat-pill .label{color:var(--muted);font-weight:500}
+.stat-pill .val{font-weight:700;color:var(--accent-dk)}
+
+/* Textarea / inputs */
+textarea, input[type=text], input[type=number], select.full {
+  width:100%;padding:9px 12px;border:1px solid var(--rule);border-radius:6px;
+  font-family:var(--font-ui);font-size:.9rem;color:var(--ink);background:#fff;
+  transition:border-color .12s;resize:vertical
+}
+textarea:focus, input:focus, select.full:focus{outline:none;border-color:var(--accent)}
+.form-row{display:grid;gap:12px;margin-bottom:14px}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-row.cols3{grid-template-columns:1fr 1fr 1fr}
+label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+
+/* Status points panel */
+#status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.status-card{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:14px;text-align:center}
+.status-card .status-name{font-family:var(--font-ui);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.status-card .status-val{font-size:2.2rem;font-weight:700;color:var(--accent-dk);font-family:var(--font-body);line-height:1}
+.status-card .status-formula{font-family:var(--font-ui);font-size:.72rem;color:var(--muted);margin-top:4px}
+.status-card.hp{border-color:#ef9a9a}.status-card.hp .status-val{color:var(--danger)}
+.status-card.mp{border-color:#90caf9}.status-card.mp .status-val{color:#1565c0}
+.status-card.dp{border-color:#a5d6a7}.status-card.dp .status-val{color:var(--safe)}
+.status-card.sp{border-color:#ce93d8}.status-card.sp .status-val{color:#6a1b9a}
+
+/* Navigation buttons */
+#nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--rule)}
+.btn{padding:11px 28px;border:none;border-radius:6px;font-family:var(--font-ui);font-size:.9rem;font-weight:600;cursor:pointer;transition:background .12s,transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--rule);color:var(--ink)}
+.btn-secondary:hover{background:#ccc}
+.btn-export{background:#1a5c2a;color:#fff;padding:13px 32px;font-size:1rem}
+.btn-export:hover{background:#14481f}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Lifepath tables */
+.lp-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:.9rem}
+.lp-table th{background:var(--head-bg);color:var(--head-txt);padding:7px 12px;text-align:left;font-family:var(--font-ui);font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.lp-table td{padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+.lp-table tr:last-child td{border-bottom:none}
+.lp-table tr:nth-child(even) td{background:#f8f7f4}
+.lp-table .roll{font-weight:700;color:var(--accent-dk);white-space:nowrap;font-family:var(--font-ui)}
+.lp-table .opt-name{font-weight:700;font-family:var(--font-ui)}
+.lp-table tr.lp-selected td{background:var(--accent-lt)}
+.lp-table tr{cursor:pointer}
+.lp-table tr:hover td{background:var(--accent-lt)}
+.lp-selected-badge{display:inline-block;background:var(--accent);color:#fff;border-radius:12px;padding:1px 8px;font-family:var(--font-ui);font-size:.72rem;font-weight:700;margin-left:8px}
+
+/* Summary / export step */
+#summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.summary-block{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.summary-block h3{font-family:var(--font-ui);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.summary-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid #f0eff8;font-size:.9rem}
+.summary-row:last-child{border-bottom:none}
+.summary-row .s-label{color:var(--muted);font-family:var(--font-ui);font-size:.82rem}
+.summary-row .s-val{font-weight:700;color:var(--accent-dk);font-family:var(--font-ui)}
+
+/* Validation messages */
+.validation-msg{font-family:var(--font-ui);font-size:.82rem;padding:8px 12px;border-radius:6px;margin-top:8px}
+.validation-msg.error{background:#fee2e2;color:var(--danger)}
+.validation-msg.ok{background:#d1fae5;color:var(--safe)}
+
+/* Responsive */
+@media(max-width:640px){
+  #summary-grid{grid-template-columns:1fr}
+  .form-row.cols2,.form-row.cols3{grid-template-columns:1fr}
+  .array-grid{grid-template-columns:1fr 1fr}
+  #attr-assign{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header id="topbar">
+  <div>
+    <h1>Realms of Legacy <span class="subtitle">Character Builder</span></h1>
+  </div>
+</header>
+
+<div id="progress-wrap">
+  <div id="progress">
+    <div class="prog-step" data-step="1"><div class="prog-dot">1</div><div class="prog-label">Attributes</div></div>
+    <div class="prog-step" data-step="2"><div class="prog-dot">2</div><div class="prog-label">Skills</div></div>
+    <div class="prog-step" data-step="3"><div class="prog-dot">3</div><div class="prog-label">Lineage</div></div>
+    <div class="prog-step" data-step="4"><div class="prog-dot">4</div><div class="prog-label">Class</div></div>
+    <div class="prog-step" data-step="5"><div class="prog-dot">5</div><div class="prog-label">Specialty</div></div>
+    <div class="prog-step" data-step="6"><div class="prog-dot">6</div><div class="prog-label">Lifepath</div></div>
+    <div class="prog-step" data-step="7"><div class="prog-dot">7</div><div class="prog-label">Status Points</div></div>
+    <div class="prog-step" data-step="8"><div class="prog-dot">8</div><div class="prog-label">Talents</div></div>
+    <div class="prog-step" data-step="9"><div class="prog-dot">9</div><div class="prog-label">Details</div></div>
+    <div class="prog-step" data-step="10"><div class="prog-dot">10</div><div class="prog-label">Export</div></div>
+  </div>
+</div>
+
+<div id="main">
+
+<!-- ═══════════ STEP 1: ATTRIBUTES ═══════════ -->
+<div class="step-panel" id="step-1">
+  <div class="step-header">
+    <h2>Step 1 — Allocate Attributes</h2>
+    <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
+  </div>
+  <div class="info-box">The sum of all Attribute Ranks must equal 6. No single Attribute may exceed Rank 6.</div>
+  <div class="array-grid" id="array-picker"></div>
+  <div id="attr-assign" style="display:none"></div>
+</div>
+
+<!-- ═══════════ STEP 2: SKILLS ═══════════ -->
+<div class="step-panel" id="step-2">
+  <div class="step-header">
+    <h2>Step 2 — Select Starting Skills</h2>
+    <p>Pick <strong>5 Skills</strong> to set at Rank 1. Your Class will add additional Skill bonuses in Step 4.</p>
+  </div>
+  <div class="selection-counter" id="skill-counter">Selected: <strong>0 / 5</strong></div>
+  <div id="skill-list"></div>
+</div>
+
+<!-- ═══════════ STEP 3: LINEAGE ═══════════ -->
+<div class="step-panel" id="step-3">
+  <div class="step-header">
+    <h2>Step 3 — Choose a Lineage</h2>
+    <p>Your Lineage determines your size, Speed, languages, and special traits.</p>
+  </div>
+  <div class="option-grid cols2" id="lineage-grid"></div>
+  <div id="lineage-detail" style="display:none;margin-top:20px"></div>
+</div>
+
+<!-- ═══════════ STEP 4: CLASS ═══════════ -->
+<div class="step-panel" id="step-4">
+  <div class="step-header">
+    <h2>Step 4 — Choose a Class</h2>
+    <p>Your Class grants an Attribute bonus, Skill bonuses, and determines which Specialties you can pick.</p>
+  </div>
+  <div class="option-grid cols2" id="class-grid"></div>
+  <div id="class-skill-choice" style="display:none;margin-top:20px"></div>
+</div>
+
+<!-- ═══════════ STEP 5: SPECIALTY ═══════════ -->
+<div class="step-panel" id="step-5">
+  <div class="step-header">
+    <h2>Step 5 — Choose a Specialty</h2>
+    <p>Your Specialty is your playstyle within your Class. You cannot change it later.</p>
+  </div>
+  <div class="option-grid cols2" id="specialty-grid"></div>
+</div>
+
+<!-- ═══════════ STEP 6: LIFEPATH ═══════════ -->
+<div class="step-panel" id="step-6">
+  <div class="step-header">
+    <h2>Step 6 — Create a Lifepath</h2>
+    <p>Click a row to select it, or type your own. These shape your character's backstory.</p>
+  </div>
+  <div id="lifepath-content"></div>
+</div>
+
+<!-- ═══════════ STEP 7: STATUS POINTS ═══════════ -->
+<div class="step-panel" id="step-7">
+  <div class="step-header">
+    <h2>Step 7 — Status Points</h2>
+    <p>Your stats are calculated automatically from your Attributes.</p>
+  </div>
+  <div class="info-box" id="hp-formula"></div>
+  <div id="status-grid"></div>
+  <div style="margin-top:20px">
+    <div class="warn-box" id="status-check"></div>
+  </div>
+</div>
+
+<!-- ═══════════ STEP 8: TALENTS ═══════════ -->
+<div class="step-panel" id="step-8">
+  <div class="step-header">
+    <h2>Step 8 — Record Talents</h2>
+    <p>Write down the Talents gained from your Lineage, Specialty, and any General Talents you've selected. These appear on page 3 of your character sheet.</p>
+  </div>
+  <div id="auto-talents" style="margin-bottom:20px"></div>
+  <div class="form-row">
+    <div>
+      <label class="field-label">Specialty Talent (auto-filled)</label>
+      <input type="text" id="talent-specialty" readonly style="background:#f8f7f4">
+    </div>
+  </div>
+  <div class="form-row">
+    <div>
+      <label class="field-label">Lineage Benefit / Traits (auto-filled)</label>
+      <textarea id="talent-lineage" rows="3" readonly style="background:#f8f7f4"></textarea>
+    </div>
+  </div>
+  <label class="field-label" style="margin-top:8px">Additional Talents (up to 9 — enter name, one per line)</label>
+  <div id="talent-slots"></div>
+</div>
+
+<!-- ═══════════ STEP 9: DETAILS ═══════════ -->
+<div class="step-panel" id="step-9">
+  <div class="step-header">
+    <h2>Step 9 — Character Details</h2>
+    <p>Fill in your character's name, appearance, and starting gear.</p>
+  </div>
+  <div class="form-row cols2">
+    <div><label class="field-label">Character Name *</label><input type="text" id="char-name" placeholder="Enter name..."></div>
+    <div><label class="field-label">Level</label><input type="number" id="char-level" value="1" min="1" max="20"></div>
+  </div>
+  <div class="form-row cols3">
+    <div><label class="field-label">Height</label><input type="text" id="char-height" placeholder="e.g. 5'10&quot;"></div>
+    <div><label class="field-label">Weight</label><input type="text" id="char-weight" placeholder="e.g. 165 lbs"></div>
+    <div><label class="field-label">Age</label><input type="text" id="char-age" placeholder="e.g. 24"></div>
+  </div>
+  <div class="form-row">
+    <div><label class="field-label">Character Notes / Appearance</label><textarea id="char-notes" rows="4" placeholder="Appearance, background notes, personality details..."></textarea></div>
+  </div>
+
+  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Gear & Weapons</h3>
+  <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:14px">Record up to 5 weapons/spell attacks and up to 6 equipment slots.</p>
+
+  <div id="weapon-slots"></div>
+
+  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Equipment Inventory</h3>
+  <div id="equip-slots"></div>
+
+  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Currency</h3>
+  <div class="form-row cols3">
+    <div><label class="field-label">Silver</label><input type="number" id="curr-silver" value="0" min="0"></div>
+    <div><label class="field-label">Gold</label><input type="number" id="curr-gold" value="0" min="0"></div>
+    <div><label class="field-label">Pluther</label><input type="number" id="curr-pluther" value="0" min="0"></div>
+  </div>
+
+  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Notable Characters</h3>
+  <div id="notable-slots"></div>
+</div>
+
+<!-- ═══════════ STEP 10: EXPORT ═══════════ -->
+<div class="step-panel" id="step-10">
+  <div class="step-header">
+    <h2>Step 10 — Export Character Sheet</h2>
+    <p>Review your character, then export to the Realms of Legacy PDF character sheet.</p>
+  </div>
+  <div id="summary-grid"></div>
+  <div id="export-validation" style="margin-top:16px"></div>
+  <div style="text-align:center;margin-top:32px">
+    <button class="btn btn-export" id="export-btn" onclick="exportPDF()">⬇ Download Character Sheet PDF</button>
+    <p style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted);margin-top:10px">Opens a filled PDF ready to print or share. No data is sent to any server.</p>
+  </div>
+  <div style="margin-top:24px;text-align:center">
+    <button class="btn btn-secondary" onclick="startOver()">Start Over</button>
+    <button class="btn btn-secondary" style="margin-left:12px" onclick="saveJSON()">💾 Save Progress (JSON)</button>
+    <button class="btn btn-secondary" style="margin-left:12px" onclick="document.getElementById('load-file').click()">📂 Load Progress</button>
+    <input type="file" id="load-file" accept=".json" style="display:none" onchange="loadJSON(event)">
+  </div>
+</div>
+
+<!-- Navigation -->
+<div id="nav-btns">
+  <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none">← Back</button>
+  <div></div>
+  <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Next Step →</button>
+</div>
+
+</div><!-- #main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// GAME DATA
+// ═══════════════════════════════════════════════════════════════
+const ARRAYS = [
+  {nums:[3,2,0,0], hint:"High peak with a zero — great for specialists"},
+  {nums:[3,1,1,0], hint:"High peak, two support stats"},
+  {nums:[2,2,1,0], hint:"Two strong stats — versatile and balanced"},
+  {nums:[2,1,1,1], hint:"Even spread — well-rounded generalist"},
+];
+
+const ATTRIBUTES = [
+  {key:'STR', name:'Strength',  desc:'Athletic power, fortitude, physical force'},
+  {key:'AGI', name:'Agility',   desc:'Motor skills, reflexes, speed'},
+  {key:'WIT', name:'Wits',      desc:'Critical thinking, perception, analysis'},
+  {key:'EMP', name:'Empathy',   desc:'Understanding others, communication, intuition'},
+];
+
+const SKILLS = {
+  STR: [{key:'Brawl',      name:'Brawl'},     {key:'Might',      name:'Might'},
+        {key:'Endure',     name:'Endure'},    {key:'Intimidate', name:'Intimidate'}],
+  AGI: [{key:'Move',       name:'Move'},      {key:'Hide',       name:'Hide'},
+        {key:'Finesse',    name:'Finesse'},   {key:'Shoot',      name:'Shoot'}],
+  WIT: [{key:'Analyze',    name:'Analyze'},   {key:'Scout',      name:'Scout'},
+        {key:'Insight',    name:'Insight'},   {key:'Survival',   name:'Survival'}],
+  EMP: [{key:'Manipulate', name:'Manipulate'},{key:'Perform',    name:'Perform'},
+        {key:'Medical',    name:'Medical'},   {key:'Tame',       name:'Tame'}],
+};
+
+const LINEAGES = [
+  {name:'Abysian',  type:'Traditional', size:'Medium', speed:30,  height:"5'–8'",
+   langs:{speak:['Sybus','Gaian'], read:['Sybus','Gaian']},
+   desc:'Feline Humanoids that are mobile and sturdy.',
+   traits:['Highlander','Kogon'],
+   features:'Catlike Reflexes (Major): Use a Quick action to move up to 15 ft without provoking Opportunity Strikes (once per round). Mountain Climber (Minor): Gain a Climb Speed equal to your base Speed. — OR — For the Hunt (Major): Use a Quick action to move up to 30 ft until end of turn (once per round). Stubborn (Minor): When you start your turn at 0 HP, regain up to 12 HP (once per Intermission).'},
+  {name:'Dryvorn',  type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
+   desc:'Dragon-blessed Humanoids attuned to a special element.',
+   traits:['Dragon Bloodline (choose one)'],
+   features:'Draconic Ancestry: Choose a Dragon Bloodline for elemental resistance and a breath weapon. Draconic Sight: Nightvision up to 60 feet.'},
+  {name:'Fueglins', type:'Traditional', size:'Small',  speed:30,  height:"2'–4'",
+   langs:{speak:['Fuegi','Gaian'], read:['Sylvan','Gaian']},
+   desc:'Small fungus people that can consume corpses to gain memories.',
+   traits:['Fungal'],
+   features:'Memory Consumption: By spending 10 min consuming a corpse, you can access the deceased\'s recent memories. Spore Cloud: Once per Intermission, release spores in a 10-ft radius causing a -1 modifier to checks for nearby creatures.'},
+  {name:'Guodons',  type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   langs:{speak:['Godun','Gaian'], read:['Eldar','Gaian']},
+   desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia.',
+   traits:['Titan-Touched'],
+   features:'Titanic Resilience: Resistance to one damage type of your choice. Titan\'s Will: Once per Full Rest, when you would be reduced to 0 HP, remain at 1 HP instead.'},
+  {name:'Humans',   type:'Traditional', size:'Small/Medium', speed:30, height:"3'–6'",
+   langs:{speak:['Hunon','Gaian'], read:['Aquon','Gaian']},
+   desc:'Resilient Humanoids that spread and adapt to other societies.',
+   traits:['Adaptive'],
+   features:'Adaptive Nature: Gain one additional General Talent at character creation. Determined: Once per Long Rest, reroll any one die after seeing the result.'},
+  {name:'Ocotos',   type:'Traditional', size:'Medium', speed:30,  height:"4'–6'",
+   langs:{speak:['Aquon','Gaian'], read:['Aquon','Gaian']},
+   desc:'Cephalopod Humanoids — last surviving nobility from the lost world.',
+   traits:['Noble Cephalopod'],
+   features:'Chromatic Skin: Use a Quick action to camouflage, gaining Hidden if stationary. Ink Cloud: Once per Intermission, create a 10-ft radius ink cloud (obscures vision in water/air).'},
+  {name:'Pridae',   type:'Traditional', size:'Medium', speed:30,  height:"4'–6'",
+   langs:{speak:['Prado','Gaian'], read:['Sybus','Gaian']},
+   desc:'Insectoid creatures from the deep underground of Gaia.',
+   traits:['Evolved Purpose (choose one)'],
+   features:'Evolved Purpose: Select one of several evolutionary traits from your colony. Chitinous Hide: Natural DP equal to 2 while unarmored.'},
+  {name:'Sylvaniks',type:'Traditional', size:'Medium', speed:30,  height:"5'–7'",
+   langs:{speak:['Sylvan','Gaian'], read:['Sylvan','Gaian']},
+   desc:'Plant-based Humanoids with a connection to knowledge and wisdom.',
+   traits:['Sunlight','Midnight'],
+   features:'Photosynthesis (Sunlight): During a Light or Full Rest in sunlight, regain extra Recovery Dice. — OR — Bioluminescence (Midnight): Your body emits light in a 10-ft radius; gain Nightvision.'},
+  {name:'Armorai',  type:'Otherworldly',size:'Medium', speed:30,  height:"5'–6'",
+   langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
+   desc:'Living crystals that infect suits of armor to gain a body.',
+   traits:['Crystal Construct'],
+   features:'Crystalline Body: You do not need to eat, sleep, or breathe. Living Armor: Your armor slots are part of your body; donning/doffing takes 1 minute instead of 5.'},
+  {name:'Darkaen',  type:'Otherworldly',size:'Medium', speed:30,  height:"5'–7'",
+   langs:{speak:['Abyssal','Gaian'], read:['Abyssal','Gaian']},
+   desc:'Demons created from the souls of Gaians.',
+   traits:['Demon-Touched'],
+   features:'Shadow Step: Once per Short Rest, teleport up to 30 ft to an unoccupied space you can see in dim light or darkness. Dark Resistance: Resistance to Necrotic damage.'},
+  {name:'Ozonian',  type:'Otherworldly',size:'Small/Medium', speed:30, height:"3'–6'",
+   langs:{speak:['One traditional language'],read:['One traditional language']},
+   desc:'Humanoid Slimes with the ability to shift and look like other Lineages.',
+   traits:['Ooze Form'],
+   features:'Shapeshifter: Use a Standard action to change your appearance to any Lineage you have observed. You retain your own stats. Amorphous: You can squeeze through spaces as small as 1 inch.'},
+  {name:'Undead',   type:'Otherworldly',size:'Varies', speed:30,  height:'Varies',
+   langs:{speak:['Necrosis','Gaian'], read:['Necrosis','Gaian']},
+   desc:'A soul bound to their corpse or another\'s.',
+   traits:['Undead Nature'],
+   features:'Undying: You do not need to eat, breathe, or sleep. You are immune to Disease. Death Defying: Once per Full Rest, when reduced to 0 HP, drop to 1 HP instead.'},
+];
+
+const CLASSES = [
+  {
+    name:'Fighter', spellcasting:null,
+    desc:'Frontline brawlers who shrug off damage and dominate in melee. High resilience with access to Martial and General Talents.',
+    attrBonus:{STR:1},
+    skillBonus:['Endure'],
+    skillChoice:[
+      {pick:1, from:['Brawl','Shoot'],       label:'Pick one:'},
+      {pick:1, from:['Might','Intimidate'],  label:'Pick one:'},
+    ],
+    talents:'Martial Talents, General Talents',
+    specialties:['Guardian','Berserker','Engineer','Pugilist'],
+  },
+  {
+    name:'Vagabond', spellcasting:null,
+    desc:'Agile duelists who excel at dealing damage and outmaneuvering enemies. Access to Martial and General Talents.',
+    attrBonus:{AGI:1},
+    skillBonus:['Move'],
+    skillChoice:[
+      {pick:1, from:['Brawl','Shoot'],     label:'Pick one:'},
+      {pick:1, from:['Hide','Finesse'],    label:'Pick one:'},
+    ],
+    talents:'Martial Talents, General Talents',
+    specialties:['Sharpshooter','Elemancer','Alchemist','Reaver'],
+  },
+  {
+    name:'Magi', spellcasting:'Wits',
+    desc:'Devoted scholars of Sorce. Master spellcasters with access to Sorcery and General Talents. Spellcasting Attribute: Wits.',
+    attrBonus:{WIT:1},
+    skillBonus:['Insight'],
+    skillChoice:[
+      {pick:1, from:['Analyze','Survival'], label:'Pick one:'},
+      {pick:1, from:['Move','Endure'],      label:'Pick one:'},
+    ],
+    talents:'Sorcery Talents, General Talents',
+    specialties:['Spellweaver','Warlock','Oracle','Witch'],
+  },
+  {
+    name:'Druid', spellcasting:'Empathy',
+    desc:'Conduits of natural forces who support allies and shift forms. Access to Sorcery and General Talents. Spellcasting Attribute: Empathy.',
+    attrBonus:{EMP:1},
+    skillBonus:['Insight'],
+    skillChoice:[
+      {pick:1, from:['Manipulate','Perform'], label:'Pick one:'},
+      {pick:1, from:['Medical','Tame'],       label:'Pick one:'},
+    ],
+    talents:'Sorcery Talents, General Talents',
+    specialties:['Shapeshifter','Summoner','Sonneteer','Cleric'],
+  },
+];
+
+const SPECIALTIES = {
+  Guardian:    {cls:'Fighter',  resource:'Focus Points',  desc:'Formidable knights in Plate armor who protect allies and absorb punishment. Specialty Talent ranks up automatically at certain levels.'},
+  Berserker:   {cls:'Fighter',  resource:'Stamina Points', desc:'Wild warriors who embrace pain and deal devastating damage through reckless ferocity.'},
+  Engineer:    {cls:'Fighter',  resource:'Energy Points',  desc:'Master tacticians who deploy innovative Constructs to control the battlefield.'},
+  Pugilist:    {cls:'Fighter',  resource:null,             desc:'Unarmed combat masters who shift between powerful stances to amplify their prowess.'},
+  Sharpshooter:{cls:'Vagabond', resource:'Focus Points',   desc:'Precision marksmen who strike from afar with unparalleled accuracy.'},
+  Elemancer:   {cls:'Vagabond', resource:'Energy Points',  desc:'Warriors who infuse their attacks with elemental forces through the ancient art of Elemancy.'},
+  Alchemist:   {cls:'Vagabond', resource:'Energy Points',  desc:'Crafters of potent Elixirs, Poisons, and Oils who prepare extensively before battle.'},
+  Reaver:      {cls:'Vagabond', resource:'Stamina Points', desc:'Dark art practitioners who draw power from Reapers of the Necropolis.'},
+  Spellweaver: {cls:'Magi',     resource:'Focus Points',   desc:'Knowledge channelers who empower and amplify their Spellcraft for maximum effect.'},
+  Warlock:     {cls:'Magi',     resource:'Energy Points',  desc:'Pact-makers who draw power from otherworldly entities and forbidden Sorce.'},
+  Oracle:      {cls:'Magi',     resource:'Focus Points',   desc:'Gifted seers who perceive thoughts, read fate, and predict enemies\' movements.'},
+  Witch:       {cls:'Magi',     resource:'Stamina Points', desc:'Enchanters who bend chaotic wild magic to bewitch and manipulate.'},
+  Shapeshifter:{cls:'Druid',    resource:'Stamina Points', desc:'Druids who transform into animal forms and emulate the myriad creatures of nature.'},
+  Summoner:    {cls:'Druid',    resource:'Energy Points',  desc:'Druid-bonded spirit callers who summon powerful companions from the Shroud.'},
+  Sonneteer:   {cls:'Druid',    resource:'Focus Points',   desc:'Word-wielders who use song and speech to empower allies and enchant foes.'},
+  Cleric:      {cls:'Druid',    resource:null,             desc:'Divine healers who channel ideals to mend wounds and bolster allies\' spirits.'},
+};
+
+const LIFEPATH = {
+  upbringings:[
+    {roll:1, name:'Cultural',    desc:'Grew up with a specific heritage or religion, engaging with its traditions and stories.'},
+    {roll:2, name:'Industrious', desc:'Grew up in a physically demanding environment, thriving through hard work.'},
+    {roll:3, name:'Militaristic',desc:'Followed a strict regimen to serve and protect an authority figure or way of life.'},
+    {roll:4, name:'Nomadic',     desc:'Spent most of your life traveling and meeting different cultures and people.'},
+    {roll:5, name:'Royalty',     desc:'Grew up in a large estate learning diplomacy, governance, and etiquette.'},
+    {roll:6, name:'Scholarly',   desc:'Strove to learn new things through a college or other academic institution.'},
+    {roll:7, name:'Wild',        desc:'Lived with a community or alone in the natural wilds, away from modern civilization.'},
+    {roll:8, name:'Desperate',   desc:'Had to struggle and work harder than most just to survive since earliest memory.'},
+  ],
+  cultures:[
+    {roll:1, name:'Castle',    desc:'Rigid social hierarchy of nobility; you or your family had access to wealth and power.'},
+    {roll:2, name:'City',      desc:'Area of trade and commerce; you\'ve seen many walks of life.'},
+    {roll:3, name:'Natural',   desc:'Grew up in the wilds with a deep connection to the land.'},
+    {roll:4, name:'Seafaring', desc:'Strong connection to the sea and love for exploration.'},
+    {roll:5, name:'Temple',    desc:'Religious or spiritual society; deep faith or skepticism toward it.'},
+    {roll:6, name:'Village',   desc:'Small rural area that relied on farming and tight-knit community bonds.'},
+    {roll:7, name:'Wayfaring', desc:'Constantly traveling across the land; resourceful and adaptable.'},
+    {roll:8, name:'Custom',    desc:'Your backstory is too unique to match any of the above options.'},
+  ],
+  personality:[
+    {roll:1, name:'Shy / Secretive'},
+    {roll:2, name:'Rebellious / Violent'},
+    {roll:3, name:'Arrogant / Proud'},
+    {roll:4, name:'Stable / Serious'},
+    {roll:5, name:'Silly / Lighthearted'},
+    {roll:6, name:'Sneaky / Deceptive'},
+    {roll:7, name:'Intellectual / Detached'},
+    {roll:8, name:'Friendly / Outgoing'},
+  ],
+  values:[
+    {roll:1, name:'Money'},     {roll:2, name:'Family'},
+    {roll:3, name:'Honor'},     {roll:4, name:'Knowledge'},
+    {roll:5, name:'Justice'},   {roll:6, name:'Love'},
+    {roll:7, name:'Power'},     {roll:8, name:'Friendship'},
+  ],
+  upsets:[
+    {roll:1, name:'A Certain Temperature'},  {roll:2, name:'Too Many Questions'},
+    {roll:3, name:'Public Speaking'},         {roll:4, name:'Cold Silence'},
+    {roll:5, name:'Pitch Darkness'},          {roll:6, name:'A Specific Creature'},
+    {roll:7, name:'Too Little Space'},        {roll:8, name:'A Specific Sight or Smell'},
+  ],
+  decisions:[
+    {roll:1, name:'Logic and Reason',    desc:'You rely on facts and analysis.'},
+    {roll:2, name:'Gut Feeling',         desc:'You trust your instincts above all.'},
+    {roll:3, name:'Emotion',             desc:'How you feel about it guides your choice.'},
+    {roll:4, name:'Tradition',           desc:'You follow established customs or teachings.'},
+    {roll:5, name:'Pragmatism',          desc:'You do whatever gets the job done.'},
+    {roll:6, name:'Counsel of Others',   desc:'You seek advice before deciding.'},
+    {roll:7, name:'Caution / Fear',      desc:'You hesitate and consider worst-case scenarios.'},
+    {roll:8, name:'Impulse',             desc:'You act first and think later.'},
+  ],
+  viewOfOthers:[
+    {roll:1, name:'Suspicious',     desc:'You trust no one until they prove themselves.'},
+    {roll:2, name:'Protective',     desc:'You feel responsible for those around you.'},
+    {roll:3, name:'Competitive',    desc:'You see others as rivals to overcome.'},
+    {roll:4, name:'Curious',        desc:'You are fascinated by everyone you meet.'},
+    {roll:5, name:'Empathetic',     desc:'You easily put yourself in others\' shoes.'},
+    {roll:6, name:'Indifferent',    desc:'Others rarely interest or concern you.'},
+    {roll:7, name:'Envious',        desc:'You often want what others have.'},
+    {roll:8, name:'Generous',       desc:'You freely give time, resources, and trust.'},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CHARACTER STATE
+// ═══════════════════════════════════════════════════════════════
+let ch = {
+  array: null,
+  attrs: {STR:0, AGI:0, WIT:0, EMP:0},
+  skills: {},          // key: rank (1 = selected, 2 = class bonus on top)
+  lineage: null,
+  lineageTrait: null,
+  cls: null,
+  clsSkillChoices: {}, // key: skill, true = chosen
+  specialty: null,
+  lifepath: {upbringing:null, culture:null, personality:null, value:null, upset:null, decisions:null, viewOfOthers:null},
+  lifepathCustom: {},
+  name:'', level:1, height:'', weight:'', age:'', notes:'',
+  weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
+  equip: Array(6).fill(''),
+  currency: {silver:0, gold:0, pluther:0},
+  notable: Array(10).fill(''),
+  talents: Array(9).fill(''),
+  specialtyTalent:'',
+  lineageBenefits:'',
+  step: 1,
+};
+
+let currentStep = 1;
+const TOTAL_STEPS = 10;
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function goToStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  currentStep = n;
+  updateProgress();
+  updateNavBtns();
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (n===7) renderStatusPoints();
+  if (n===10) renderSummary();
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep < TOTAL_STEPS) goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  if (currentStep > 1) goToStep(currentStep - 1);
+}
+
+function updateProgress() {
+  document.querySelectorAll('.prog-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active','done','clickable');
+    if (s === currentStep) el.classList.add('active');
+    else if (s < currentStep) { el.classList.add('done','clickable'); }
+  });
+  document.querySelectorAll('.prog-step.clickable').forEach(el => {
+    el.onclick = () => goToStep(parseInt(el.dataset.step));
+  });
+}
+
+function updateNavBtns() {
+  const back = document.getElementById('btn-back');
+  const next = document.getElementById('btn-next');
+  back.style.display = currentStep > 1 ? 'block' : 'none';
+  next.textContent = currentStep === TOTAL_STEPS ? 'Export →' : 'Next Step →';
+}
+
+function validateStep(step) {
+  switch(step) {
+    case 1:
+      if (!ch.array) { alert('Please choose an attribute array.'); return false; }
+      const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
+      const allAssigned = Object.values(ch.attrs).every(v => v !== undefined);
+      if (attrSum !== 6) { alert('All array values must be assigned. The sum must equal 6.'); return false; }
+      return true;
+    case 2:
+      const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
+      if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
+      return true;
+    case 3:
+      if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
+      return true;
+    case 4:
+      if (!ch.cls) { alert('Please choose a Class.'); return false; }
+      const cls = CLASSES.find(c=>c.name===ch.cls);
+      for (const choice of cls.skillChoice) {
+        const chosen = choice.from.filter(s => ch.clsSkillChoices[s]);
+        if (chosen.length < choice.pick) { alert(`Please make all Class skill choices.`); return false; }
+      }
+      return true;
+    case 5:
+      if (!ch.specialty) { alert('Please choose a Specialty.'); return false; }
+      return true;
+    case 9:
+      if (!ch.name.trim()) { alert('Please enter a character name.'); return false; }
+      return true;
+    default: return true;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 1 — ARRAYS + ATTRIBUTE ASSIGNMENT
+// ═══════════════════════════════════════════════════════════════
+function renderArrayPicker() {
+  const container = document.getElementById('array-picker');
+  container.innerHTML = ARRAYS.map((arr,i) => `
+    <div class="array-card ${ch.array===i?'selected':''}" onclick="selectArray(${i})">
+      <div class="array-nums">
+        ${arr.nums.map(n=>`<div class="array-num">${n}</div>`).join('')}
+      </div>
+      <div class="card-hint">${arr.hint}</div>
+    </div>
+  `).join('');
+}
+
+function selectArray(idx) {
+  ch.array = idx;
+  ch.attrs = {STR:0, AGI:0, WIT:0, EMP:0};
+  renderArrayPicker();
+  renderAttrAssign();
+  document.getElementById('attr-assign').style.display = 'grid';
+}
+
+function renderAttrAssign() {
+  const nums = [...ARRAYS[ch.array].nums];
+  const container = document.getElementById('attr-assign');
+  container.innerHTML = `
+    <div class="info-box" style="grid-column:1/-1">Assign each number to one Attribute. Each number can only be used once.</div>
+    ${ATTRIBUTES.map(attr => `
+      <div class="attr-slot">
+        <div class="attr-name">${attr.name}</div>
+        <div class="attr-desc">${attr.desc}</div>
+        <select class="rank-select" onchange="assignAttr('${attr.key}',+this.value)">
+          <option value="">— assign rank —</option>
+          ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${ch.attrs[attr.key]===n?'selected':''}>${n}</option>`).join('')}
+        </select>
+        <div style="margin-top:8px;font-family:var(--font-ui);font-size:.82rem;color:var(--muted)">Current: <strong>${ch.attrs[attr.key] || 0}</strong></div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function assignAttr(key, val) {
+  const nums = ARRAYS[ch.array].nums;
+  // Check if this value is already used elsewhere
+  const otherUsed = ATTRIBUTES.filter(a=>a.key!==key).map(a=>ch.attrs[a.key]);
+  const usedCount = otherUsed.filter(v=>v===val).length;
+  const totalCount = nums.filter(n=>n===val).length;
+  if (val && usedCount >= totalCount) {
+    alert(`The value ${val} is already used by another Attribute.`);
+    renderAttrAssign();
+    return;
+  }
+  ch.attrs[key] = val || 0;
+  updateSkillPips();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 2 — SKILLS
+// ═══════════════════════════════════════════════════════════════
+function renderSkillList() {
+  const container = document.getElementById('skill-list');
+  let html = '';
+  for (const [attrKey, skills] of Object.entries(SKILLS)) {
+    const attr = ATTRIBUTES.find(a=>a.key===attrKey);
+    html += `<div class="skill-section">
+      <h3>${attr.name} Skills</h3>
+      <div class="skill-grid">
+        ${skills.map(skill => {
+          const rank = ch.skills[skill.key] || 0;
+          const isSelected = rank >= 1;
+          const isClassBonus = rank >= 2;
+          return `
+            <div class="skill-chip ${isSelected?'selected':''} ${isClassBonus?'class-bonus':''}"
+                 onclick="toggleSkill('${skill.key}')">
+              <div class="rank-pip">${rank}</div>
+              ${skill.name}
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+  updateSkillCounter();
+}
+
+function toggleSkill(key) {
+  const isClassBonus = isClassBonusSkill(key);
+  if (isClassBonus) return; // Can't toggle class bonus skills
+  const currentRank = ch.skills[key] || 0;
+  const selectedCount = Object.keys(ch.skills).filter(k => (ch.skills[k]||0) >= 1 && !isClassBonusSkill(k)).length;
+  if (currentRank >= 1) {
+    ch.skills[key] = 0;
+  } else {
+    if (selectedCount >= 5) { alert('You can only select 5 starting skills.'); return; }
+    ch.skills[key] = 1;
+  }
+  renderSkillList();
+}
+
+function isClassBonusSkill(key) {
+  if (!ch.cls) return false;
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  if (!cls) return false;
+  return cls.skillBonus.includes(key) || Object.keys(ch.clsSkillChoices).filter(k=>ch.clsSkillChoices[k]).includes(key);
+}
+
+function updateSkillCounter() {
+  const selectedCount = Object.keys(ch.skills).filter(k => (ch.skills[k]||0) >= 1 && !isClassBonusSkill(k)).length;
+  const el = document.getElementById('skill-counter');
+  el.className = 'selection-counter' + (selectedCount===5?' done':selectedCount>5?' over':'');
+  el.innerHTML = `Selected: <strong>${selectedCount} / 5</strong>`;
+}
+
+function updateSkillPips() {
+  if (currentStep === 2) renderSkillList();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 3 — LINEAGE
+// ═══════════════════════════════════════════════════════════════
+function renderLineageGrid() {
+  const container = document.getElementById('lineage-grid');
+  container.innerHTML = LINEAGES.map(lg => `
+    <div class="option-card ${ch.lineage===lg.name?'selected':''}" onclick="selectLineage('${lg.name}')">
+      <div class="card-tag">${lg.type}</div>
+      <div class="card-title">${lg.name}</div>
+      <div class="card-body">${lg.desc}</div>
+      <div class="card-stats">
+        <span class="stat-badge size">Size: ${lg.size}</span>
+        <span class="stat-badge">Speed: ${lg.speed} ft</span>
+        <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectLineage(name) {
+  ch.lineage = name;
+  const lg = LINEAGES.find(l=>l.name===name);
+  renderLineageGrid();
+  const detail = document.getElementById('lineage-detail');
+  detail.style.display = 'block';
+  detail.innerHTML = `
+    <div class="option-card selected" style="cursor:default">
+      <div class="card-title" style="font-size:1.1rem">${lg.name} — Features</div>
+      <div class="card-stats" style="margin:8px 0">
+        <span class="stat-badge size">Size: ${lg.size}</span>
+        <span class="stat-badge">Height: ${lg.height}</span>
+        <span class="stat-badge">Speed: ${lg.speed} ft</span>
+        <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
+        <span class="stat-badge">Reads: ${lg.langs.read.join(', ')}</span>
+      </div>
+      <div class="card-body" style="margin-top:10px">${lg.features}</div>
+      ${lg.traits.length > 1 ? `<div style="margin-top:10px;font-family:var(--font-ui);font-size:.85rem"><strong>Trait Sub-group:</strong> ${lg.traits.join(' or ')}</div>` : ''}
+    </div>
+  `;
+  // Update talent fields on step 8
+  ch.lineageBenefits = `${lg.name} Lineage: ${lg.features}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 4 — CLASS
+// ═══════════════════════════════════════════════════════════════
+function renderClassGrid() {
+  const container = document.getElementById('class-grid');
+  container.innerHTML = CLASSES.map(cls => `
+    <div class="option-card ${ch.cls===cls.name?'selected':''}" onclick="selectClass('${cls.name}')">
+      <div class="card-title">${cls.name}</div>
+      <div class="card-body">${cls.desc}</div>
+      <div class="card-stats" style="margin-top:10px">
+        <span class="stat-badge bonus">+1 ${ATTRIBUTES.find(a=>Object.keys(cls.attrBonus)[0]===a.key)?.name || Object.keys(cls.attrBonus)[0]}</span>
+        ${cls.skillBonus.map(s=>`<span class="stat-badge bonus">+1 ${s}</span>`).join('')}
+        ${cls.spellcasting ? `<span class="stat-badge">Casts with ${cls.spellcasting}</span>` : ''}
+      </div>
+      <div style="margin-top:8px;font-family:var(--font-ui);font-size:.78rem;color:var(--muted)">Specialties: ${cls.specialties.join(', ')}</div>
+    </div>
+  `).join('');
+}
+
+function selectClass(name) {
+  // Remove old class bonuses
+  if (ch.cls) {
+    const old = CLASSES.find(c=>c.name===ch.cls);
+    old.skillBonus.forEach(s => { if ((ch.skills[s]||0) >= 2) ch.skills[s] -= 1; else delete ch.skills[s]; });
+    old.attrBonus && Object.keys(old.attrBonus).forEach(k => { ch.attrs[k] = Math.max(0, (ch.attrs[k]||0) - old.attrBonus[k]); });
+    Object.keys(ch.clsSkillChoices).forEach(k => {
+      if (ch.clsSkillChoices[k]) { if ((ch.skills[k]||0) >= 2) ch.skills[k] -= 1; else delete ch.skills[k]; }
+    });
+    ch.clsSkillChoices = {};
+  }
+
+  ch.cls = name;
+  ch.specialty = null;
+  const cls = CLASSES.find(c=>c.name===name);
+
+  // Apply attr bonus
+  Object.keys(cls.attrBonus).forEach(k => { ch.attrs[k] = (ch.attrs[k]||0) + cls.attrBonus[k]; });
+  // Apply fixed skill bonuses
+  cls.skillBonus.forEach(s => { ch.skills[s] = (ch.skills[s]||0) + 1; });
+
+  renderClassGrid();
+  renderClassSkillChoices();
+}
+
+function renderClassSkillChoices() {
+  if (!ch.cls) return;
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  const container = document.getElementById('class-skill-choice');
+  if (!cls.skillChoice || cls.skillChoice.length === 0) { container.style.display='none'; return; }
+  container.style.display = 'block';
+  container.innerHTML = `
+    <div class="info-box"><strong>${cls.name} Skill Bonuses</strong> — choose your additional skills:</div>
+    ${cls.skillChoice.map((choice, ci) => `
+      <div style="margin-bottom:14px">
+        <div class="field-label" style="display:block;margin-bottom:8px">${choice.label}</div>
+        <div class="skill-grid">
+          ${choice.from.map(sk => {
+            const chosen = ch.clsSkillChoices[sk];
+            // Check if another choice in same group already selected this
+            return `
+              <div class="skill-chip ${chosen?'selected class-bonus':''}"
+                   onclick="pickClassSkill(${ci}, '${sk}')">
+                <div class="rank-pip">${chosen?'✓':''}</div>
+                ${sk}
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function pickClassSkill(choiceIdx, skillKey) {
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  const choice = cls.skillChoice[choiceIdx];
+
+  // Deselect any previously selected skill from this choice group
+  choice.from.forEach(sk => {
+    if (ch.clsSkillChoices[sk]) {
+      ch.clsSkillChoices[sk] = false;
+      if ((ch.skills[sk]||0) >= 2) ch.skills[sk] -= 1;
+      else delete ch.skills[sk];
+    }
+  });
+
+  // Select new one
+  ch.clsSkillChoices[skillKey] = true;
+  ch.skills[skillKey] = (ch.skills[skillKey]||0) + 1;
+  renderClassSkillChoices();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 5 — SPECIALTY
+// ═══════════════════════════════════════════════════════════════
+function renderSpecialtyGrid() {
+  const container = document.getElementById('specialty-grid');
+  if (!ch.cls) { container.innerHTML = '<p style="color:var(--muted);font-family:var(--font-ui)">Please choose a Class first.</p>'; return; }
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  container.innerHTML = cls.specialties.map(specName => {
+    const spec = SPECIALTIES[specName];
+    return `
+      <div class="option-card ${ch.specialty===specName?'selected':''}" onclick="selectSpecialty('${specName}')">
+        <div class="card-title">${specName}</div>
+        <div class="card-body">${spec.desc}</div>
+        ${spec.resource ? `<div class="card-stats" style="margin-top:8px"><span class="stat-badge">Resource: ${spec.resource}</span></div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function selectSpecialty(name) {
+  ch.specialty = name;
+  ch.specialtyTalent = name + ' Specialty Talent';
+  renderSpecialtyGrid();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 6 — LIFEPATH
+// ═══════════════════════════════════════════════════════════════
+function renderLifepath() {
+  const container = document.getElementById('lifepath-content');
+  const sections = [
+    {key:'upbringing',   label:'Upbringing',         data:LIFEPATH.upbringings,    hasDesc:true},
+    {key:'culture',      label:'Culture',             data:LIFEPATH.cultures,       hasDesc:true},
+    {key:'personality',  label:'Personality',         data:LIFEPATH.personality,    hasDesc:false},
+    {key:'value',        label:'What You Value Most', data:LIFEPATH.values,         hasDesc:false},
+    {key:'upset',        label:'What Upsets You',     data:LIFEPATH.upsets,         hasDesc:false},
+    {key:'decisions',    label:'How You Approach Decisions', data:LIFEPATH.decisions, hasDesc:true},
+    {key:'viewOfOthers', label:'How You View Others', data:LIFEPATH.viewOfOthers,   hasDesc:true},
+  ];
+
+  container.innerHTML = sections.map(sec => `
+    <div style="margin-bottom:28px">
+      <h3 style="font-family:var(--font-ui);font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--accent-dk)">${sec.label}</h3>
+      <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:10px">
+        Click a row to select it, or type a custom answer below.
+        ${ch.lifepath[sec.key] ? `<span class="lp-selected-badge">✓ ${ch.lifepath[sec.key]}</span>` : ''}
+      </p>
+      <table class="lp-table">
+        <thead><tr><th>d8</th><th>Option</th>${sec.hasDesc?'<th>Description</th>':''}</tr></thead>
+        <tbody>
+          ${sec.data.map(row => `
+            <tr class="${ch.lifepath[sec.key]===row.name?'lp-selected':''}"
+                onclick="selectLifepath('${sec.key}','${row.name.replace(/'/g,"\\'")}')">
+              <td class="roll">${row.roll}</td>
+              <td class="opt-name">${row.name}</td>
+              ${sec.hasDesc?`<td>${row.desc||''}</td>`:''}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div>
+        <label class="field-label">Custom / Notes for ${sec.label}</label>
+        <input type="text" value="${ch.lifepathCustom[sec.key]||''}" 
+               onchange="ch.lifepathCustom['${sec.key}']=this.value"
+               placeholder="Enter custom answer or notes...">
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectLifepath(key, value) {
+  ch.lifepath[key] = value;
+  renderLifepath();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 7 — STATUS POINTS
+// ═══════════════════════════════════════════════════════════════
+function calcHP()  { return (((ch.attrs.STR||0) + (ch.attrs.AGI||0)) * 2) + 4; }
+function calcMP()  { return (((ch.attrs.WIT||0) + (ch.attrs.EMP||0)) * 2) + 4; }
+function calcDP()  { return 0; } // Set by armor
+function calcSP()  { return calcMP(); } // Sorce Points = max MP
+
+function renderStatusPoints() {
+  const hp = calcHP(), mp = calcMP(), sp = calcSP();
+  const totalCheck = hp + mp;
+  document.getElementById('hp-formula').innerHTML =
+    `<strong>HP</strong> = (STR ${ch.attrs.STR||0} + AGI ${ch.attrs.AGI||0}) × 2 + 4 = <strong>${hp}</strong> &nbsp;|&nbsp; ` +
+    `<strong>MP</strong> = (WIT ${ch.attrs.WIT||0} + EMP ${ch.attrs.EMP||0}) × 2 + 4 = <strong>${mp}</strong> &nbsp;|&nbsp; ` +
+    `<strong>Sorce Points</strong> = max MP = <strong>${sp}</strong>`;
+
+  document.getElementById('status-grid').innerHTML = `
+    <div class="status-card hp">
+      <div class="status-name">Max HP</div>
+      <div class="status-val">${hp}</div>
+      <div class="status-formula">(STR+AGI)×2+4</div>
+    </div>
+    <div class="status-card mp">
+      <div class="status-name">Max MP</div>
+      <div class="status-val">${mp}</div>
+      <div class="status-formula">(WIT+EMP)×2+4</div>
+    </div>
+    <div class="status-card dp">
+      <div class="status-name">Max DP</div>
+      <div class="status-val">—</div>
+      <div class="status-formula">Set by armor</div>
+    </div>
+    <div class="status-card sp">
+      <div class="status-name">Sorce Points</div>
+      <div class="status-val">${sp}</div>
+      <div class="status-formula">= Max MP</div>
+    </div>
+    <div class="status-card" style="border-color:#b0aa9a">
+      <div class="status-name">Recovery Dice</div>
+      <div class="status-val">${ch.level||1}</div>
+      <div class="status-formula">= Level</div>
+    </div>
+  `;
+
+  const checkEl = document.getElementById('status-check');
+  if (totalCheck === 20) {
+    checkEl.className = 'info-box';
+    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} — Correct!`;
+  } else {
+    checkEl.className = 'warn-box';
+    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 20. Check your Attribute assignments.`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 8 — TALENTS
+// ═══════════════════════════════════════════════════════════════
+function renderTalentStep() {
+  // Auto-fill specialty and lineage
+  const specEl = document.getElementById('talent-specialty');
+  const lgEl   = document.getElementById('talent-lineage');
+  if (ch.specialty) {
+    specEl.value = ch.specialty + ' Specialty Talent (Rank 1)';
+    ch.specialtyTalent = ch.specialty + ' Specialty Talent';
+  }
+  if (ch.lineage) {
+    const lg = LINEAGES.find(l=>l.name===ch.lineage);
+    const featureText = `${lg.name}: ${lg.features.substring(0,200)}...`;
+    lgEl.value = featureText;
+    ch.lineageBenefits = featureText;
+  }
+
+  const autoEl = document.getElementById('auto-talents');
+  const cls = CLASSES.find(c=>c.name===ch.cls);
+  autoEl.innerHTML = `
+    <div class="info-box">
+      <strong>Auto-granted from ${ch.cls || 'Class'}:</strong> Access to ${cls ? cls.talents : '—'}.
+      ${ch.cls==='Magi'||ch.cls==='Druid' ? `Spellcasting Attribute: ${CLASSES.find(c=>c.name===ch.cls).spellcasting}.` : ''}
+    </div>
+  `;
+
+  const container = document.getElementById('talent-slots');
+  container.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const row = document.createElement('div');
+    row.className = 'form-row cols2';
+    row.style.marginBottom = '8px';
+    row.innerHTML = `
+      <div>
+        <label class="field-label">Talent ${i+1}</label>
+        <input type="text" value="${ch.talents[i]||''}"
+               placeholder="e.g. Tiger Style, Primal Style..."
+               onchange="ch.talents[${i}]=this.value">
+      </div>
+      <div>
+        <label class="field-label">Rank</label>
+        <select class="full" onchange="ch.talentRanks=(ch.talentRanks||[]); ch.talentRanks[${i}]=+this.value">
+          <option value="1">Rank 1</option><option value="2">Rank 2</option>
+          <option value="3">Rank 3</option><option value="4">Rank 4</option>
+          <option value="5">Rank 5</option>
+        </select>
+      </div>
+    `;
+    container.appendChild(row);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 9 — DETAILS
+// ═══════════════════════════════════════════════════════════════
+function renderDetailsStep() {
+  // Weapon slots
+  const wContainer = document.getElementById('weapon-slots');
+  wContainer.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const w = ch.weapons[i];
+    const d = document.createElement('div');
+    d.style.cssText = 'background:#fff;border:1px solid var(--rule);border-radius:8px;padding:14px;margin-bottom:12px';
+    d.innerHTML = `
+      <div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:10px">WEAPON / ATTACK ${i+1}</div>
+      <div class="form-row cols3">
+        <div><label class="field-label">Name</label><input type="text" value="${w.name}" onchange="ch.weapons[${i}].name=this.value" placeholder="e.g. Longsword"></div>
+        <div><label class="field-label">Range</label><input type="text" value="${w.range}" onchange="ch.weapons[${i}].range=this.value" placeholder="Melee / 30 ft"></div>
+        <div><label class="field-label">Mod</label><input type="text" value="${w.mod}" onchange="ch.weapons[${i}].mod=this.value" placeholder="+0"></div>
+      </div>
+      <div class="form-row cols3">
+        <div><label class="field-label">Damage</label><input type="text" value="${w.damage}" onchange="ch.weapons[${i}].damage=this.value" placeholder="8 Slash"></div>
+        <div><label class="field-label">Dice Pool</label><input type="text" value="${w.pool}" onchange="ch.weapons[${i}].pool=this.value" placeholder="1d8+2d6"></div>
+        <div><label class="field-label">Features</label><input type="text" value="${w.features}" onchange="ch.weapons[${i}].features=this.value" placeholder="Heavy, Two-Handed..."></div>
+      </div>
+    `;
+    wContainer.appendChild(d);
+  }
+
+  // Equipment slots
+  const eContainer = document.getElementById('equip-slots');
+  eContainer.innerHTML = `
+    <div class="form-row cols2">
+      ${['Armor','Back 1','Back 2','Belt 1','Belt 2','Kit'].map((slot,i) => `
+        <div>
+          <label class="field-label">${slot}</label>
+          <input type="text" value="${ch.equip[i]||''}" onchange="ch.equip[${i}]=this.value" placeholder="${slot} slot...">
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Notable characters
+  const nContainer = document.getElementById('notable-slots');
+  nContainer.innerHTML = `
+    <div class="form-row cols2">
+      ${Array(10).fill(0).map((_,i) => `
+        <div>
+          <label class="field-label">Character ${i+1}</label>
+          <input type="text" value="${ch.notable[i]||''}" onchange="ch.notable[${i}]=this.value" placeholder="Name / relationship...">
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 10 — SUMMARY
+// ═══════════════════════════════════════════════════════════════
+function renderSummary() {
+  const allSkills = {};
+  for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
+  const lg = LINEAGES.find(l=>l.name===ch.lineage);
+
+  const grid = document.getElementById('summary-grid');
+  grid.innerHTML = `
+    <div class="summary-block">
+      <h3>Identity</h3>
+      <div class="summary-row"><span class="s-label">Name</span><span class="s-val">${ch.name||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Level</span><span class="s-val">${ch.level||1}</span></div>
+      <div class="summary-row"><span class="s-label">Class</span><span class="s-val">${ch.cls||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${ch.specialty||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${ch.lineage||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?lg.speed+' ft':'—'}</span></div>
+    </div>
+    <div class="summary-block">
+      <h3>Attributes</h3>
+      ${ATTRIBUTES.map(a=>`
+        <div class="summary-row"><span class="s-label">${a.name}</span><span class="s-val">${ch.attrs[a.key]||0}</span></div>
+      `).join('')}
+    </div>
+    <div class="summary-block">
+      <h3>Status Points</h3>
+      <div class="summary-row"><span class="s-label">Max HP</span><span class="s-val" style="color:var(--danger)">${calcHP()}</span></div>
+      <div class="summary-row"><span class="s-label">Max MP</span><span class="s-val" style="color:#1565c0">${calcMP()}</span></div>
+      <div class="summary-row"><span class="s-label">Sorce Points</span><span class="s-val" style="color:#6a1b9a">${calcSP()}</span></div>
+      <div class="summary-row"><span class="s-label">Recovery Dice</span><span class="s-val">${ch.level||1}</span></div>
+    </div>
+    <div class="summary-block">
+      <h3>Lifepath</h3>
+      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${ch.lifepath.culture||ch.lifepathCustom.culture||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${ch.lifepath.personality||ch.lifepathCustom.personality||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${ch.lifepath.value||ch.lifepathCustom.value||'—'}</span></div>
+    </div>
+    <div class="summary-block" style="grid-column:1/-1">
+      <h3>Skills</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">
+        ${Object.keys(allSkills).filter(k=>allSkills[k]>0).map(k=>`
+          <div class="summary-row"><span class="s-label">${k}</span><span class="s-val">Rank ${allSkills[k]}</span></div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // Validation
+  const checks = [];
+  const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
+  checks.push({ok: attrSum === 6, msg: `Attribute sum = ${attrSum} (should be 6)`});
+  checks.push({ok: calcHP()+calcMP() === 20, msg: `HP+MP = ${calcHP()+calcMP()} (should be 20 at level 1)`});
+  checks.push({ok: !!ch.name, msg: 'Character name is set'});
+  checks.push({ok: !!ch.lineage, msg: 'Lineage is chosen'});
+  checks.push({ok: !!ch.cls, msg: 'Class is chosen'});
+  checks.push({ok: !!ch.specialty, msg: 'Specialty is chosen'});
+
+  document.getElementById('export-validation').innerHTML = checks.map(c => `
+    <div class="${c.ok?'validation-msg ok':'validation-msg error'}">${c.ok?'✓':'✗'} ${c.msg}</div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════════════════════
+async function exportPDF() {
+  const btn = document.getElementById('export-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating PDF...';
+  try {
+    // Fetch the PDF template
+    const pdfBytes = await fetch('Character_Sheet_Form_Fill.pdf').then(r => r.arrayBuffer());
+    const { PDFDocument } = PDFLib;
+    const pdf = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+    const form = pdf.getForm();
+
+    const lg = LINEAGES.find(l=>l.name===ch.lineage) || {};
+    const allSkills = {};
+    for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
+
+    // Helper
+    const set = (fieldName, val) => {
+      try { form.getTextField(fieldName).setText(String(val||'')); } catch(e) {}
+    };
+    const setCheck = (fieldName, checked) => {
+      try {
+        const f = form.getCheckBox(fieldName);
+        if (checked) f.check(); else f.uncheck();
+      } catch(e) {
+        try {
+          const f = form.getButton(fieldName);
+          f.setImage && f.setImage('');
+        } catch(e2) {}
+      }
+    };
+
+    // Page 1 — Identity
+    set('Character Name', ch.name);
+    set('JOB', ch.cls);
+    set('SPECIALTY', ch.specialty);
+    set('LINEAGE', ch.lineage);
+    set('LEVEL', ch.level||1);
+    set('XP', 0);
+    set('SIZE', lg.size||'');
+    set('LANGUAGES', (lg.langs?.speak||[]).join(', '));
+    set('LANGUAGES read', (lg.langs?.read||[]).join(', '));
+    set('SPEED', lg.speed ? lg.speed+' ft' : '30 ft');
+
+    // Attributes
+    set('STRENGTH',  ch.attrs.STR||0);
+    set('AGILITY',   ch.attrs.AGI||0);
+    set('WITS',      ch.attrs.WIT||0);
+    set('EMPATHY',   ch.attrs.EMP||0);
+
+    // Skills
+    set('Brawl',      allSkills.Brawl||0);
+    set('Endure',     allSkills.Endure||0);
+    set('Intimidate', allSkills.Intimidate||0);
+    set('Might',      allSkills.Might||0);
+    set('Finesse',    allSkills.Finesse||0);
+    set('Hide',       allSkills.Hide||0);
+    set('Move',       allSkills.Move||0);
+    set('Shoot',      allSkills.Shoot||0);
+    set('Analyze',    allSkills.Analyze||0);
+    set('Insight',    allSkills.Insight||0);
+    set('Scout',      allSkills.Scout||0);
+    set('Survival',   allSkills.Survival||0);
+    set('Medical',    allSkills.Medical||0);
+    set('Manipulate', allSkills.Manipulate||0);
+    set('Perform',    allSkills.Perform||0);
+    set('Tame',       allSkills.Tame||0);
+
+    // Talents (page 1 table)
+    const allTalents = [ch.specialtyTalent, ...ch.talents.filter(t=>t)];
+    allTalents.slice(0,10).forEach((t,i)=>{ set(`MP Talent name ${i+1}`, t); set(`MP Talent rank ${i+1}`, '1'); });
+
+    // Status points
+    set('HP max', calcHP());  set('HP cur', calcHP());
+    set('MP max', calcMP());  set('MP Cur', calcMP());
+    set('DP max', 0);         set('DP Cur', 0);
+    set('Sorce Max', calcSP()); set('Sorce Cur', calcSP());
+    set('Recovery Max', ch.level||1); set('Recovery Cur', ch.level||1);
+    set('Specialty max', 0); set('Specialty Cur', 0);
+
+    set('CHARACTER NOTES', ch.notes);
+
+    // Currency
+    set('Silver',  ch.currency?.silver||0);
+    set('Gold',    ch.currency?.gold||0);
+    set('Pluther', ch.currency?.pluther||0);
+
+    // Equipment
+    const equipLabels = ['Armor Slot','Back 1','Back 2','Belt 1','Belt 2','Kit'];
+    ch.equip.slice(0,6).forEach((e,i)=> set(`Equipment ${i+1}`, e));
+
+    // Weapons
+    ch.weapons.slice(0,5).forEach((w,i) => {
+      const n = i+1;
+      set(`attack name ${n}`,     w.name);
+      set(`attack range ${n}`,    w.range);
+      set(`attack mod ${n}`,      w.mod);
+      set(`attack damage ${n}`,   w.damage);
+      set(`attack pool ${n}`,     w.pool);
+      set(`attack features ${n}`, w.features);
+    });
+
+    // Page 2 — Lifepath
+    set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
+    set('Culture',                  ch.lifepath.culture||ch.lifepathCustom.culture||'');
+    set('Personality',              ch.lifepath.personality||ch.lifepathCustom.personality||'');
+    set('Value Most',               ch.lifepath.value||ch.lifepathCustom.value||'');
+    set('What Upsets You',          ch.lifepath.upset||ch.lifepathCustom.upset||'');
+    set('How you approach Decisions', ch.lifepath.decisions||ch.lifepathCustom.decisions||'');
+    set('How you view others',      ch.lifepath.viewOfOthers||ch.lifepathCustom.viewOfOthers||'');
+
+    // Notable characters
+    ch.notable.slice(0,10).forEach((n,i)=> set(`Notable Char ${i+1}`, n));
+
+    // Backpack slots (generic)
+    const bpItems = ch.equip.slice(6)||[];
+    bpItems.slice(0,16).forEach((item,i) => set(`Gear Name ${i+1}`, item||''));
+
+    // Page 3 — Talents
+    set('LINEAGE BENEFITS',  ch.lineageBenefits||'');
+    set('SPECIALTY TALENT',  ch.specialtyTalent||'');
+    const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
+    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => set(talentFields[i], t));
+
+    // Flatten form (makes fields visible without need for Acrobat)
+    form.flatten();
+
+    const filledBytes = await pdf.save();
+    const blob = new Blob([filledBytes], { type:'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (ch.name||'character') + '_RoL_Sheet.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(err) {
+    console.error(err);
+    alert('PDF generation failed: ' + err.message + '\n\nMake sure Character_Sheet_Form_Fill.pdf is in the same folder as index.html.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⬇ Download Character Sheet PDF';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SAVE / LOAD / RESET
+// ═══════════════════════════════════════════════════════════════
+function saveJSON() {
+  const blob = new Blob([JSON.stringify({ch, currentStep}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (ch.name||'character') + '_RoL_progress.json';
+  a.click();
+}
+
+function loadJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      Object.assign(ch, data.ch);
+      goToStep(data.currentStep||1);
+      initAllSteps();
+      alert('Character loaded!');
+    } catch(err) {
+      alert('Failed to load file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function startOver() {
+  if (!confirm('Start over? All progress will be lost.')) return;
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function initAllSteps() {
+  renderArrayPicker();
+  if (ch.array !== null) {
+    document.getElementById('attr-assign').style.display = 'grid';
+    renderAttrAssign();
+  }
+  renderSkillList();
+  renderLineageGrid();
+  if (ch.lineage) {
+    const lg = LINEAGES.find(l=>l.name===ch.lineage);
+    if (lg) {
+      const detail = document.getElementById('lineage-detail');
+      detail.style.display = 'block';
+    }
+  }
+  renderClassGrid();
+  if (ch.cls) renderClassSkillChoices();
+  renderSpecialtyGrid();
+  renderLifepath();
+  renderTalentStep();
+  renderDetailsStep();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAllSteps();
+  goToStep(1);
+
+  // Sync live fields on step changes
+  document.getElementById('btn-next').addEventListener('click', () => {
+    if (currentStep === 9) {
+      ch.name    = document.getElementById('char-name').value;
+      ch.level   = +document.getElementById('char-level').value||1;
+      ch.height  = document.getElementById('char-height').value;
+      ch.weight  = document.getElementById('char-weight').value;
+      ch.age     = document.getElementById('char-age').value;
+      ch.notes   = document.getElementById('char-notes').value;
+      ch.currency.silver  = +document.getElementById('curr-silver').value||0;
+      ch.currency.gold    = +document.getElementById('curr-gold').value||0;
+      ch.currency.pluther = +document.getElementById('curr-pluther').value||0;
+    }
+    if (currentStep === 8) {
+      ch.specialtyTalent = document.getElementById('talent-specialty').value;
+      ch.lineageBenefits = document.getElementById('talent-lineage').value;
+    }
+  });
+
+  // Re-render dependent steps when navigating back
+  document.querySelectorAll('.prog-step').forEach(el => {
+    el.addEventListener('click', () => {
+      const s = parseInt(el.dataset.step);
+      if (s < currentStep) {
+        if (s === 2) renderSkillList();
+        if (s === 3) renderLineageGrid();
+        if (s === 4) { renderClassGrid(); renderClassSkillChoices(); }
+        if (s === 5) renderSpecialtyGrid();
+        if (s === 6) renderLifepath();
+        if (s === 8) renderTalentStep();
+        if (s === 9) renderDetailsStep();
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

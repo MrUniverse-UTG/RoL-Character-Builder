@@ -714,6 +714,31 @@ const STARTING_GEAR = {
   Sonneteer:   {silver:20, items:['Arcane wand or arcane instrument','2 daggers','Quilted Vest armor','Backpack']},
   Cleric:      {silver:20, items:['Arcane staff or mace','Quilted Vest or Layered Plate armor','Backpack']},
 };
+
+// ── Character State ────────────────────────────────────────────────────
+let ch = {
+  array: null,
+  attrs: {STR:null, AGI:null, WIT:null, EMP:null},
+  skills: {},
+  lineage: null,
+  lineageTrait: null,
+  cls: null,
+  clsSkillChoices: {},
+  specialty: null,
+  lifepath: {upbringing:null, culture:null, personality:null, value:null,
+             upset:null, decisions:null, viewOfOthers:null},
+  lifepathCustom: {},
+  equip: Array(6).fill(''),
+  currency: {silver:0, gold:0, pluther:0},
+  notable: Array(10).fill(''),
+  talents: Array(9).fill(''),
+  talentRanks: Array(9).fill(1),
+  specialtyTalent: '',
+  lineageBenefits: '',
+  name: '', level: 1, height: '', weight: '', age: '', notes: '',
+  _viewingTalent: null,
+};
+
 let currentStep = 1;
 const TOTAL_STEPS = 11;
 
@@ -1399,75 +1424,24 @@ function renderTalentSlots() {
 // STEP 9 — DETAILS
 // ═══════════════════════════════════════════════════════════════
 function renderDetailsStep() {
-  const weaponSlots = document.getElementById('weapon-slots');
-  if (!weaponSlots) return; // not in DOM yet
-  const gearBox = document.getElementById('suggested-gear-box');
-  if (gearBox && ch.specialty && STARTING_GEAR[ch.specialty]) {
-    const gearList = STARTING_GEAR[ch.specialty];
-    gearBox.style.display = 'block';
-    gearBox.innerHTML = `
-      <div class="info-box">
-        <strong>${ch.specialty} Starting Gear:</strong>
-        <ul style="margin:6px 0 0 18px">
-          ${gearList.map(g=>`<li>${g}</li>`).join('')}
-        </ul>
-        <div style="margin-top:8px">
-          <button onclick="applyStartingGear()" class="btn btn-secondary"
-                  style="padding:6px 14px;font-size:.82rem">
-            ✦ Auto-fill Equipment Slots from Starting Gear
-          </button>
-        </div>
-      </div>`;
-  }
-  // Weapon slots
-  const wContainer = document.getElementById('weapon-slots');
-  wContainer.innerHTML = '';
-  for (let i = 0; i < 5; i++) {
-    const w = ch.weapons[i];
-    const d = document.createElement('div');
-    d.style.cssText = 'background:#fff;border:1px solid var(--rule);border-radius:8px;padding:14px;margin-bottom:12px';
-    d.innerHTML = `
-      <div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:10px">WEAPON / ATTACK ${i+1}</div>
-      <div class="form-row cols3">
-        <div><label class="field-label">Name</label><input type="text" value="${w.name}" onchange="ch.weapons[${i}].name=this.value" placeholder="e.g. Longsword"></div>
-        <div><label class="field-label">Range</label><input type="text" value="${w.range}" onchange="ch.weapons[${i}].range=this.value" placeholder="Melee / 30 ft"></div>
-        <div><label class="field-label">Mod</label><input type="text" value="${w.mod}" onchange="ch.weapons[${i}].mod=this.value" placeholder="+0"></div>
-      </div>
-      <div class="form-row cols3">
-        <div><label class="field-label">Damage</label><input type="text" value="${w.damage}" onchange="ch.weapons[${i}].damage=this.value" placeholder="8 Slash"></div>
-        <div><label class="field-label">Dice Pool</label><input type="text" value="${w.pool}" onchange="ch.weapons[${i}].pool=this.value" placeholder="1d8+2d6"></div>
-        <div><label class="field-label">Features</label><input type="text" value="${w.features}" onchange="ch.weapons[${i}].features=this.value" placeholder="Heavy, Two-Handed..."></div>
-      </div>
-    `;
-    wContainer.appendChild(d);
-  }
-
-  // Equipment slots
-  const eContainer = document.getElementById('equip-slots');
-  eContainer.innerHTML = `
-    <div class="form-row cols2">
-      ${['Armor','Back 1','Back 2','Belt 1','Belt 2','Kit'].map((slot,i) => `
-        <div>
-          <label class="field-label">${slot}</label>
-          <input type="text" value="${ch.equip[i]||''}" onchange="ch.equip[${i}]=this.value" placeholder="${slot} slot...">
-        </div>
-      `).join('')}
-    </div>
-  `;
+  const notableSlots = document.getElementById('notable-slots');
+  if (!notableSlots) return; // not in DOM yet
 
   // Notable characters
-  const nContainer = document.getElementById('notable-slots');
-  nContainer.innerHTML = `
+  notableSlots.innerHTML = `
     <div class="form-row cols2">
       ${Array(10).fill(0).map((_,i) => `
         <div>
           <label class="field-label">Character ${i+1}</label>
-          <input type="text" value="${ch.notable[i]||''}" onchange="ch.notable[${i}]=this.value" placeholder="Name / relationship...">
+          <input type="text" value="${ch.notable[i]||''}"
+                 onchange="ch.notable[${i}]=this.value"
+                 placeholder="Name / relationship...">
         </div>
       `).join('')}
     </div>
   `;
 }
+
 
 // ═══════════════════════════════════════════════════════════════
 // STEP 10 — SUMMARY
@@ -1654,11 +1628,23 @@ async function exportPDF() {
     const bpItems = ch.equip.slice(6)||[];
     bpItems.slice(0,16).forEach((item,i) => set(`Gear Name ${i+1}`, item||''));
 
-    // Page 3 — Talents
-    set('LINEAGE BENEFITS',  ch.lineageBenefits||'');
-    set('SPECIALTY TALENT',  ch.specialtyTalent||'');
+    // Page 3 — Talents (small font size for compact display)
+    const setSmall = (fieldName, val, size) => {
+      try {
+        const field = form.getTextField(fieldName);
+        field.setText(String(val||''));
+        field.setFontSize(size || 8);
+      } catch(e) {}
+    };
+    setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 7);
+    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 9);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
-    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => set(talentFields[i], t));
+    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => setSmall(talentFields[i], t, 9));
+    // Also set small font on talent rank fields in the main table
+    for (let ti = 1; ti <= 10; ti++) {
+      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 8);
+      setSmall('MP Talent rank ' + ti, ch.talents[ti-1] ? '1' : '', 9);
+    }
 
     const filledBytes = await pdf.save();
     const blob = new Blob([filledBytes], { type:'application/pdf' });
@@ -1928,7 +1914,7 @@ function initAllSteps() {
   renderLifepath();
   // Only render step 8 & 9 if their key containers exist
   if (document.getElementById('talent-browser')) renderTalentStep();
-  if (document.getElementById('weapon-slots'))   renderDetailsStep();
+  if (document.getElementById('notable-slots'))  renderDetailsStep();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

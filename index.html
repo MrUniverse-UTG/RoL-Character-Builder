@@ -707,24 +707,14 @@ const LIFEPATH = {
     {roll:7, name:'Too Little Space'},        {roll:8, name:'A Specific Sight or Smell'},
   ],
   decisions:[
-    {roll:1, name:'Logic and Reason',    desc:'You rely on facts and analysis.'},
-    {roll:2, name:'Gut Feeling',         desc:'You trust your instincts above all.'},
-    {roll:3, name:'Emotion',             desc:'How you feel about it guides your choice.'},
-    {roll:4, name:'Tradition',           desc:'You follow established customs or teachings.'},
-    {roll:5, name:'Pragmatism',          desc:'You do whatever gets the job done.'},
-    {roll:6, name:'Counsel of Others',   desc:'You seek advice before deciding.'},
-    {roll:7, name:'Caution / Fear',      desc:'You hesitate and consider worst-case scenarios.'},
-    {roll:8, name:'Impulse',             desc:'You act first and think later.'},
+    {roll:'1-2', name:'Honorable',   desc:'You care deeply about how others perceive you and wish to earn their respect. You strive to uphold a code of ethics, duty, or tradition. Your actions are often guided by a sense of moral responsibility, and you prioritize integrity, even if it makes things harder.'},
+    {roll:'3-4', name:'Practical',   desc:'You prefer to approach situations with logic and efficiency, making decisions based on what is most effective or beneficial at the moment. You value results over ideals, and you are willing to make compromises or sacrifices if it leads to a more favorable outcome.'},
+    {roll:'5-6', name:'Independent', desc:'You march to the beat of your own drum, caring little for external validation or societal expectations. You prefer to make decisions based on your personal beliefs and values, and you prioritize freedom and self-expression. Rules or norms are often secondary to what feels right to you.'},
   ],
   viewOfOthers:[
-    {roll:1, name:'Suspicious',     desc:'You trust no one until they prove themselves.'},
-    {roll:2, name:'Protective',     desc:'You feel responsible for those around you.'},
-    {roll:3, name:'Competitive',    desc:'You see others as rivals to overcome.'},
-    {roll:4, name:'Curious',        desc:'You are fascinated by everyone you meet.'},
-    {roll:5, name:'Empathetic',     desc:'You easily put yourself in others\' shoes.'},
-    {roll:6, name:'Indifferent',    desc:'Others rarely interest or concern you.'},
-    {roll:7, name:'Envious',        desc:'You often want what others have.'},
-    {roll:8, name:'Generous',       desc:'You freely give time, resources, and trust.'},
+    {roll:'1-2', name:'Compassionate', desc:"You believe in kindness and empathy as guiding principles. You often prioritize others' well-being and seek to foster cooperation, trust, and mutual understanding. Your actions are motivated by a desire to reduce harm and promote harmony."},
+    {roll:'3-4', name:'Realistic',     desc:"You see the world as it is, neither overly optimistic nor overly pessimistic. You understand that people are flawed, and you don't expect perfection from them. While you're not necessarily cynical, you are aware of the limits of kindness and idealism, making you more practical in your dealings with others."},
+    {roll:'5-6', name:'Resilient',     desc:"You see the world as full of challenges, and you value perseverance and strength of character. You believe in pushing through adversity, and you respect others who can endure hardship. You may come across as tough or unyielding, but you value growth through struggle."},
   ],
 };
 
@@ -1092,6 +1082,9 @@ let ch = {
   lifepath: {upbringing:null, culture:null, personality:null, value:null,
              upset:null, decisions:null, viewOfOthers:null},
   lifepathCustom: {},
+  extraLanguage: null,       // selected Extra Languages background
+  extraLanguagePicks: [],    // chosen language names (speak)
+  extraLanguageReads: [],    // chosen language names (read)
   equip: Array(6).fill(''),
   currency: {silver:0, gold:0, pluther:0},
   notable: Array(10).fill(''),
@@ -1925,6 +1918,25 @@ function selectSpecialty(name) {
 // ═══════════════════════════════════════════════════════════════
 // STEP 6 - LIFEPATH
 // ═══════════════════════════════════════════════════════════════
+const TRADITIONAL_LANGUAGES = ['Aquan', 'Draconic', 'ESL', 'Fuegi', 'Gaian', 'Godun', 'Hunon', 'Prado', 'Sybus', 'Sylvan'];
+const EXOTIC_LANGUAGES       = ['Cosi', 'Demoid', 'Eldar', 'Etunu', 'Necrosis', 'Solari'];
+
+const EXTRA_LANGUAGE_OPTIONS = [
+  {roll:1, name:'Commoner',  desc:'Learn to speak and read one traditional language of your choice.',
+    picks:{speak:1, read:1, pool:'traditional'}},
+  {roll:2, name:'Scholar',   desc:'Learn to speak and read one exotic language of your choice.',
+    picks:{speak:1, read:1, pool:'exotic'}},
+  {roll:3, name:'Wanderer',  desc:'Learn to speak two different traditional languages of your choice.',
+    picks:{speak:2, read:0, pool:'traditional'}},
+  {roll:4, name:'Mystic',    desc:'Learn to speak one traditional language and one exotic language of your choice.',
+    picks:{speak:1, read:0, pool:'traditional', speak2:1, read2:0, pool2:'exotic'}},
+  {roll:5, name:'Silent',    desc:'You know how to communicate via ESL.',
+    picks:null, fixed:{speak:['ESL'], read:[]}},
+  {roll:6, name:'Wildling',  desc:'You can speak with Beasts.',
+    picks:null, fixed:{speak:['Beast Speech'], read:[]}},
+];
+
+
 function renderLifepath() {
   const container = document.getElementById('lifepath-content');
   const sections = [
@@ -1965,7 +1977,103 @@ function renderLifepath() {
       </div>
     </div>
   `).join('');
+
+  // Append Extra Languages section
+  const extraLangHtml = renderExtraLanguagesHtml();
+  container.innerHTML += extraLangHtml;
 }
+
+function renderExtraLanguagesHtml() {
+  const sel = ch.extraLanguage;
+  const opt = sel ? EXTRA_LANGUAGE_OPTIONS.find(o => o.name === sel) : null;
+  let pickerHtml = '';
+
+  if (opt) {
+    if (opt.fixed) {
+      ch.extraLanguagePicks = [...opt.fixed.speak];
+      ch.extraLanguageReads = [...opt.fixed.read];
+      pickerHtml = `<div class="info-box" style="margin-top:10px">
+        You gain: <strong>${opt.fixed.speak.join(', ')}</strong> (spoken)
+      </div>`;
+    } else if (opt.picks) {
+      const p = opt.picks;
+      const makePicker = (idx, pool, label) => {
+        const arr = pool === 'traditional' ? TRADITIONAL_LANGUAGES : EXOTIC_LANGUAGES;
+        const val = ch.extraLanguagePicks[idx] || '';
+        return `<div style="margin-bottom:8px">
+          <label class="field-label">${label}</label>
+          <select class="full" onchange="setExtraLanguagePick(${idx}, this.value, '${pool}')"
+                  style="max-width:260px">
+            <option value="">-- choose --</option>
+            ${arr.map(l => `<option value="${l}" ${val===l?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>`;
+      };
+      let pickers = '';
+      for (let i = 0; i < (p.speak||0); i++) {
+        pickers += makePicker(i, p.pool, `Speak: ${p.pool} language${(p.speak||0)>1?' '+(i+1):''}`);
+      }
+      if ((p.read||0) > 0 && ch.extraLanguagePicks[0]) {
+        ch.extraLanguageReads[0] = ch.extraLanguagePicks[0];
+        pickers += `<div class="info-box" style="margin-top:0;margin-bottom:8px">You also learn to <strong>read</strong> this language.</div>`;
+      }
+      if (p.pool2) {
+        const idx2 = p.speak || 0;
+        const val2 = ch.extraLanguagePicks[idx2] || '';
+        pickers += `<div style="margin-bottom:8px">
+          <label class="field-label">Speak: ${p.pool2} language</label>
+          <select class="full" onchange="setExtraLanguagePick(${idx2}, this.value, '${p.pool2}')"
+                  style="max-width:260px">
+            <option value="">-- choose --</option>
+            ${(p.pool2 === 'traditional' ? TRADITIONAL_LANGUAGES : EXOTIC_LANGUAGES).map(l =>
+              `<option value="${l}" ${val2===l?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>`;
+      }
+      pickerHtml = `<div style="margin-top:10px">${pickers}</div>`;
+    }
+  }
+
+  return `<div style="margin-bottom:28px">
+    <h3 style="font-family:var(--font-ui);font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--accent-dk)">
+      Extra Languages Learned
+    </h3>
+    <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:10px">
+      Click a row to select your language background.
+      ${sel ? '<span class="lp-selected-badge">✓ ' + sel + '</span>' : ''}
+    </p>
+    <table class="lp-table">
+      <thead><tr><th>1d6</th><th>Background</th><th>Languages Gained</th></tr></thead>
+      <tbody>
+        ${EXTRA_LANGUAGE_OPTIONS.map(o => `
+          <tr class="${sel===o.name?'lp-selected':''}" onclick="selectExtraLanguage('${o.name}')">
+            <td class="roll">${o.roll}</td>
+            <td class="opt-name">${o.name}</td>
+            <td>${o.desc}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    ${pickerHtml}
+  </div>`;
+}
+
+function selectExtraLanguage(name) {
+  ch.extraLanguage = (ch.extraLanguage === name) ? null : name;
+  ch.extraLanguagePicks = [];
+  ch.extraLanguageReads = [];
+  renderLifepath();
+}
+
+function setExtraLanguagePick(idx, lang, pool) {
+  ch.extraLanguagePicks[idx] = lang;
+  // Auto-set read if option grants it
+  const opt = EXTRA_LANGUAGE_OPTIONS.find(o => o.name === ch.extraLanguage);
+  if (opt?.picks?.read && opt.picks.read > 0 && idx < opt.picks.read) {
+    ch.extraLanguageReads[idx] = lang;
+  }
+  renderLifepath();
+}
+
 
 function selectLifepath(key, value) {
   // Toggle: clicking selected row deselects it
@@ -2329,8 +2437,17 @@ async function exportPDF() {
     // If mixed lineage with Fueglin Small and Nimble, force Small
     const effectiveSize = (ch.mixedForcedSmall) ? 'Small' : (lg.size||'');
     set('SIZE', effectiveSize);
-    set('LANGUAGES', (lg.langs?.speak||[]).join(', '));
-    set('LANGUAGES read', (lg.langs?.read||[]).join(', '));
+    const baseSpeakLangs = lg.langs?.speak || [];
+    const baseReadLangs  = lg.langs?.read  || [];
+    const extraSpeak = ch.extraLanguagePicks?.filter(l=>l) || [];
+    const extraRead  = ch.extraLanguageReads?.filter(l=>l) || [];
+    // Fixed extras (ESL, Beasts)
+    const opt = ch.extraLanguage ? EXTRA_LANGUAGE_OPTIONS.find(o=>o.name===ch.extraLanguage) : null;
+    const fixedSpeak = opt?.fixed?.speak || [];
+    const allSpeak   = [...new Set([...baseSpeakLangs, ...extraSpeak, ...fixedSpeak])];
+    const allRead    = [...new Set([...baseReadLangs,  ...extraRead])];
+    set('LANGUAGES',      allSpeak.join(', '));
+    set('LANGUAGES read', allRead.join(', '));
     set('SPEED', lg.speed ? lg.speed+' ft' : '30 ft');
 
     // Attributes

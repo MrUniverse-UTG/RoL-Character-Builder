@@ -1106,12 +1106,16 @@ function goToStep(n) {
   if (n===2)  renderSkillList();
   if (n===3)  {
     renderLineageGrid();
+    const mlCb = document.getElementById('mixed-lineage-cb');
+    const mlPanel = document.getElementById('mixed-lineage-panel');
     if (ch.mixedLineage) {
-      document.getElementById('mixed-lineage-cb').checked = true;
-      document.getElementById('mixed-lineage-panel').style.display = 'block';
+      if (mlCb) mlCb.checked = true;
+      if (mlPanel) mlPanel.style.display = 'block';
       renderMixedPanel();
-    } else if (ch.lineage) {
-      renderLineageDetail();
+    } else {
+      if (mlCb) mlCb.checked = false;
+      if (mlPanel) mlPanel.style.display = 'none';
+      if (ch.lineage) renderLineageDetail();
     }
   }
   if (n===4)  { renderClassGrid(); renderClassSkillChoices(); }

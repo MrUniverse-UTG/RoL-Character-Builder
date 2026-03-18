@@ -1919,6 +1919,17 @@ function selectSpecialty(name) {
 // STEP 6 - LIFEPATH
 // ═══════════════════════════════════════════════════════════════
 const TRADITIONAL_LANGUAGES = ['Aquan', 'Draconic', 'ESL', 'Fuegi', 'Gaian', 'Godun', 'Hunon', 'Prado', 'Sybus', 'Sylvan'];
+const LANGUAGE_SCRIPTS = {
+  Fuegi:   'Sylvan',  // Fueglins read Sylvan script
+  Hunon:   'Aquon',   // Humans read Aquon script
+  Prado:   'Sybus',   // Pridae read Sybus script
+  Cosi:    'Etunu',   // Fey read Etunu script
+  Necrosis:'Nether',  // Reapers/Undead read Nether script
+  Demoid:  'Nether',  // Demons read Nether script
+  Solari:  'Eldar',   // Angels read Eldar script
+};
+// When a language has a different read-script, the READ field uses that script name
+
 const EXOTIC_LANGUAGES       = ['Cosi', 'Demoid', 'Eldar', 'Etunu', 'Necrosis', 'Solari'];
 
 const EXTRA_LANGUAGE_OPTIONS = [
@@ -1957,7 +1968,7 @@ function renderLifepath() {
         ${ch.lifepath[sec.key] ? `<span class="lp-selected-badge">✓ ${ch.lifepath[sec.key]}</span>` : ''}
       </p>
       <table class="lp-table">
-        <thead><tr><th>d8</th><th>Option</th>${sec.hasDesc?'<th>Description</th>':''}</tr></thead>
+        <thead><tr><th>${sec.data.length <= 3 ? '1d6' : '1d8'}</th><th>Option</th>${sec.hasDesc?'<th>Description</th>':''}</tr></thead>
         <tbody>
           ${sec.data.map(row => `
             <tr class="${ch.lifepath[sec.key]===row.name?'lp-selected':''}"
@@ -2015,7 +2026,11 @@ function renderExtraLanguagesHtml() {
       }
       if ((p.read||0) > 0 && ch.extraLanguagePicks[0]) {
         ch.extraLanguageReads[0] = ch.extraLanguagePicks[0];
-        pickers += `<div class="info-box" style="margin-top:0;margin-bottom:8px">You also learn to <strong>read</strong> this language.</div>`;
+        const scriptName = ch.extraLanguagePicks[0] ? getReadScript(ch.extraLanguagePicks[0]) : null;
+        if (scriptName) {
+          ch.extraLanguageReads[0] = scriptName;
+        }
+        pickers += `<div class="info-box" style="margin-top:0;margin-bottom:8px">You also learn to <strong>read</strong> this language's script${scriptName && scriptName !== ch.extraLanguagePicks[0] ? ' (<strong>' + scriptName + '</strong> script)' : ''}.</div>`;
       }
       if (p.pool2) {
         const idx2 = p.speak || 0;
@@ -2064,12 +2079,17 @@ function selectExtraLanguage(name) {
   renderLifepath();
 }
 
+function getReadScript(lang) {
+  // Return the script name for reading — some languages use a different script
+  return LANGUAGE_SCRIPTS[lang] || lang;
+}
+
 function setExtraLanguagePick(idx, lang, pool) {
   ch.extraLanguagePicks[idx] = lang;
   // Auto-set read if option grants it
   const opt = EXTRA_LANGUAGE_OPTIONS.find(o => o.name === ch.extraLanguage);
   if (opt?.picks?.read && opt.picks.read > 0 && idx < opt.picks.read) {
-    ch.extraLanguageReads[idx] = lang;
+    ch.extraLanguageReads[idx] = getReadScript(lang);
   }
   renderLifepath();
 }

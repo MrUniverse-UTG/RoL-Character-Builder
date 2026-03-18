@@ -1913,7 +1913,7 @@ async function exportPDF() {
     const ARMOR_NAMES_PDF = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
     const gearVals = Object.values(ch.gearSelections || {});
     const armorItem  = gearVals.find(v => ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a))) || '';
-    const nonBackpack = gearVals.filter(v => v !== armorItem && v.toLowerCase() !== 'backpack');
+    const nonBackpack = gearVals.filter(v => !ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a)) && v.toLowerCase() !== 'backpack');
     const isWeaponItem = v => ['sword','bow','axe','mace','dagger','pistol','wand','staff',
       'crossbow','instrument','hammer','longsword','shortsword','flintlock'].some(w => v.toLowerCase().includes(w));
     const weaponItems = nonBackpack.filter(isWeaponItem);
@@ -1945,14 +1945,21 @@ async function exportPDF() {
     const setSmall = (fieldName, val, size) => {
       try {
         const field = form.getTextField(fieldName);
+        field.setFontSize(size || 7);  // must set BEFORE setText for pdf-lib
         field.setText(String(val||''));
-        field.setFontSize(size || 8);
       } catch(e) {}
     };
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 7);
-    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 7);
+    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 6);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
-    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => setSmall(talentFields[i], t, 7));
+    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => {
+      if (i === 0 && TALENT_DATA[t] && TALENT_DATA[t][0]) {
+        // First talent box: show name + Rank 1 description
+        setSmall(talentFields[i], t + '\nRank 1: ' + TALENT_DATA[t][0], 6);
+      } else {
+        setSmall(talentFields[i], t, 7);
+      }
+    });
     // Also set small font on talent rank fields in the main table
     for (let ti = 1; ti <= 10; ti++) {
       setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 7);

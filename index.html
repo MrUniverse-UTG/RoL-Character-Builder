@@ -375,7 +375,13 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- Navigation -->
 <div id="nav-btns">
   <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none">← Back</button>
-  <div></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn btn-secondary" id="btn-save" onclick="saveJSON()"
+            style="display:none;padding:9px 18px;font-size:.85rem">
+      💾 Save Progress
+    </button>
+    <span id="save-indicator" style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);display:none"></span>
+  </div>
   <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Next Step →</button>
 </div>
 
@@ -1102,7 +1108,11 @@ function updateProgress() {
 function updateNavBtns() {
   const back = document.getElementById('btn-back');
   const next = document.getElementById('btn-next');
+  const save = document.getElementById('btn-save');
+  const ind  = document.getElementById('save-indicator');
   back.style.display = currentStep > 1 ? 'block' : 'none';
+  save.style.display = currentStep > 1 ? 'inline-block' : 'none';
+  if (ind) ind.style.display = currentStep > 1 && ind.textContent ? 'inline' : 'none';
   next.textContent = 'Next Step →';
   next.style.display = currentStep === TOTAL_STEPS ? 'none' : 'inline-block';
 }
@@ -2029,11 +2039,18 @@ async function exportPDF() {
 // SAVE / LOAD / RESET
 // ═══════════════════════════════════════════════════════════════
 function saveJSON() {
-  const blob = new Blob([JSON.stringify({ch, currentStep}, null, 2)], {type:'application/json'});
+  const data = {ch, currentStep, savedAt: new Date().toLocaleString()};
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = (ch.name||'character') + '_RoL_progress.json';
   a.click();
+  // Show save indicator
+  const ind = document.getElementById('save-indicator');
+  if (ind) {
+    ind.textContent = 'Saved at ' + new Date().toLocaleTimeString();
+    ind.style.display = 'inline';
+  }
 }
 
 function loadJSON(event) {
@@ -2043,10 +2060,18 @@ function loadJSON(event) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      Object.assign(ch, data.ch);
-      goToStep(data.currentStep||1);
+      // Restore ch state
+      Object.keys(data.ch).forEach(k => { ch[k] = data.ch[k]; });
+      // Go to the saved step
+      const targetStep = data.currentStep || 1;
       initAllSteps();
-      alert('Character loaded!');
+      goToStep(targetStep);
+      // Show confirmation
+      const ind = document.getElementById('save-indicator');
+      if (ind && data.savedAt) {
+        ind.textContent = 'Loaded save from ' + data.savedAt;
+        ind.style.display = 'inline';
+      }
     } catch(err) {
       alert('Failed to load file: ' + err.message);
     }

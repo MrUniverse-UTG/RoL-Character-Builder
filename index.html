@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Realms of Legacy — Character Builder</title>
+<title>Realms of Legacy - Character Builder</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap');
@@ -218,7 +218,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 1: ATTRIBUTES ═══════════ -->
 <div class="step-panel" id="step-1">
   <div class="step-header">
-    <h2>Step 1 — Allocate Attributes</h2>
+    <h2>Step 1 - Allocate Attributes</h2>
     <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
   </div>
   <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
@@ -234,7 +234,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 2: SKILLS ═══════════ -->
 <div class="step-panel" id="step-2">
   <div class="step-header">
-    <h2>Step 2 — Select Starting Skills</h2>
+    <h2>Step 2 - Select Starting Skills</h2>
     <p>Pick <strong>5 Skills</strong> to set at Rank 1. Your Class will add additional Skill bonuses in Step 4.</p>
   </div>
   <div class="selection-counter" id="skill-counter">Selected: <strong>0 / 5</strong></div>
@@ -244,7 +244,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 3: LINEAGE ═══════════ -->
 <div class="step-panel" id="step-3">
   <div class="step-header">
-    <h2>Step 3 — Choose a Lineage</h2>
+    <h2>Step 3 - Choose a Lineage</h2>
     <p>Your Lineage determines your size, Speed, languages, and special traits.</p>
   </div>
   <div class="option-grid cols2" id="lineage-grid"></div>
@@ -254,7 +254,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 4: CLASS ═══════════ -->
 <div class="step-panel" id="step-4">
   <div class="step-header">
-    <h2>Step 4 — Choose a Class</h2>
+    <h2>Step 4 - Choose a Class</h2>
     <p>Your Class grants an Attribute bonus, Skill bonuses, and determines which Specialties you can pick.</p>
   </div>
   <div class="option-grid cols2" id="class-grid"></div>
@@ -264,7 +264,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 5: SPECIALTY ═══════════ -->
 <div class="step-panel" id="step-5">
   <div class="step-header">
-    <h2>Step 5 — Choose a Specialty</h2>
+    <h2>Step 5 - Choose a Specialty</h2>
     <p>Your Specialty is your playstyle within your Class. You cannot change it later.</p>
   </div>
   <div class="option-grid cols2" id="specialty-grid"></div>
@@ -273,7 +273,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 6: GEAR ═══════════ -->
 <div class="step-panel" id="step-6">
   <div class="step-header">
-    <h2>Step 6 — Starting Gear &amp; Currency</h2>
+    <h2>Step 6 - Starting Gear &amp; Currency</h2>
     <p>Your Specialty determines the gear and currency you begin the game with.</p>
   </div>
   <div id="gear-step-content"></div>
@@ -282,7 +282,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 7: LIFEPATH ═══════════ -->
 <div class="step-panel" id="step-7">
   <div class="step-header">
-    <h2>Step 6 — Create a Lifepath</h2>
+    <h2>Step 6 - Create a Lifepath</h2>
     <p>Click a row to select it, or type your own. These shape your character's backstory.</p>
   </div>
   <div id="lifepath-content"></div>
@@ -291,7 +291,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 7: STATUS POINTS ═══════════ -->
 <div class="step-panel" id="step-8">
   <div class="step-header">
-    <h2>Step 7 — Status Points</h2>
+    <h2>Step 7 - Status Points</h2>
     <p>Your stats are calculated automatically from your Attributes.</p>
   </div>
   <div class="info-box" id="hp-formula"></div>
@@ -304,7 +304,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 8: TALENTS ═══════════ -->
 <div class="step-panel" id="step-9">
   <div class="step-header">
-    <h2>Step 8 — Record Talents</h2>
+    <h2>Step 8 - Record Talents</h2>
     <p>Write down the Talents gained from your Lineage, Specialty, and any General Talents you've selected. These appear on page 3 of your character sheet.</p>
   </div>
   <div id="auto-talents" style="margin-bottom:20px"></div>
@@ -321,14 +321,14 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     </div>
   </div>
   <div id="talent-browser" style="margin-bottom:20px"></div>
-  <label class="field-label" style="margin-bottom:8px">Your Selected Talents (Level 1 — all Rank 1)</label>
+  <label class="field-label" style="margin-bottom:8px">Your Selected Talents (Level 1 - all Rank 1)</label>
   <div id="talent-slots"></div>
 </div>
 
 <!-- ═══════════ STEP 9: DETAILS ═══════════ -->
 <div class="step-panel" id="step-10">
   <div class="step-header">
-    <h2>Step 9 — Character Details</h2>
+    <h2>Step 9 - Character Details</h2>
     <p>Fill in your character's name, appearance, and starting gear.</p>
   </div>
   <div class="form-row cols2">
@@ -355,7 +355,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <!-- ═══════════ STEP 10: EXPORT ═══════════ -->
 <div class="step-panel" id="step-11">
   <div class="step-header">
-    <h2>Step 10 — Export Character Sheet</h2>
+    <h2>Step 10 - Export Character Sheet</h2>
     <p>Review your character, then export to the Realms of Legacy PDF character sheet.</p>
   </div>
   <div id="summary-grid"></div>
@@ -386,10 +386,10 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 // GAME DATA
 // ═══════════════════════════════════════════════════════════════
 const ARRAYS = [
-  {nums:[3,2,0,0], hint:"High peak with a zero — great for specialists"},
+  {nums:[3,2,0,0], hint:"High peak with a zero - great for specialists"},
   {nums:[3,1,1,0], hint:"High peak, two support stats"},
-  {nums:[2,2,1,0], hint:"Two strong stats — versatile and balanced"},
-  {nums:[2,1,1,1], hint:"Even spread — well-rounded generalist"},
+  {nums:[2,2,1,0], hint:"Two strong stats - versatile and balanced"},
+  {nums:[2,1,1,1], hint:"Even spread - well-rounded generalist"},
 ];
 
 const ATTRIBUTES = [
@@ -441,7 +441,7 @@ Stubborn (Minor Trait): When you start your turn with 0 HP, you can use this tra
 
 Dragon Resistance (Minor Trait): Your HP gains resistance to the damage type associated with your Dragon Bloodline.
 
-Dragon Bloodlines — choose one: Ravano (Red, Fire) | Golgun (Green, Acid) | Voivern (Black, Necrotic) | Sargon (Yellow, Radiant) | Byvern (White, Frost) | Thundron (Blue, Electric)`},
+Dragon Bloodlines - choose one: Ravano (Red, Fire) | Golgun (Green, Acid) | Voivern (Black, Necrotic) | Sargon (Yellow, Radiant) | Byvern (White, Frost) | Thundron (Blue, Electric)`},
 
   {name:'Fueglins', type:'Traditional', size:'Small', speed:30, height:"3'–4'",
    langs:{speak:['Fuegi','Gaian'], read:['Sylvan','Gaian']},
@@ -469,7 +469,7 @@ Beyond Limits (Minor Trait): You can Push a check that you have gained a success
 
   {name:'Ocotos', type:'Traditional', size:'Medium', speed:30, height:"4'–6'",
    langs:{speak:['Aquon','Gaian'], read:['Aquon','Gaian']},
-   desc:'Cephalopod Humanoids — last surviving nobility from the lost world. Mature at 18, live to ~92.',
+   desc:'Cephalopod Humanoids - last surviving nobility from the lost world. Mature at 18, live to ~92.',
    traits:['Ocoto'],
    features:`Colorful Skin (Major Trait): Ocotos can change the color of their skin at will and match it to their surroundings. When not wearing Plate armor, Ocotos can use a Quick action to Camouflage. While in Camouflage, you gain the Obscured Condition against creatures that are more than 5 feet away from you. Camouflage lasts until you attack, cast a Spell, or physically interact with another creature. While in Camouflage, every 1 foot of movement costs 2 feet of Speed.
 
@@ -510,7 +510,7 @@ Enhanced Meditation (Minor Trait): When you expend a Recovery die toward your So
 
   {name:'Armorai', type:'Otherworldly', size:'Medium', speed:30, height:"5'–6'",
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
-   desc:'Living crystals that infect suits of armor to gain a body. Constructs — do not age.',
+   desc:'Living crystals that infect suits of armor to gain a body. Constructs - do not age.',
    traits:['Armorai'],
    features:`Construct Nature: Your HP is special as you are completely made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. You can still wear and benefit from armor sets as normal. When you wear an armor set, you attach it to your body as a fortification instead of wearing it. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you.
 
@@ -685,7 +685,7 @@ const LIFEPATH = {
 };
 
 
-// ── Talent rank-by-rank data ───────────────────────────────────────────
+// -- Talent rank-by-rank data -------------------------------------------
 const TALENT_DATA = {
   "Boar Style": [
     "Unlock <em>Boar's Temper (A)</em>. Spend 2 Sorce Points: charge up to 10 ft in a line and make a melee attack. If you moved at least 10 ft in a straight line before the attack, base damage increases by 2.",
@@ -786,7 +786,7 @@ const TALENT_DATA = {
     "When you activate With Haste, the bonus speed increases to 30 and you benefit from the Disengage action until the end of your turn."
   ],
   "Rubber Style": [
-    "<em>Bounce Strike (P)</em>: After successfully hitting with a Ranged Weapon Attack, spend 3 Sorce Points as a Quick action. Choose another creature within 15 ft of the creature you hit — they take Ranged Weapon Attack damage.",
+    "<em>Bounce Strike (P)</em>: After successfully hitting with a Ranged Weapon Attack, spend 3 Sorce Points as a Quick action. Choose another creature within 15 ft of the creature you hit - they take Ranged Weapon Attack damage.",
     "Spend the Sorce Points to activate Bounce Strike as a Minor action.",
     "Spend the Sorce Points to activate Bounce Strike as a Free action.",
     "When you use Bounce Strike, spend 6 Sorce Points instead of 3 to also target a third creature within 15 ft of the second.",
@@ -825,7 +825,7 @@ const TALENT_DATA = {
     "When you Flank a creature, the base damage of your melee attacks increases by 2 against that creature.",
     "<em>Team Effort (P)</em>: When you first Flank an enemy on your turn, choose an ally within 5 ft. They gain the Rank 1 and Rank 2 benefits of this Talent against the Flanked creature until the start of your next turn.",
     "You and the chosen ally in Team Effort gain a +2 modifier and +4 base damage on melee attacks when benefiting from Flank and Team Effort.",
-    "<em>Team Strike (A)</em>: While Flanking an enemy, spend 4 Sorce Points. Make a melee attack — hit or miss, an ally within 5 ft of the enemy may make an Opportunity Strike at -3 as a Free action."
+    "<em>Team Strike (A)</em>: While Flanking an enemy, spend 4 Sorce Points. Make a melee attack - hit or miss, an ally within 5 ft of the enemy may make an Opportunity Strike at -3 as a Free action."
   ],
   "Elemental Attunement": [
     "Pick one element: Fire, Frost, Electric, or Acid. When you deal damage from a Spell with the same type as your Elemental Attunement, you deal an additional 4 damage of that type.",
@@ -884,84 +884,84 @@ const TALENT_DATA = {
     "If you fail an Endure save to maintain focus on a Spell, you can use this to gain 1 success (once per Light or Full Rest). Psychic damage no longer inflicts the additional -2 modifier on Endure saves to maintain focus."
   ],
   "Study of Aeromancy": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Aeromancy: Jolt, Bellowing Shout, Lightning Arc, Fast as Light.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Aeromancy: Jolt, Bellowing Shout, Lightning Arc, Fast as Light.",
     "New Spells available: Reflux, Small Nimbus.",
     "New Spells available: Lighting Beam, Flash Step.",
     "New Spells available: Enraged Nimbus, Spear of Voltara.",
     "New Spells available: Storm of Fury, Magnetivus."
   ],
   "Study of Blood": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Blood: Vampiric Slash, Infatuate, Enthrall Person, Infuse Confuse.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Blood: Vampiric Slash, Infatuate, Enthrall Person, Infuse Confuse.",
     "New Spells available: Adrenaline Boost, Stir Emotions.",
     "New Spells available: Hot Head, Brain Freeze.",
     "New Spells available: Surge Flow, Slow Flow.",
     "New Spells available: Bend Blood, Brain Rot."
   ],
   "Study of Contagion": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Contagion: Acid Dart, Sicken Pulse, Toxic Wave, Witherplague.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Contagion: Acid Dart, Sicken Pulse, Toxic Wave, Witherplague.",
     "New Spells available: Blindblight, Proliferate.",
     "New Spells available: Feral Pox, Eroding Sludge.",
     "New Spells available: Mindflare, Stonefever.",
     "New Spells available: Plague Requiem, Bone Rot."
   ],
   "Study of Cryomancy": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Cryomancy: Ice Spear, Sculpt Ice, Daggers of Ice, Ice Barrier.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Cryomancy: Ice Spear, Sculpt Ice, Daggers of Ice, Ice Barrier.",
     "New Spells available: Frostbite, Ice Armor.",
     "New Spells available: Flash Freeze, Cryostasis.",
     "New Spells available: Unstable Shard, Boreal Binds.",
     "New Spells available: Blizzard, Avalanche."
   ],
   "Study of Death": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Death: Reaper Scythe, Recompose, Summon Skeleservant, Death Speech.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Death: Reaper Scythe, Recompose, Summon Skeleservant, Death Speech.",
     "New Spells available: Reap, Curse Creature.",
     "New Spells available: Raise Dead, Undying Rune.",
     "New Spells available: Drain Youth, Death Guillotine.",
     "New Spells available: Dark Exchange, Aura of Undeath."
   ],
   "Study of Displacement": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Displacement: Pocketswap, Infini Pocket, Body Swap, Minor Portals.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Displacement: Pocketswap, Infini Pocket, Body Swap, Minor Portals.",
     "New Spells available: Tactical Retreat, Create Hole.",
     "New Spells available: Reposition, Rescue.",
     "New Spells available: Major Portals, Skip Stride.",
     "New Spells available: Control Space, Shroud Sanctum."
   ],
   "Study of Divinity": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Divinity: Blessing of Protection, Searing Flare, Vengeful Smite, Blessing of Pacifism.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Divinity: Blessing of Protection, Searing Flare, Vengeful Smite, Blessing of Pacifism.",
     "New Spells available: Blessing of Guardian, Explosive Smite.",
     "New Spells available: Blessing of Radiance, Holy Smite.",
     "New Spells available: Divine Sanctuary, Blessing of Flight.",
     "New Spells available: Primal Smite, Divine Intervention."
   ],
   "Study of Geomancy": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Geomancy: Earth Bend, Rock Catapault, Repair Minerals, Spiked Terrain.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Geomancy: Earth Bend, Rock Catapault, Repair Minerals, Spiked Terrain.",
     "New Spells available: Debris Sandstorm, Propel Creature.",
     "New Spells available: Earth Structure, Summon Earth Warrior.",
     "New Spells available: Summon Earth Knight, Hurl Boulder.",
     "New Spells available: Entomb, Summon Earth Golem."
   ],
   "Study of Illusion": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Illusion: Lesser Illusion, Fashionate, Greater Illusion, Create Disguise.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Illusion: Lesser Illusion, Fashionate, Greater Illusion, Create Disguise.",
     "New Spells available: Invisibility, Create Duplicate.",
     "New Spells available: Play Dead, Powerful Illusion.",
     "New Spells available: Greater Invisibility, Mass Disguise.",
     "New Spells available: Mass Duplicate, Disguised Domain."
   ],
   "Study of Pyromancy": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Pyromancy: Dancing Flame, Fire Ray, Burst Self, Fire Missile.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Pyromancy: Dancing Flame, Fire Ray, Burst Self, Fire Missile.",
     "New Spells available: Fire Aura, Fire Breath.",
     "New Spells available: Explosion, Flame Jettison.",
     "New Spells available: Immolate, Wall of Fire.",
     "New Spells available: Fire Blossom, Fire Storm."
   ],
   "Study of Recovery": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Recovery: Transfer Life, Dislocate, Reinvigorate, Calm Emotions.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Recovery: Transfer Life, Dislocate, Reinvigorate, Calm Emotions.",
     "New Spells available: Fortify, Purify.",
     "New Spells available: Remove Bane, Mend Injuries.",
     "New Spells available: Regeneration, Healing Mist.",
     "New Spells available: Repair Body, Deny Death."
   ],
   "Study of Shadows": [
-    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Shadows: Feed Fear, Manipulate Darkness, Terrifying Gloom, Fall.",
+    "You learn and can prepare Spells with a Rank <= 1 from the Study of Shadows: Feed Fear, Manipulate Darkness, Terrifying Gloom, Fall.",
     "New Spells available: Shadow Walk, Terrorizing Shadows.",
     "New Spells available: Cloak of Shadows, Mind Reave.",
     "New Spells available: Consume Fears, Menacing Aura.",
@@ -976,8 +976,8 @@ const TALENT_DATA = {
   "Demonic Blood": ["Your HP gains resistance to Necrotic damage. +2 modifier on Insight saves against being Charmed or Frightened."],
   "Field Medic": ["Bandage or Galvanize without a medical kit (within 5 ft). +2 modifier on Medical checks."],
   "Full Dodge": ["Once per round, when targeted by an attack or effect, use a Reaction to gain the benefits of the Dodge action against that specific attack."],
-  "Heckler": ["Quick action: Taunt a creature within 30 ft — they make an Insight save or gain -1 modifier on attacks against creatures other than you."],
-  "Inspiring": ["Quick action: inspire an ally within 30 ft — they gain +2 modifier on their next check. Recharges on Intermission."],
+  "Heckler": ["Quick action: Taunt a creature within 30 ft - they make an Insight save or gain -1 modifier on attacks against creatures other than you."],
+  "Inspiring": ["Quick action: inspire an ally within 30 ft - they gain +2 modifier on their next check. Recharges on Intermission."],
   "Intimidating": ["+2 modifier on Intimidate checks. Once per Intermission, a successful Intimidate check imposes -1 on the target's attacks until your next turn."],
   "Keen Eyes": ["Once per turn as a Free action: attempt to spot Hidden creatures within 30 ft. +2 modifier on Scout checks."],
   "Linguist": ["Learn two additional languages of your choice."],
@@ -1001,12 +1001,12 @@ const TALENT_DATA = {
 };
 
 
-// ── Talent Lists ───────────────────────────────────────────────────────
+// -- Talent Lists -------------------------------------------------------
 const MARTIAL_TALENTS = ['Boar Style', 'Brawler', 'Calvary Fighter', 'Crane Style', 'Defender', 'Dragon Style', 'Duelist', 'Ignore Pain', 'Mantis Style', 'Master of Defense', 'Opportunist', 'Porcupine Style', 'Primal Style', 'Rabbit Style', 'Rubber Style', 'Sniper Style', 'Tiger Style', 'Tortoise Style', 'Viper Style', 'Wolf Style'];
 const SORCERY_TALENTS = ['Elemental Attunement', 'Innate Magic', 'Megamind', 'Mental Shield', 'Runic Magic', 'Spell Slinger', 'Study of Aeromancy', 'Study of Blood', 'Study of Contagion', 'Study of Cryomancy', 'Study of Death', 'Study of Displacement', 'Study of Divinity', 'Study of Geomancy', 'Study of Illusion', 'Study of Pyromancy', 'Study of Recovery', 'Study of Shadows', 'Twist Magicka', 'War Caster'];
 const GENERAL_TALENTS = ['Academic', 'Angelic Blood', 'Animal Ally', 'Animal Friendship', 'Backseat Braining', 'Caster Initiate', 'Demonic Blood', 'Field Medic', 'Full Dodge', 'Heckler', 'Inspiring', 'Intimidating', 'Keen Eyes', 'Linguist', 'Look Over There', 'Luck of the Gods', 'Master Spy', 'Min Max', 'Mobile', 'Naturally Gifted', 'Skilled', 'Sneaky', 'Steady Hands', 'Steel Body', 'Steel Mind', 'Steel Muscles', 'Steel Nerves', 'Strong Arm', 'Sturdy', 'Vigilant', 'Warfare Initiate'];
 
-// ── Starting Gear by Specialty ─────────────────────────────────────────
+// -- Starting Gear by Specialty -----------------------------------------
 const STARTING_GEAR = {
   Guardian:    {silver:20, items:['Short sword, hand axe, or hammer','Small shield','Quilted Vest or Layered Plate Armor','Backpack']},
   Berserker:   {silver:20, items:['Long sword, mace, or battle axe','Quilted Vest or Layered Plate armor','Backpack']},
@@ -1026,7 +1026,7 @@ const STARTING_GEAR = {
   Cleric:      {silver:20, items:['Arcane staff or mace','Quilted Vest or Layered Plate armor','Backpack']},
 };
 
-// ── Character State ────────────────────────────────────────────────────
+// -- Character State ----------------------------------------------------
 let ch = {
   array: null,
   attrs: {STR:null, AGI:null, WIT:null, EMP:null},
@@ -1103,7 +1103,8 @@ function updateNavBtns() {
   const back = document.getElementById('btn-back');
   const next = document.getElementById('btn-next');
   back.style.display = currentStep > 1 ? 'block' : 'none';
-  next.textContent = currentStep === TOTAL_STEPS ? 'Export →' : 'Next Step →';
+  next.textContent = 'Next Step →';
+  next.style.display = currentStep === TOTAL_STEPS ? 'none' : 'inline-block';
 }
 
 function validateStep(step) {
@@ -1150,7 +1151,7 @@ function validateStep(step) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 1 — ARRAYS + ATTRIBUTE ASSIGNMENT
+// STEP 1 - ARRAYS + ATTRIBUTE ASSIGNMENT
 // ═══════════════════════════════════════════════════════════════
 function renderArrayPicker() {
   const container = document.getElementById('array-picker');
@@ -1194,11 +1195,11 @@ function renderAttrAssign() {
         <div class="attr-name">${attr.name}</div>
         <div class="attr-desc">${attr.desc}</div>
         <select class="rank-select" onchange="assignAttr('${attr.key}', this.value)">
-          <option value="">— assign rank —</option>
+          <option value="">- assign rank -</option>
           ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${isAssigned && currentVal===n?'selected':''}>${n}</option>`).join('')}
         </select>
         <div style="margin-top:8px;font-family:var(--font-ui);font-size:.82rem;color:var(--muted)">
-          Current: <strong>${isAssigned ? currentVal : '—'}</strong>
+          Current: <strong>${isAssigned ? currentVal : '-'}</strong>
         </div>
       </div>`;
     }).join('')}
@@ -1229,7 +1230,7 @@ function assignAttr(key, val) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 2 — SKILLS
+// STEP 2 - SKILLS
 // ═══════════════════════════════════════════════════════════════
 function renderSkillList() {
   const container = document.getElementById('skill-list');
@@ -1290,7 +1291,7 @@ function updateSkillPips() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 3 — LINEAGE
+// STEP 3 - LINEAGE
 // ═══════════════════════════════════════════════════════════════
 function renderLineageGrid() {
   const container = document.getElementById('lineage-grid');
@@ -1326,7 +1327,7 @@ function renderLineageDetail() {
   // Base info card
   let html = `
     <div class="option-card selected" style="cursor:default;margin-bottom:${hasSubTraits?'16px':'0'}">
-      <div class="card-title" style="font-size:1.1rem">${lg.name} — Features</div>
+      <div class="card-title" style="font-size:1.1rem">${lg.name} - Features</div>
       <div class="card-stats" style="margin:8px 0">
         <span class="stat-badge size">Size: ${lg.size}</span>
         <span class="stat-badge">Height: ${lg.height}</span>
@@ -1381,7 +1382,7 @@ function updateLineageBenefits() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 4 — CLASS
+// STEP 4 - CLASS
 // ═══════════════════════════════════════════════════════════════
 function renderClassGrid() {
   const container = document.getElementById('class-grid');
@@ -1431,7 +1432,7 @@ function renderClassSkillChoices() {
   if (!cls.skillChoice || cls.skillChoice.length === 0) { container.style.display='none'; return; }
   container.style.display = 'block';
   container.innerHTML = `
-    <div class="info-box"><strong>${cls.name} Skill Bonuses</strong> — choose your additional skills:</div>
+    <div class="info-box"><strong>${cls.name} Skill Bonuses</strong> - choose your additional skills:</div>
     ${cls.skillChoice.map((choice, ci) => `
       <div style="margin-bottom:14px">
         <div class="field-label" style="display:block;margin-bottom:8px">${choice.label}</div>
@@ -1472,7 +1473,7 @@ function pickClassSkill(choiceIdx, skillKey) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 5 — SPECIALTY
+// STEP 5 - SPECIALTY
 // ═══════════════════════════════════════════════════════════════
 function renderSpecialtyGrid() {
   const container = document.getElementById('specialty-grid');
@@ -1504,7 +1505,7 @@ function selectSpecialty(name) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 6 — LIFEPATH
+// STEP 6 - LIFEPATH
 // ═══════════════════════════════════════════════════════════════
 function renderLifepath() {
   const container = document.getElementById('lifepath-content');
@@ -1555,7 +1556,7 @@ function selectLifepath(key, value) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 7 — STATUS POINTS
+// STEP 7 - STATUS POINTS
 // ═══════════════════════════════════════════════════════════════
 function calcHP()  { return (((ch.attrs.STR||0) + (ch.attrs.AGI||0)) * 2) + 4; }
 function calcMP()  { return (((ch.attrs.WIT||0) + (ch.attrs.EMP||0)) * 2) + 4; }
@@ -1583,7 +1584,7 @@ function renderStatusPoints() {
     </div>
     <div class="status-card dp">
       <div class="status-name">Max DP</div>
-      <div class="status-val">—</div>
+      <div class="status-val">-</div>
       <div class="status-formula">Set by armor</div>
     </div>
     <div class="status-card sp">
@@ -1601,7 +1602,7 @@ function renderStatusPoints() {
   const checkEl = document.getElementById('status-check');
   if (totalCheck === 20) {
     checkEl.className = 'info-box';
-    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} — Correct!`;
+    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} - Correct!`;
   } else {
     checkEl.className = 'warn-box';
     checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 20. Check your Attribute assignments.`;
@@ -1609,7 +1610,7 @@ function renderStatusPoints() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 8 — TALENTS
+// STEP 8 - TALENTS
 // ═══════════════════════════════════════════════════════════════
 function getAvailableTalents() {
   const cls = CLASSES.find(c=>c.name===ch.cls);
@@ -1645,7 +1646,7 @@ function renderTalentStep() {
 
   autoEl.innerHTML = `
     <div class="info-box">
-      <strong>Auto-granted from ${ch.cls||'your Class'}:</strong> Access to ${cls?cls.talents:'—'}.
+      <strong>Auto-granted from ${ch.cls||'your Class'}:</strong> Access to ${cls?cls.talents:'-'}.
       ${isSorcery ? `Spellcasting Attribute: ${cls.spellcasting}.` : ''}
     </div>
     <div class="info-box" style="margin-top:8px">
@@ -1661,9 +1662,9 @@ function renderTalentStep() {
   const MAX_MARTIAL = 1; const MAX_SORCERY = 1;
 
   const sections = [];
-  if (isMartial) sections.push({label:`Martial Talents — choose 1`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
+  if (isMartial) sections.push({label:`Martial Talents - choose 1`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
   const sorceryList = (ch.specialty === 'Warlock') ? WARLOCK_STUDIES : SORCERY_TALENTS;
-  if (isSorcery) sections.push({label:`${ch.specialty === 'Warlock' ? 'Patron Study (choose 1 — becomes Patron\'s Gift)' : 'Sorcery Talents — choose 1'}`,list:sorceryList,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
+  if (isSorcery) sections.push({label:`${ch.specialty === 'Warlock' ? 'Patron Study (choose 1 - becomes Patron\'s Gift)' : 'Sorcery Talents - choose 1'}`,list:sorceryList,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
 
   browserEl.innerHTML = sections.map(sec => {
     const atMax = sec.picked >= sec.max;
@@ -1741,7 +1742,7 @@ function renderTalentSlots() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 9 — DETAILS
+// STEP 9 - DETAILS
 // ═══════════════════════════════════════════════════════════════
 function renderDetailsStep() {
   const notableSlots = document.getElementById('notable-slots');
@@ -1764,7 +1765,7 @@ function renderDetailsStep() {
 
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 10 — SUMMARY
+// STEP 10 - SUMMARY
 // ═══════════════════════════════════════════════════════════════
 function renderSummary() {
   const allSkills = {};
@@ -1775,13 +1776,13 @@ function renderSummary() {
   grid.innerHTML = `
     <div class="summary-block">
       <h3>Identity</h3>
-      <div class="summary-row"><span class="s-label">Name</span><span class="s-val">${ch.name||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Name</span><span class="s-val">${ch.name||'-'}</span></div>
       <div class="summary-row"><span class="s-label">Level</span><span class="s-val">${ch.level||1}</span></div>
-      <div class="summary-row"><span class="s-label">Class</span><span class="s-val">${ch.cls||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${ch.specialty||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${ch.lineage||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?lg.speed+' ft':'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Class</span><span class="s-val">${ch.cls||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${ch.specialty||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${ch.lineage||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?lg.speed+' ft':'-'}</span></div>
     </div>
     <div class="summary-block">
       <h3>Attributes</h3>
@@ -1798,10 +1799,10 @@ function renderSummary() {
     </div>
     <div class="summary-block">
       <h3>Lifepath</h3>
-      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${ch.lifepath.culture||ch.lifepathCustom.culture||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${ch.lifepath.personality||ch.lifepathCustom.personality||'—'}</span></div>
-      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${ch.lifepath.value||ch.lifepathCustom.value||'—'}</span></div>
+      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${ch.lifepath.culture||ch.lifepathCustom.culture||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${ch.lifepath.personality||ch.lifepathCustom.personality||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${ch.lifepath.value||ch.lifepathCustom.value||'-'}</span></div>
     </div>
     <div class="summary-block" style="grid-column:1/-1">
       <h3>Skills</h3>
@@ -1846,9 +1847,16 @@ async function exportPDF() {
     const allSkills = {};
     for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
 
-    // Helper
+    // Helper — sanitize to WinAnsi-safe ASCII
+    const winansi = s => String(s||'').replace(/[\u0080-\uffff]/g, c => {
+      const map = {'\u2264':'<=','\u2265':'>=','\u2014':'-','\u2013':'-','\u2500':'-',
+                   '\u2019':"'",'\u2018':"'",'\u201c':'"','\u201d':'"','\u2026':'...',
+                   '\u00e9':'e','\u00e8':'e','\u00e0':'a','\u00e2':'a','\u00ea':'e',
+                   '\u00ee':'i','\u00f4':'o','\u00fb':'u','\u00fc':'u','\u00e7':'c'};
+      return map[c] || '';
+    });
     const set = (fieldName, val) => {
-      try { form.getTextField(fieldName).setText(String(val||'')); } catch(e) {}
+      try { form.getTextField(fieldName).setText(winansi(val)); } catch(e) {}
     };
     const setCheck = (fieldName, checked) => {
       try {
@@ -1862,7 +1870,7 @@ async function exportPDF() {
       }
     };
 
-    // Page 1 — Identity
+    // Page 1 - Identity
     set('Character Name', ch.name);
     set('JOB', ch.cls);
     set('SPECIALTY', ch.specialty);
@@ -1918,7 +1926,7 @@ async function exportPDF() {
     set('Gold',    ch.currency?.gold||0);
     set('Pluther', ch.currency?.pluther||0);
 
-    // Equipment — smart slot assignment from gear selections
+    // Equipment - smart slot assignment from gear selections
     // PDF fields: Equipment 1=Armor, 2=Back, 3=Back2, 4=Belt, 5=Belt2, 6=Kit
     const ARMOR_NAMES_PDF = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
     // Use gearSelections if populated, otherwise fall back to ch.equip
@@ -1937,7 +1945,7 @@ async function exportPDF() {
     set('Equipment 5', otherItems[1]||'');
     set('Equipment 6', 'Backpack');;
 
-    // Page 2 — Lifepath
+    // Page 2 - Lifepath
     set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
     set('Culture',                  ch.lifepath.culture||ch.lifepathCustom.culture||'');
     set('Personality',              ch.lifepath.personality||ch.lifepathCustom.personality||'');
@@ -1953,7 +1961,7 @@ async function exportPDF() {
     const bpItems = ch.equip.slice(6)||[];
     bpItems.slice(0,16).forEach((item,i) => set(`Gear Name ${i+1}`, item||''));
 
-    // Page 3 — Talents (small font size for compact display)
+    // Page 3 - Talents (small font size for compact display)
     // Strip HTML tags from a string (for plain text PDF fields)
     const stripHtml = s => String(s||'').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
 
@@ -1961,7 +1969,7 @@ async function exportPDF() {
       try {
         const field = form.getTextField(fieldName);
         const cleanVal = stripHtml(val);
-        // For multiline fields setFontSize may fail — try both approaches
+        // For multiline fields setFontSize may fail - try both approaches
         try {
           field.setFontSize(size || 7);
         } catch(fe) {
@@ -2091,7 +2099,7 @@ function renderGearStep() {
 
   el.innerHTML = `
     <div class="info-box" style="margin-bottom:20px">
-      <strong>${ch.specialty} Starting Gear</strong> — choose one option per row where multiple are offered.
+      <strong>${ch.specialty} Starting Gear</strong> - choose one option per row where multiple are offered.
     </div>
     <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px;margin-bottom:16px">
       <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:14px">Equipment Choices</h3>
@@ -2173,7 +2181,7 @@ function getArmorDP() {
     }
   }
   ch.dp = 0;
-  return 'No armor selected — 0 DP.';
+  return 'No armor selected - 0 DP.';
 }
 
 function extractNumericDP() {

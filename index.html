@@ -1945,10 +1945,6 @@ async function exportPDF() {
     set('Equipment 5', otherItems[1]||'');
     set('Equipment 6', '');  // Kit slot - left empty (backpack handled below)
 
-    // Backpack: write to Back and Kit Features + set slot count
-    setSmall('Back and kit features', 'Backpack', 14);
-    setSmall('carry Cur', '8', 14);
-
     // Page 2 - Lifepath
     set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
     set('Culture',                  ch.lifepath.culture||ch.lifepathCustom.culture||'');
@@ -1990,6 +1986,10 @@ async function exportPDF() {
         field.setText(cleanVal);
       } catch(e) {}
     };
+    // Backpack fields (must come after setSmall is declared)
+    setSmall('Back and kit features', 'Backpack', 14);
+    setSmall('carry Cur', '8', 14);
+
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 11);
     setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 11);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];

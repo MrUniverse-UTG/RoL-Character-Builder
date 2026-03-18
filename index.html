@@ -1481,27 +1481,7 @@ function renderMixedPanel() {
   const getNeedsSubTrait = (lg) => lg.traits.length > 1 && lg.traitDetails;
 
   // Sub-trait selectors for lineages that need them
-  let subTraitHtml = '';
-  [lg1, lg2].forEach(lg => {
-    if (getNeedsSubTrait(lg)) {
-      subTraitHtml += `
-        <div style="margin-bottom:12px;padding:12px;background:#f8f7f4;border-radius:var(--r)">
-          <label style="font-family:var(--font-ui);font-weight:700;font-size:.85rem;color:var(--accent-dk)">
-            ${lg.name} Sub-group:
-          </label>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            ${lg.traits.map(tk => `
-              <button onclick="setMixedSubTrait('${lg.name}','${tk}')"
-                style="padding:6px 14px;font-family:var(--font-ui);font-size:.85rem;font-weight:600;cursor:pointer;border-radius:20px;
-                       border:2px solid ${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent)':'var(--rule)'};
-                       background:${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent-lt)':'#fff'};
-                       color:${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent-dk)':'var(--ink)'}">
-                ${tk}
-              </button>`).join('')}
-          </div>
-        </div>`;
-    }
-  });
+  // Sub-group pickers (Abysian/Sylvanik) shown in lineage-detail below — not here
 
   const getT = (lgName) => {
     const sub = ch.mixedSubTraits[lgName];
@@ -1536,7 +1516,6 @@ function renderMixedPanel() {
       <div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">
         Mixed Lineage: ${lg1name} / ${lg2name}
       </div>
-      ${subTraitHtml}
       ${assignReady ? `
         <div style="margin-top:4px">
           <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:12px">
@@ -1558,6 +1537,7 @@ function renderMixedPanel() {
         </div>
         ${ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor ? 
           '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete.'
+          + (ch.mixedLineages.some(l=>{const lg=LINEAGES.find(x=>x.name===l);return lg&&lg.traits.length>1&&lg.traitDetails;}) ? ' <strong>Scroll down to choose sub-groups.</strong>' : '')
           + (ch.mixedLineages.includes('Dryvorn') ? ' <strong>Scroll down to choose your Dryvorn Bloodline.</strong>' : '')
           + ((ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') ? ' <strong>Scroll down to choose your size.</strong>' : '')
           + '</div>'
@@ -1778,9 +1758,37 @@ function renderLineageDetail() {
   }
 
   // Human / Ozonian: choose Small or Medium
-  // For mixed lineage: show pickers for any Dryvorn or Human/Ozonian in either selected lineage
+  // For mixed lineage: show sub-group + special pickers for both lineages
   if (ch.mixedLineage) {
     ch.mixedLineages.forEach(lgName => {
+      const mlg = LINEAGES.find(l => l.name === lgName);
+      if (!mlg) return;
+      // Sub-group pickers (Abysian/Sylvanik)
+      if (mlg.traits.length > 1 && mlg.traitDetails) {
+        const subChosen = ch.mixedSubTraits[lgName];
+        html += `<div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+          <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+            ${lgName} Sub-group
+          </div>
+          <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:10px">
+            Choose your ${lgName} variant.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${mlg.traits.map(tk => {
+              const td = mlg.traitDetails[tk];
+              return '<div class="option-card ' + (subChosen===tk?'selected':'') + '" '
+                + 'onclick="setMixedSubTrait(\''+lgName+'\',\''+tk+'\''+')" '
+                + 'style="flex:1;min-width:140px;padding:12px;cursor:pointer">'
+                + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;color:var(--accent-dk)">' + td.label + '</div>'
+                + '<div style="font-family:var(--font-ui);font-size:.75rem;color:var(--muted);margin-top:3px">' + td.desc + '</div>'
+                + '</div>';
+            }).join('')}
+          </div>
+          ${!subChosen ? '<div class="warn-box" style="margin-top:10px">Please choose a sub-group to continue.</div>' : ''}
+          ${subChosen ? '<div class="info-box" style="margin-top:10px">' + mlg.traitDetails[subChosen].label + ' selected.</div>' : ''}
+        </div>`;
+      }
+      // Dryvorn bloodline
       if (lgName === 'Dryvorn') {
         html += renderDryvornBloodlineHtml('Dryvorn');
       }

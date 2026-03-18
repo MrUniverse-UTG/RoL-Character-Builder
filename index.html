@@ -346,12 +346,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 
   <div id="suggested-gear-box" style="display:none"></div>
 
-  <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Starting Currency</h3>
-  <div class="form-row cols3">
-    <div><label class="field-label">Silver</label><input type="number" id="curr-silver" value="0" min="0"></div>
-    <div><label class="field-label">Gold</label><input type="number" id="curr-gold" value="0" min="0"></div>
-    <div><label class="field-label">Pluther</label><input type="number" id="curr-pluther" value="0" min="0"></div>
-  </div>
+  
 
   <h3 style="font-family:var(--font-ui);font-size:1rem;margin:20px 0 10px">Notable Characters</h3>
   <div id="notable-slots"></div>
@@ -690,6 +685,322 @@ const LIFEPATH = {
 };
 
 
+// ── Talent rank-by-rank data ───────────────────────────────────────────
+const TALENT_DATA = {
+  "Boar Style": [
+    "Unlock <em>Boar's Temper (A)</em>. Spend 2 Sorce Points: charge up to 10 ft in a line and make a melee attack. If you moved at least 10 ft in a straight line before the attack, base damage increases by 2.",
+    "Boar's Temper now lets you charge up to 20 feet.",
+    "If you moved at least 10 ft in a straight line while using Boar's Temper, base damage now increases by 4 instead of 2.",
+    "When you use Boar's Temper, spend 2 additional Sorce Points to deal 2 extra damage for every 5 ft moved in a straight line (up to +12 extra damage).",
+    "Spend 4 additional Sorce Points: charge through hostile creatures' spaces. Creatures you charge through take damage as if hit by a Melee Weapon Attack."
+  ],
+  "Brawler": [
+    "Spend 2 Sorce Points to attempt a Grapple on an Opportunity Strike instead of a Melee Weapon Attack.",
+    "You can Grapple creatures one size larger than you with a -1 modifier.",
+    "While Grappling a creature, they gain a -3 modifier when attacking creatures other than the one grappling them.",
+    "You can attempt to Grapple a creature two sizes larger than you with a -2 modifier.",
+    "While you have a creature Grappled, spend 6 Sorce Points to give them the Restrained Condition until the Grapple ends."
+  ],
+  "Calvary Fighter": [
+    "While mounted on a creature, all physical damage your mount receives is halved.",
+    "When a creature targets your mount with a Melee or Ranged Weapon Attack, spend 2 Sorce Points as a Free action to redirect it to target you instead.",
+    "If your mount is a Beast, it can now use any of its melee attacks with a -3 modifier while you're mounted (or ignore modifiers if it already has that ability).",
+    "When you move at least 10 ft in a straight line while mounted before making a Melee Weapon Attack, your attack's base damage increases by 4.",
+    "If your mount is a Beast, your Melee Weapon Attacks while mounted gain +2 base damage. Against unmounted creatures smaller than your mount, it's +4 instead."
+  ],
+  "Crane Style": [
+    "<em>Crane's Grace (P)</em>: Spend 2 Sorce Points + Quick action to leap 10 ft in a line without provoking Opportunity Strikes. You can leap over hostile creatures the same size or smaller.",
+    "Crane's Grace now lets you leap up to 15 feet.",
+    "<em>Flutter (A)</em>: Spend 4 Sorce Points to make a Melee Weapon Attack. Hit or miss, you then leap 15 ft away from the target without provoking Opportunity Strikes.",
+    "After using Crane's Grace or Flutter, you benefit from the Disengage action until the end of your turn.",
+    "Crane's Grace may now be used as a Minor Action instead of a Quick Action. Flutter becomes a Power (P) that can be activated as a Free Action after any Melee Weapon Attack."
+  ],
+  "Defender": [
+    "<em>Guard (P)</em>: When a creature within 5 ft of you is attacked by a Melee or Ranged Weapon Attack, use a Reaction to attempt to Block or Parry the attack for them. You must wield a weapon or shield to Guard.",
+    "Spend 2 Sorce Points as a Free Action instead of a Reaction to use Guard.",
+    "When you Guard a creature and they still get hit, spend 3 Sorce Points to redirect half of the attack's damage to you.",
+    "When a creature within 5 ft of you makes a Might or Move save, spend 2 Sorce Points as a Free Action to Assist that save with your Might or Move.",
+    "Spend 4 Sorce Points to enter a Defender Stance until the start of your next turn. While in it, you can Guard without spending Sorce or a Reaction, and Block or Parry attacks against yourself without a Reaction."
+  ],
+  "Dragon Style": [
+    "<em>Piercing Blow (P)</em>: Spend 3 Sorce Points to shoot or throw a powerful attack in a 20-ft line. All creatures in the path take Ranged Weapon Attack damage.",
+    "Piercing Blow's line now has a range of 40 feet.",
+    "<em>Spread Blow (P)</em>: Spend 6 Sorce Points to fire a shot or throw a weapon in a 20-ft cone. Each creature in the cone takes Ranged Weapon Attack damage.",
+    "All Powers from this talent deal an additional 4 damage of the weapon's base damage type.",
+    "<em>Explosive Blow (P)</em>: Spend 9 Sorce Points to fire at a point within your weapon's max range. The Sorce infusion explodes in a 20-ft-radius sphere. Each creature in the sphere takes Ranged Weapon Attack damage."
+  ],
+  "Duelist": [
+    "<em>Riposte (P)</em>: If your Parry prevents a melee attack from hitting, spend 2 Sorce Points to deal half the damage you would deal if you hit with a Melee Weapon Attack to the attacker.",
+    "You can now Parry Ranged Weapon and Spell attacks.",
+    "When targeted by a Melee or Ranged Weapon Attack, spend 3 Sorce Points as a Free Action instead of a Reaction to Parry.",
+    "When you use Riposte, it now deals the full damage of your attack instead of half.",
+    "When you Parry an attack, spend 4 Sorce Points to reroll up to three dice in the check."
+  ],
+  "Ignore Pain": [
+    "<em>Toughen Up (P)</em>: When you take damage, use a Reaction to reduce the damage taken by 4 (minimum 1). Cannot reduce Fear or Psychic damage.",
+    "Spend 2 Sorce Points as a Free Action instead of a Reaction to use Toughen Up.",
+    "Toughen Up now works against Fear and Psychic damage.",
+    "When you use Toughen Up, spend 2 additional Sorce Points as a Free Action to increase the damage reduction to 12 (minimum 1).",
+    "<em>Didn't Hear No Bell (P)</em>: If damage would reduce your HP or MP to 0, spend 2 Sorce Points as a Free Action to regain up to 24 HP or MP after rolling for the Wound or Trauma gained."
+  ],
+  "Mantis Style": [
+    "<em>Multi Strike (A)</em>: Spend 3 Sorce Points to hit with two 1h weapons in one attack. First weapon deals full damage; second deals half damage. The second weapon's damage does not benefit from critical success.",
+    "Your first Off-Hand Attack on your turn only has a -2 modifier.",
+    "Your first Off-Hand Attack on your turn only has a -1 modifier.",
+    "When you Multi Strike, the second weapon deals equal damage to what it would normally deal on a successful weapon attack (instead of half).",
+    "If you successfully hit with Multi Strike, you can use it again as a Quick action with a -1 modifier until the end of your turn."
+  ],
+  "Master of Defense": [
+    "While wearing an armor set or natural armor, your max DP increases by 4.",
+    "While wearing an armor set or natural armor, your max DP increases by an additional 8.",
+    "While wearing an armor set or natural armor, your max DP increases by an additional 12.",
+    "While wearing an armor set or natural armor, your max DP increases by an additional 16.",
+    "While wearing an armor set or natural armor, your max DP increases by an additional 20."
+  ],
+  "Opportunist": [
+    "When a creature willingly enters your weapon's reach for the first time on a turn, you can make an Opportunity Strike against them.",
+    "When you can make an Opportunity Strike, spend 2 Sorce Points as a Free Action instead of a Reaction.",
+    "Spend 4 Sorce Points as a Free Action to make an Opportunity Strike on a creature that has Disengaged.",
+    "<em>Cripple (P)</em>: When you hit with an Opportunity Strike, spend 3 Sorce Points as a Free Action to reduce the enemy's Speed by half until the start of their next turn.",
+    "Cripple now reduces the enemy's Speed to 0 until the start of their next turn."
+  ],
+  "Porcupine Style": [
+    "While wielding a shield, you can use it as a melee weapon. The shield has base Blunt damage equal to double its defense modifier.",
+    "<em>Counter (P)</em>: When you successfully Block a melee attack and the attacker is within 5 ft, spend 4 Sorce Points as a Free Action to deal damage to the attacker as if you hit them with the shield.",
+    "Whenever you Block a melee attack and the attacker is within 5 ft, the attacker takes 2 Blunt damage regardless if they succeed or fail the attack.",
+    "The base damage of shields you wield increases by 4.",
+    "<em>Pummel (P)</em>: When you successfully attack with a shield, spend 6 Sorce Points as a Free Action to attempt to Shove the creature Prone. If you succeed, use a Quick Action until end of turn to deal shield damage again."
+  ],
+  "Primal Style": [
+    "<em>Cleave (P)</em>: After you successfully hit with a Melee Weapon Attack, spend 3 Sorce Points as a Quick action to deal your weapon damage to another creature within your melee weapon's reach.",
+    "Spend the Sorce Points to activate Cleave as a Minor action.",
+    "Spend the Sorce Points to activate Cleave as a Free action.",
+    "When you would use Cleave, spend 6 Sorce Points instead of 3 to target up to two different creatures within reach.",
+    "When you use Cleave, spend 9 Sorce Points instead of 3 to target up to four different creatures within reach."
+  ],
+  "Rabbit Style": [
+    "<em>With Haste (P)</em>: Once on your turn, spend 2 Sorce Points as a Free action to increase your Speed by 10 feet until the end of your turn.",
+    "While under the effects of With Haste, you can also run across water and up walls.",
+    "While under the effects of With Haste, you can Hasten as a Quick Action on your turn.",
+    "While under the effects of With Haste, spend 2 Sorce Points to Hasten as a Free Action once per turn.",
+    "When you activate With Haste, the bonus speed increases to 30 and you benefit from the Disengage action until the end of your turn."
+  ],
+  "Rubber Style": [
+    "<em>Bounce Strike (P)</em>: After successfully hitting with a Ranged Weapon Attack, spend 3 Sorce Points as a Quick action. Choose another creature within 15 ft of the creature you hit — they take Ranged Weapon Attack damage.",
+    "Spend the Sorce Points to activate Bounce Strike as a Minor action.",
+    "Spend the Sorce Points to activate Bounce Strike as a Free action.",
+    "When you use Bounce Strike, spend 6 Sorce Points instead of 3 to also target a third creature within 15 ft of the second.",
+    "When you use Bounce Strike, spend 9 Sorce Points to also target a fourth creature within 15 ft of the third."
+  ],
+  "Sniper Style": [
+    "When your Ranged Attack benefits from Aim, it gains an additional +1 modifier (total +2 modifier).",
+    "Spend 2 Sorce Points on your turn to Aim as a Free action (once per turn).",
+    "When you make a Ranged Weapon Attack benefiting from Aim, spend 2 Sorce Points to reroll one die.",
+    "When you hit with an Aimed Ranged Weapon Attack, its base damage is increased by 2.",
+    "When you Aim, spend your remaining Speed as a Free Action to enhance it. Until end of turn, your next aimed attack gains +2 base damage per 10 Speed spent (max +10)."
+  ],
+  "Tiger Style": [
+    "When you hit with a Melee Weapon Attack benefiting from Wind-Up, its base damage is increased by 2.",
+    "Spend 2 Sorce Points on your turn to Wind-Up as a Free action (once per turn).",
+    "When you make a Melee Weapon Attack benefiting from Wind-Up, spend 2 Sorce Points to reroll one die.",
+    "When you hit with a Wind-Up Melee Weapon Attack, its base damage is increased by an additional 2 (total of 4).",
+    "Using Wind-Up while already benefiting from Wind-Up creates a Mega-Wind-Up. Rank 3 benefit: reroll up to two dice. Rank 4 benefit: +8 base damage instead of +4."
+  ],
+  "Tortoise Style": [
+    "<em>Fortify (P)</em>: While wielding a shield, spend up to 3 Sorce Points as a Quick action to Fortify, gaining 12 Temp DP for 1 minute or until you stop wielding the shield.",
+    "When you make a Move save to reduce or avoid damage, apply your shield's modifier as a positive modifier to your save.",
+    "Spend 2 Sorce Points instead of a Reaction to Block a melee or ranged attack with a shield.",
+    "When you use Fortify, the Temp DP it grants has resistance against Slash, Pierce, and Blunt damage.",
+    "When you Block an attack, spend 4 Sorce Points to reroll up to three dice in the check."
+  ],
+  "Viper Style": [
+    "<em>Leg Strike (A)</em>: Standard action, -3 modifier. On a success, all of the creature's Speeds are reduced by 20 feet until the start of your next turn (cannot reduce below half their normal amount).",
+    "<em>Arm Strike (A)</em>: Standard action, -3 modifier. On a success, the creature's base damage on attacks is reduced by 4 until the start of your next turn.",
+    "Leg Strike and Arm Strike now inflict only a -2 modifier instead of -3.",
+    "Creatures affected by Leg Strike also gain -2 to Agility checks. Creatures affected by Arm Strike also gain -2 to Strength checks.",
+    "<em>Head Strike (A)</em>: When you make a Melee or Ranged Weapon Attack as a Standard action, take a -4 modifier to make it a Head Strike. On a hit, the creature gains the Slowed Condition until the start of your next turn."
+  ],
+  "Wolf Style": [
+    "<em>Flank (P)</em>: When you and an ally are both within 5 feet of a hostile creature, you are Flanking. While Flanking, you get a +1 modifier to melee attacks against that creature.",
+    "When you Flank a creature, the base damage of your melee attacks increases by 2 against that creature.",
+    "<em>Team Effort (P)</em>: When you first Flank an enemy on your turn, choose an ally within 5 ft. They gain the Rank 1 and Rank 2 benefits of this Talent against the Flanked creature until the start of your next turn.",
+    "You and the chosen ally in Team Effort gain a +2 modifier and +4 base damage on melee attacks when benefiting from Flank and Team Effort.",
+    "<em>Team Strike (A)</em>: While Flanking an enemy, spend 4 Sorce Points. Make a melee attack — hit or miss, an ally within 5 ft of the enemy may make an Opportunity Strike at -3 as a Free action."
+  ],
+  "Elemental Attunement": [
+    "Pick one element: Fire, Frost, Electric, or Acid. When you deal damage from a Spell with the same type as your Elemental Attunement, you deal an additional 4 damage of that type.",
+    "Your Spells that deal the same type of damage as your Elemental Attunement ignore resistances against that damage type.",
+    "When you deal damage from a Spell with your Attunement element, you now deal 8 additional damage instead of 4.",
+    "Your HP and DP gain resistance to the damage type that matches your Elemental Attunement. If either already has resistance, it instead gains immunity.",
+    "When you deal damage from a Spell with your Attunement element, you now deal 12 additional damage instead of 8."
+  ],
+  "Innate Magic": [
+    "You innately learn a Rank 1 Spell. Pick any Spell from any Study of Sorcery. It is always prepared and doesn't count against your prepared Spells limit. You don't need an Arcane Foci for its Spell check.",
+    "You innately learn a Rank 2 Spell from any Study.",
+    "You innately learn a Rank 3 Spell from any Study.",
+    "You innately learn a Rank 4 Spell from any Study.",
+    "You innately learn a Rank 5 Spell from any Study."
+  ],
+  "Megamind": [
+    "Choose 1 known Rank 1 Spell as your first Signature Spell. Signature Spells are always prepared and don't count against your prepared Spells. They gain +2 Power Levels when cast (or reduced Sorce cost if no Power Level).",
+    "All Rank 0 Spells you know are always prepared without counting against your prepared Spells limit.",
+    "Choose a known Rank 2 Spell as your second Signature Spell.",
+    "All Spells you know are now always prepared.",
+    "Choose a known Rank 3 Spell as your third Signature Spell."
+  ],
+  "Mental Shield": [
+    "When you take damage that isn't Fear or Psychic, use a Reaction to redirect up to 10 of the damage to your MP. You cannot redirect more than half the damage taken.",
+    "The amount of damage you can redirect increases to 20 (still max half the damage).",
+    "When you take Fear damage, use a Reaction to halve the damage taken.",
+    "The amount of damage you can redirect is any amount, so long as it's not more than half the damage taken.",
+    "Spend 2 Sorce Points as a Free Action instead of a Reaction to transfer half the damage taken."
+  ],
+  "Runic Magic": [
+    "You gain the ability to inscribe runes on objects and surfaces. You learn one Runic Inscription. Available at Rank 1: Rune of Cover, Rune of Accuracy, Rune of Elements, Rune of Alarm.",
+    "You learn a second Runic Inscription.",
+    "You learn a third Runic Inscription. New options available: Rune of Protection, Rune of Harm.",
+    "You may now have up to two Runes active at once. If you already have 2, inscribing a new rune disables the oldest one. New options: Rune of Sanctuary, Rune of Sorce.",
+    "While you have a Rune active, use a Quick Action to move it to a new location or object without spending Sorce to recreate it."
+  ],
+  "Spell Slinger": [
+    "When making an initiative check, you can make a Spell check instead for a specific Study you know. The Spell you plan to cast on your first turn must be from that Study. Must wield an Arcane Foci.",
+    "You no longer need an Arcane Foci for this initiative check. You gain a +2 modifier on the initiative check.",
+    "The Spell check for initiative can be based on the Rank of your highest Study of Sorcery Talent, even if casting from a different Study. +1 additional modifier (total +3).",
+    "On a successful initiative check with this Talent, choose whether your first Spell cast gains 2 Power Levels or has its Sorce Point cost reduced by 3 (minimum 1).",
+    "On a successful initiative check with this Talent, if your first Spell has a casting time of Standard or Quick action, you can cast it as a Minor action on your first turn."
+  ],
+  "Twist Magicka": [
+    "You gain the ability to twist your Spells to bend to your will. Gain one Magicka. Choose from: Distant (double range, 2 SP), Extend (double duration, 2 SP), Elemental (change damage type, 2 SP), Careful (pick immune creatures, 2-6 SP).",
+    "You gain a second Magicka.",
+    "You gain a third Magicka. New options available: Quick Magicka, Subtle Magicka.",
+    "You gain a fourth Magicka. New options available: Double Magicka, Explosive Magicka.",
+    "You can now use up to 2 Magicka per turn (previously limited to 1 per round)."
+  ],
+  "War Caster": [
+    "When you must make an Endure save to keep your focus after taking non-Fear/Psychic damage, you gain a +2 modifier.",
+    "You gain the ability to Encant as a Quick action. When you Encant, your next Spell check gains a +1 modifier. If you perform any action besides casting a Spell before using it, you lose this benefit.",
+    "When you perform an Opportunity Strike, you can cast a Rank 1 or lower Spell. The Spell must only target the creature that triggered the Opportunity Strike.",
+    "You can ignore the Hand and Tongue components of casting Spells.",
+    "If you fail an Endure save to maintain focus on a Spell, you can use this to gain 1 success (once per Light or Full Rest). Psychic damage no longer inflicts the additional -2 modifier on Endure saves to maintain focus."
+  ],
+  "Study of Aeromancy": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Aeromancy: Jolt, Bellowing Shout, Lightning Arc, Fast as Light.",
+    "New Spells available: Reflux, Small Nimbus.",
+    "New Spells available: Lighting Beam, Flash Step.",
+    "New Spells available: Enraged Nimbus, Spear of Voltara.",
+    "New Spells available: Storm of Fury, Magnetivus."
+  ],
+  "Study of Blood": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Blood: Vampiric Slash, Infatuate, Enthrall Person, Infuse Confuse.",
+    "New Spells available: Adrenaline Boost, Stir Emotions.",
+    "New Spells available: Hot Head, Brain Freeze.",
+    "New Spells available: Surge Flow, Slow Flow.",
+    "New Spells available: Bend Blood, Brain Rot."
+  ],
+  "Study of Contagion": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Contagion: Acid Dart, Sicken Pulse, Toxic Wave, Witherplague.",
+    "New Spells available: Blindblight, Proliferate.",
+    "New Spells available: Feral Pox, Eroding Sludge.",
+    "New Spells available: Mindflare, Stonefever.",
+    "New Spells available: Plague Requiem, Bone Rot."
+  ],
+  "Study of Cryomancy": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Cryomancy: Ice Spear, Sculpt Ice, Daggers of Ice, Ice Barrier.",
+    "New Spells available: Frostbite, Ice Armor.",
+    "New Spells available: Flash Freeze, Cryostasis.",
+    "New Spells available: Unstable Shard, Boreal Binds.",
+    "New Spells available: Blizzard, Avalanche."
+  ],
+  "Study of Death": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Death: Reaper Scythe, Recompose, Summon Skeleservant, Death Speech.",
+    "New Spells available: Reap, Curse Creature.",
+    "New Spells available: Raise Dead, Undying Rune.",
+    "New Spells available: Drain Youth, Death Guillotine.",
+    "New Spells available: Dark Exchange, Aura of Undeath."
+  ],
+  "Study of Displacement": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Displacement: Pocketswap, Infini Pocket, Body Swap, Minor Portals.",
+    "New Spells available: Tactical Retreat, Create Hole.",
+    "New Spells available: Reposition, Rescue.",
+    "New Spells available: Major Portals, Skip Stride.",
+    "New Spells available: Control Space, Shroud Sanctum."
+  ],
+  "Study of Divinity": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Divinity: Blessing of Protection, Searing Flare, Vengeful Smite, Blessing of Pacifism.",
+    "New Spells available: Blessing of Guardian, Explosive Smite.",
+    "New Spells available: Blessing of Radiance, Holy Smite.",
+    "New Spells available: Divine Sanctuary, Blessing of Flight.",
+    "New Spells available: Primal Smite, Divine Intervention."
+  ],
+  "Study of Geomancy": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Geomancy: Earth Bend, Rock Catapault, Repair Minerals, Spiked Terrain.",
+    "New Spells available: Debris Sandstorm, Propel Creature.",
+    "New Spells available: Earth Structure, Summon Earth Warrior.",
+    "New Spells available: Summon Earth Knight, Hurl Boulder.",
+    "New Spells available: Entomb, Summon Earth Golem."
+  ],
+  "Study of Illusion": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Illusion: Lesser Illusion, Fashionate, Greater Illusion, Create Disguise.",
+    "New Spells available: Invisibility, Create Duplicate.",
+    "New Spells available: Play Dead, Powerful Illusion.",
+    "New Spells available: Greater Invisibility, Mass Disguise.",
+    "New Spells available: Mass Duplicate, Disguised Domain."
+  ],
+  "Study of Pyromancy": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Pyromancy: Dancing Flame, Fire Ray, Burst Self, Fire Missile.",
+    "New Spells available: Fire Aura, Fire Breath.",
+    "New Spells available: Explosion, Flame Jettison.",
+    "New Spells available: Immolate, Wall of Fire.",
+    "New Spells available: Fire Blossom, Fire Storm."
+  ],
+  "Study of Recovery": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Recovery: Transfer Life, Dislocate, Reinvigorate, Calm Emotions.",
+    "New Spells available: Fortify, Purify.",
+    "New Spells available: Remove Bane, Mend Injuries.",
+    "New Spells available: Regeneration, Healing Mist.",
+    "New Spells available: Repair Body, Deny Death."
+  ],
+  "Study of Shadows": [
+    "You learn and can prepare Spells with a Rank ≤ 1 from the Study of Shadows: Feed Fear, Manipulate Darkness, Terrifying Gloom, Fall.",
+    "New Spells available: Shadow Walk, Terrorizing Shadows.",
+    "New Spells available: Cloak of Shadows, Mind Reave.",
+    "New Spells available: Consume Fears, Menacing Aura.",
+    "New Spells available: Nightmare's Grasp, Dark Domain."
+  ],
+  "Academic": ["Learn an additional language. Gain +2 modifier on Analyze checks related to scholarly knowledge."],
+  "Angelic Blood": ["Your HP and DP gain resistance to Radiant damage. +2 modifier on Endure saves against instant-kill effects."],
+  "Animal Ally": ["Befriend a small or tiny Beast as a loyal companion. It follows your commands but does not fight for you unless made a Companion."],
+  "Animal Friendship": ["You can speak with Beasts. When you communicate with a Beast, it understands you and you understand it."],
+  "Backseat Braining": ["When an ally within 30 ft makes a Wits-based check, use a Free Action to grant them a +2 modifier."],
+  "Caster Initiate": ["You learn one Rank 0 Spell from any Study. You can cast it using Wits or Empathy as your spellcasting attribute."],
+  "Demonic Blood": ["Your HP gains resistance to Necrotic damage. +2 modifier on Insight saves against being Charmed or Frightened."],
+  "Field Medic": ["Bandage or Galvanize without a medical kit (within 5 ft). +2 modifier on Medical checks."],
+  "Full Dodge": ["Once per round, when targeted by an attack or effect, use a Reaction to gain the benefits of the Dodge action against that specific attack."],
+  "Heckler": ["Quick action: Taunt a creature within 30 ft — they make an Insight save or gain -1 modifier on attacks against creatures other than you."],
+  "Inspiring": ["Quick action: inspire an ally within 30 ft — they gain +2 modifier on their next check. Recharges on Intermission."],
+  "Intimidating": ["+2 modifier on Intimidate checks. Once per Intermission, a successful Intimidate check imposes -1 on the target's attacks until your next turn."],
+  "Keen Eyes": ["Once per turn as a Free action: attempt to spot Hidden creatures within 30 ft. +2 modifier on Scout checks."],
+  "Linguist": ["Learn two additional languages of your choice."],
+  "Look Over There": ["Quick action: one creature within 30 ft makes an Insight save or loses their Reaction until the start of your next turn."],
+  "Luck of the Gods": ["Once per Full Rest: after rolling any dice, reroll all of them and take the new result."],
+  "Master Spy": ["+2 modifier on Hide and Manipulate checks. Pick locks and disable traps with Finesse (no kit required)."],
+  "Min Max": ["Choose one Attribute. All checks using that Attribute as the highest Rank in the dice pool gain a +1 modifier."],
+  "Mobile": ["Your Speed increases by 10 feet."],
+  "Naturally Gifted": ["Choose one Skill. That Skill's Rank increases by 1 (up to the normal cap)."],
+  "Skilled": ["Gain 2 additional Skill Points to spend immediately."],
+  "Sneaky": ["+2 modifier on Hide checks. When you attack a creature unaware of you, your first attack gains a +1 modifier."],
+  "Steady Hands": ["+2 modifier on Finesse checks. Ignore penalties for using fine tools in stressful situations."],
+  "Steel Body": ["Your max DP increases by 4."],
+  "Steel Mind": ["Your max MP increases by 4."],
+  "Steel Muscles": ["Your max HP increases by 4."],
+  "Steel Nerves": ["+2 modifier on Endure saves and checks to resist Conditions."],
+  "Strong Arm": ["+2 modifier on Might checks. When you Push or Shove a creature, the effect distance increases by 5 feet."],
+  "Sturdy": ["When you would gain the Prone Condition from an attack, use a Reaction to prevent it."],
+  "Vigilant": ["You cannot be Surprised. +2 modifier on initiative checks."],
+  "Warfare Initiate": ["Learn one Rank 1 Martial Talent of your choice, even if you do not normally have access to Martial Talents."],
+};
+
+
 // ── Talent Lists ───────────────────────────────────────────────────────
 const MARTIAL_TALENTS = ['Boar Style', 'Brawler', 'Calvary Fighter', 'Crane Style', 'Defender', 'Dragon Style', 'Duelist', 'Ignore Pain', 'Mantis Style', 'Master of Defense', 'Opportunist', 'Porcupine Style', 'Primal Style', 'Rabbit Style', 'Rubber Style', 'Sniper Style', 'Tiger Style', 'Tortoise Style', 'Viper Style', 'Wolf Style'];
 const SORCERY_TALENTS = ['Elemental Attunement', 'Innate Magic', 'Megamind', 'Mental Shield', 'Runic Magic', 'Spell Slinger', 'Study of Aeromancy', 'Study of Blood', 'Study of Contagion', 'Study of Cryomancy', 'Study of Death', 'Study of Displacement', 'Study of Divinity', 'Study of Geomancy', 'Study of Illusion', 'Study of Pyromancy', 'Study of Recovery', 'Study of Shadows', 'Twist Magicka', 'War Caster'];
@@ -736,6 +1047,7 @@ let ch = {
   specialtyTalent: '',
   lineageBenefits: '',
   name: '', level: 1, height: '', weight: '', age: '', notes: '',
+  weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
   _viewingTalent: null,
 };
 
@@ -1328,10 +1640,11 @@ function renderTalentStep() {
       ${isSorcery ? `Spellcasting Attribute: ${cls.spellcasting}.` : ''}
     </div>
     <div class="info-box" style="margin-top:8px">
-      At Level 1 you may select <strong>up to 2 General Talents</strong>
-      ${isMartial ? 'and <strong>up to 1 Martial Talent</strong>' : ''}
-      ${isSorcery ? 'and <strong>up to 1 Sorcery Talent</strong>'  : ''}
-      from the lists below. All are taken at <strong>Rank 1</strong>.
+      At Level 1 you may select:
+      ${isMartial ? '<br>• <strong>1 Martial Talent</strong>' : ''}
+      ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong>' : ''}
+      <br>• <strong>up to 2 General Talents</strong>
+      <br>All selected at <strong>Rank 1</strong>. Click any talent name to see its full description.
     </div>`;
 
   // Count how many of each type already chosen
@@ -1700,67 +2013,127 @@ function applyStartingGear() {
   renderDetailsStep();
 }
 
+
+const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Small shield"], ["Quilted Vest", "Layered Plate Armor"], ["Backpack"]], "Berserker": [["Long sword", "Mace", "Battle axe"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Engineer": [["Shortsword", "Flintlock pistol"], ["Small shield", "Bullet pouch"], ["Quilted Vest", "Layered Plate armor"], ["Engineer tool kit"], ["Backpack"]], "Pugilist": [["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Sharpshooter": [["Short bow", "Pistol", "Light crossbow"], ["Arrow quiver", "Bolt pouch", "Bullet pouch"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Elemancer": [["Short sword", "Mace", "Battle axe", "Dagger"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Alchemist": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Alchemy kit"], ["Backpack"]], "Reaver": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Spellweaver": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Warlock": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Oracle": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Witch": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Shapeshifter": [["Arcane wand", "Longsword"], ["Reinforced Tunic", "Brigandine armor set"], ["Backpack"]], "Summoner": [["Arcane wand", "Shortbow with arrow quiver", "Shortsword"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Sonneteer": [["Arcane wand", "Arcane instrument"], ["2 daggers"], ["Quilted Vest armor"], ["Backpack"]], "Cleric": [["Arcane staff", "Mace"], ["Quilted Vest armor", "Layered Plate armor"], ["Backpack"]]};
+
+const ARMOR_DP_MAP = {"Quilted Vest": 10, "Quilted Vest armor": 10, "Layered Plate Armor": 20, "Layered Plate armor": 20, "Light Leather armor": null, "Reinforced Tunic": 12, "Brigandine armor set": 16};
+
 function renderGearStep() {
   const el = document.getElementById('gear-step-content');
   if (!el) return;
-  if (!ch.specialty || !STARTING_GEAR[ch.specialty]) {
+  if (!ch.specialty || !GEAR_OPTIONS[ch.specialty]) {
     el.innerHTML = '<div class="warn-box">Please choose a Specialty in Step 5 first.</div>';
     return;
   }
-  const gear = STARTING_GEAR[ch.specialty];
-  // Auto-set currency if not already set
-  if (!ch.currency.silver && gear.silver) ch.currency.silver = gear.silver;
+  const slots = GEAR_OPTIONS[ch.specialty];
+  const silver = STARTING_GEAR[ch.specialty]?.silver || 20;
+  if (!ch.gearSelections) ch.gearSelections = {};
+  if (!ch.currency.silver) ch.currency.silver = silver;
+
+  const slotLabels = ['Weapon / Attack','Weapon / Off-hand or Ammo','Armor','Kit','Pack','Extra'];
 
   el.innerHTML = `
     <div class="info-box" style="margin-bottom:20px">
-      <strong>${ch.specialty} Starting Gear</strong>
-      <ul style="margin:8px 0 0 18px">
-        ${gear.items.map(g=>`<li>${g}</li>`).join('')}
-      </ul>
+      <strong>${ch.specialty} Starting Gear</strong> — choose one option per row where multiple are offered.
     </div>
     <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px;margin-bottom:16px">
-      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:12px">Starting Currency</h3>
-      <div class="form-row cols3">
-        <div>
-          <label class="field-label">Silver</label>
-          <input type="number" id="gear-silver" value="${ch.currency.silver||gear.silver||0}" min="0"
-                 onchange="ch.currency.silver=+this.value">
-        </div>
-        <div>
-          <label class="field-label">Gold</label>
-          <input type="number" id="gear-gold" value="${ch.currency.gold||0}" min="0"
-                 onchange="ch.currency.gold=+this.value">
-        </div>
-        <div>
-          <label class="field-label">Pluther</label>
-          <input type="number" id="gear-pluther" value="${ch.currency.pluther||0}" min="0"
-                 onchange="ch.currency.pluther=+this.value">
-        </div>
-      </div>
+      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:14px">Equipment Choices</h3>
+      ${slots.map((options, i) => {
+        const label = slotLabels[i] || `Slot ${i+1}`;
+        const selected = ch.gearSelections[i] || options[0];
+        if (options.length === 1) {
+          // Single option — just display it, auto-set
+          if (!ch.gearSelections[i]) {
+            ch.gearSelections[i] = options[0];
+            ch.equip[i] = options[0];
+          }
+          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:120px">${label}</label>
+            <div style="flex:1;padding:8px 12px;background:#f8f7f4;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.88rem">${options[0]}</div>
+          </div>`;
+        }
+        return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:120px">${label}</label>
+          <select onchange="updateGearSlot(${i}, this.value)"
+                  style="flex:1;padding:8px 12px;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.88rem;background:#fff">
+            ${options.map(opt => `<option value="${opt}" ${selected===opt?'selected':''}>${opt}</option>`).join('')}
+          </select>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px;margin-bottom:16px">
+      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:8px">Auto DP</h3>
+      <div id="dp-display" style="font-family:var(--font-ui);font-size:.9rem;color:var(--accent-dk)">${getArmorDP()}</div>
     </div>
     <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
-      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:6px">Equipment Inventory</h3>
-      <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
-        Your starting gear has been suggested below. Edit as needed — choose one option where multiple are offered.
-      </p>
-      ${['Armor Slot','Back Slot 1','Back Slot 2','Belt Slot 1','Belt Slot 2','Kit Slot'].map((slot,i) => `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <label style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;color:var(--muted);
-                        text-transform:uppercase;min-width:90px">${slot}</label>
-          <input type="text" value="${ch.equip[i]||''}"
-                 style="flex:1;padding:7px 10px;border:1px solid var(--rule);border-radius:6px;
-                        font-family:var(--font-ui);font-size:.88rem"
-                 placeholder="Empty"
-                 onchange="ch.equip[${i}]=this.value">
-        </div>
-      `).join('')}
-    </div>
-    <div style="text-align:right;margin-top:12px">
-      <button class="btn btn-secondary" style="font-size:.85rem;padding:8px 14px"
-              onclick="autoFillGear()">✦ Auto-fill from Starting Gear</button>
+      <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:8px">Starting Currency</h3>
+      <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-ui)">
+        <span style="font-size:1.2rem;font-weight:700;color:var(--accent-dk)">${silver} Silver</span>
+        <span style="color:var(--muted);font-size:.88rem">automatically granted by your ${ch.specialty} Specialty</span>
+      </div>
     </div>
   `;
 }
+
+function updateGearSlot(idx, value) {
+  if (!ch.gearSelections) ch.gearSelections = {};
+  // Check armor restrictions
+  const isArmor = ['Layered Plate Armor','Layered Plate armor'].includes(value);
+  if (isArmor) {
+    const str = ch.attrs.STR || 0;
+    if (str < 2) {
+      alert('Layered Plate Armor requires at least Strength Rank 2. Your current Strength is Rank ' + str + '. Please assign Strength to 2 or higher before selecting this armor.');
+      // Revert to previous or first option
+      const slots = GEAR_OPTIONS[ch.specialty] || [];
+      const options = slots[idx] || [];
+      ch.gearSelections[idx] = options.find(o => !['Layered Plate Armor','Layered Plate armor'].includes(o)) || options[0];
+      ch.equip[idx] = ch.gearSelections[idx];
+      renderGearStep();
+      return;
+    }
+  }
+  ch.gearSelections[idx] = value;
+  ch.equip[idx] = value;
+  // Auto-calculate DP if armor changed
+  const dpText = getArmorDP();
+  const dpEl = document.getElementById('dp-display');
+  if (dpEl) dpEl.textContent = dpText;
+  // Store numeric DP in ch for PDF export
+  extractNumericDP();
+}
+
+function getArmorDP() {
+  if (!ch.gearSelections) return 'Select armor above to see DP.';
+  const vals = Object.values(ch.gearSelections);
+  for (const v of vals) {
+    if (ARMOR_DP_MAP[v] !== undefined) {
+      if (ARMOR_DP_MAP[v] === null) {
+        // Light Leather = Agility × 3
+        const agi = ch.attrs.AGI || 0;
+        const dp  = agi * 3;
+        ch.dp = dp;
+        return `Light Leather Armor: DP = Agility (${agi}) × 3 = ${dp}`;
+      }
+      ch.dp = ARMOR_DP_MAP[v];
+      return `${v}: ${ARMOR_DP_MAP[v]} DP`;
+    }
+  }
+  ch.dp = 0;
+  return 'No armor selected — 0 DP.';
+}
+
+function extractNumericDP() {
+  if (!ch.gearSelections) return;
+  const vals = Object.values(ch.gearSelections);
+  for (const v of vals) {
+    if (ARMOR_DP_MAP[v] !== undefined) {
+      ch.dp = (ARMOR_DP_MAP[v] === null) ? ((ch.attrs.AGI||0) * 3) : ARMOR_DP_MAP[v];
+      return;
+    }
+  }
+  ch.dp = 0;
+}
+
 
 function autoFillGear() {
   if (!ch.specialty || !STARTING_GEAR[ch.specialty]) return;
@@ -1809,82 +2182,26 @@ function removeTalentByName(name) {
 }
 
 function getTalentDescription(name) {
-  const descs = {
-    "Boar Style": "Rank 1: Boar's Temper (A) — Spend 2 Sorce Points: charge up to 10 ft in a line and make a melee attack. If you moved at least 10 ft in a straight line, base damage increases by 2. | Rank 2: Charge up to 20 ft. | Rank 3: +4 damage instead of +2. | Rank 4: +2 extra damage per 5 ft moved (max +12). | Rank 5: Charge through hostile creatures.",
-    "Brawler": "Rank 1: Spend 2 Sorce Points to Grapple on an Opportunity Strike. | Rank 2: Grapple creatures one size larger (-1 modifier). | Rank 3: Grappled creature gets -3 to attack non-grappling creatures. | Rank 4: Grapple two sizes larger (-2 modifier). | Rank 5: Spend 6 SP to give Grappled creature the Restrained Condition.",
-    "Calvary Fighter": "Rank 1: While mounted, physical damage your mount receives is halved. | Rank 2: Spend 2 SP to redirect attacks targeting your mount to target you instead. | Rank 3: Your Beast mount can use its melee attacks with a -3 modifier. | Rank 4: Gain +4 base damage on melee attacks after moving 10 ft in a straight line while mounted. | Rank 5: +2 base damage on melee attacks while mounted; +4 against unmounted smaller targets.",
-    "Crane Style": "Rank 1: Crane's Grace (P) — Spend 2 SP + Quick action to leap 10 ft without provoking Opportunity Strikes. | Rank 2: Leap up to 15 ft. | Rank 3: Flutter (A) — Spend 4 SP, make melee attack, then leap 15 ft. | Rank 4: After using Crane's Grace or Flutter, benefit from Disengage. | Rank 5: Crane's Grace becomes Minor action; Flutter becomes Free action after any melee attack.",
-    "Defender": "Rank 1: Guard (P) — Reaction: when an ally within 5 ft is attacked, Block or Parry for them. | Rank 2: Spend 2 SP instead of Reaction to Guard. | Rank 3: Spend 3 SP to redirect half the damage to yourself. | Rank 4: Spend 2 SP as Free Action to Assist an ally's Might or Move save. | Rank 5: Spend 4 SP to enter Defender Stance — Guard and Block/Parry without Reaction.",
-    "Dragon Style": "Rank 1: Piercing Blow (P) — Spend 3 SP: 20-ft line hits all creatures with Ranged Weapon damage. | Rank 2: Line extends to 40 ft. | Rank 3: Spread Blow (P) — Spend 6 SP: 20-ft cone. | Rank 4: All Powers deal +4 damage. | Rank 5: Explosive Blow (P) — Spend 9 SP: 20-ft radius explosion at target point.",
-    "Duelist": "Rank 1: Riposte (P) — If your Parry prevents a melee hit, spend 2 SP to deal half your weapon damage to the attacker. | Rank 2: Parry Ranged and Spell attacks. | Rank 3: Spend 3 SP as Free Action to Parry instead of Reaction. | Rank 4: Riposte deals full damage. | Rank 5: Spend 4 SP to reroll up to 3 dice when you Parry.",
-    "Ignore Pain": "Rank 1: Toughen Up (P) — Reaction: reduce damage by 4 (min 1). Cannot reduce Fear or Psychic damage. | Rank 2: Spend 2 SP as Free Action instead of Reaction. | Rank 3: Works on Fear and Psychic damage. | Rank 4: Spend 2 extra SP to increase reduction to 12. | Rank 5: Didn't Hear No Bell — if damage reduces HP/MP to 0, spend 2 SP to regain up to 24.",
-    "Mantis Style": "Rank 1: Multi Strike (A) — Spend 3 SP: attack with two 1h weapons. First weapon deals full damage, second deals half. | Rank 2: First off-hand attack only has -2 modifier. | Rank 3: First off-hand attack only has -1 modifier. | Rank 4: Multi Strike second weapon deals full damage. | Rank 5: After successful Multi Strike, use it again as Quick action with -1 modifier.",
-    "Master of Defense": "Rank 1: While wearing armor or natural armor, max DP increases by 4. | Rank 2: +8 additional DP (total +12). | Rank 3: +12 additional (total +24). | Rank 4: +16 additional (total +40). | Rank 5: +20 additional (total +60).",
-    "Opportunist": "Rank 1: When a creature willingly enters your weapon's reach for the first time on a turn, make an Opportunity Strike. | Rank 2: Spend 2 SP as Free Action instead of Reaction. | Rank 3: Spend 4 SP to Opportunity Strike a creature that Disengaged. | Rank 4: Cripple — On Opportunity Strike hit, spend 3 SP to halve enemy Speed. | Rank 5: Cripple reduces Speed to 0.",
-    "Porcupine Style": "Rank 1: While wielding a shield, use it as a melee weapon with base Blunt damage equal to double its defense modifier. | Rank 2: Counter (P) — After Blocking a melee attack, spend 4 SP to deal shield damage to attacker. | Rank 3: When you Block a melee attack, attacker within 5 ft takes 2 Blunt damage. | Rank 4: Shield base damage +4. | Rank 5: Pummel (P) — Spend 6 SP after shield hit to Shove creature Prone.",
-    "Primal Style": "Rank 1: Cleave (P) — After hitting with a Melee Attack, spend 3 SP as Quick action to deal weapon damage to another creature within reach. | Rank 2: Cleave as Minor action. | Rank 3: Cleave as Free action. | Rank 4: Spend 6 SP to Cleave up to 2 creatures. | Rank 5: Spend 9 SP to Cleave up to 4 creatures.",
-    "Rabbit Style": "Rank 1: With Haste (P) — Once per turn, spend 2 SP as Free action to increase Speed by 10 ft until end of turn. | Rank 2: While Hasted, run across water and up walls. | Rank 3: While Hasted, Hasten as Quick Action. | Rank 4: While Hasted, Hasten as Free Action (2 SP). | Rank 5: Bonus Speed increases to +30 and you benefit from Disengage.",
-    "Rubber Style": "Rank 1: Bounce Strike (P) — After hitting with a Ranged Attack, spend 3 SP as Quick action: deal weapon damage to another creature within 15 ft. | Rank 2: As Minor action. | Rank 3: As Free action. | Rank 4: Spend 6 SP to target a third creature. | Rank 5: Spend 9 SP to target a fourth creature.",
-    "Sniper Style": "Rank 1: When your Ranged Attack benefits from Aim, gain +1 additional modifier (total +2). | Rank 2: Spend 2 SP as Free action to Aim (once per turn). | Rank 3: Spend 2 SP to reroll one die on an Aimed Ranged Attack. | Rank 4: Aimed Ranged Attack hits deal +2 base damage. | Rank 5: Spend remaining Speed to boost Aim — +2 base damage per 10 Speed spent (max +10).",
-    "Tiger Style": "Rank 1: When you hit with a Melee Attack benefiting from Wind-Up, base damage increases by 2. | Rank 2: Spend 2 SP as Free action to Wind-Up (once per turn). | Rank 3: Spend 2 SP to reroll one die on a Wind-Up Melee Attack. | Rank 4: Wind-Up total bonus becomes +4. | Rank 5: Using Wind-Up while already Wind-Up creates Mega-Wind-Up: reroll 2 dice, +8 base damage.",
-    "Tortoise Style": "Rank 1: Fortify (P) — While wielding a shield, spend up to 3 SP as Quick action to gain 12 Temp DP for 1 minute. | Rank 2: Apply shield modifier as positive modifier on Move saves. | Rank 3: Spend 2 SP instead of Reaction to Block. | Rank 4: Fortify grants Temp DP with resistance to Slash, Pierce, and Blunt. | Rank 5: Spend 4 SP to reroll up to 3 dice when Blocking.",
-    "Viper Style": "Rank 1: Leg Strike (A) — Standard action, -3 modifier: on success, all creature Speeds reduced by 20 ft until your next turn. | Rank 2: Arm Strike (A) — Standard action, -3 modifier: on success, creature base damage reduced by 4. | Rank 3: Both penalties reduced to -2. | Rank 4: Leg Strike: also -2 to Agility. Arm Strike: also -2 to Strength. | Rank 5: Head Strike (A) — -4 modifier; on hit, creature gains Slowed.",
-    "Wolf Style": "Rank 1: Flank (P) — When you and an ally are within 5 ft of a hostile creature, you are Flanking. Flanking grants +1 modifier to melee attacks against that creature. | Rank 2: Flanking increases melee base damage by 2. | Rank 3: Team Effort (P) — On first Flank each turn, one ally also gains Rank 1 and 2 Flank benefits. | Rank 4: +2 modifier and +4 base damage for you and ally. | Rank 5: Team Strike (A) — While Flanking, spend 4 SP: make a melee attack; hit or miss, ally makes Opportunity Strike at -3.",
-    "Elemental Attunement": "Rank 1: Pick one element (Fire, Frost, Electric, or Acid). Spells dealing that damage type deal +4 extra damage. | Rank 2: Your attuned-element Spells ignore resistances. | Rank 3: +8 extra damage. | Rank 4: Your HP and DP gain resistance to your attuned element. | Rank 5: +12 extra damage.",
-    "Innate Magic": "Rank 1: Learn a Rank 1 Spell from any Study as an Innate Spell — always prepared, no Arcane Foci needed for its check. | Rank 2: Learn a Rank 2 Innate Spell. | Rank 3: Learn a Rank 3 Innate Spell. | Rank 4: Learn a Rank 4 Innate Spell. | Rank 5: Learn a Rank 5 Innate Spell.",
-    "Megamind": "Rank 1: Choose 1 known Rank 1 Spell as your Signature Spell — always prepared, gains +2 Power Levels or reduced cost. | Rank 2: All Rank 0 Spells always prepared. | Rank 3: Choose a Rank 2 Signature Spell. | Rank 4: All Spells always prepared. | Rank 5: Choose a Rank 3 Signature Spell.",
-    "Mental Shield": "Rank 1: When you take non-Fear/Psychic damage, use a Reaction to redirect up to 10 of the damage to MP (max half). | Rank 2: Redirect up to 20 damage. | Rank 3: When you take Fear damage, Reaction to halve it. | Rank 4: Redirect any amount (max half). | Rank 5: Spend 2 SP as Free Action instead of Reaction.",
-    "Runic Magic": "Rank 1: Inscribe runes on objects/surfaces. Learn one Runic Inscription from: Cover, Accuracy, Elements, or Alarm. | Rank 2: Learn a second Inscription. | Rank 3: Learn a third (Protection and Harm now available). | Rank 4: Have up to 2 Runes active. | Rank 5: Move a Rune to a new location as a Quick Action.",
-    "Spell Slinger": "Rank 1: On initiative, make a Spell check instead (for a specific Study). Must wield Arcane Foci. Treated as a Skill check that can be Pushed. | Rank 2: No Arcane Foci needed; +2 modifier. | Rank 3: Use highest Study Rank for any Study; +1 more modifier (total +3). | Rank 4: On success, first Spell gains +2 Power Levels or -3 SP cost. | Rank 5: Cast a Standard/Quick Spell as a Minor action on your first turn.",
-    "Twist Magicka": "Rank 1: Gain 1 Magicka — choose from: Distant (double range, 2 SP), Extend (double duration, 2 SP), Elemental (change damage type, 2 SP), Careful (immune creatures, 2-6 SP). | Rank 2: Gain a second Magicka. | Rank 3: Third Magicka (Quick and Subtle Magicka available). | Rank 4: Fourth Magicka (Double and Explosive available). | Rank 5: Use up to 2 Magicka per turn.",
-    "War Caster": "Rank 1: When making an Endure save to maintain focus after taking non-Fear/Psychic damage, gain +2 modifier. | Rank 2: Encant (Quick action): next Spell check gets +1 modifier. | Rank 3: On an Opportunity Strike, cast a Rank 1 or lower Spell at the triggering creature. | Rank 4: Ignore Hand and Tongue components. | Rank 5: Once per Light/Full Rest — if you fail an Endure save to maintain focus, gain 1 success.",
-    "Study of Aeromancy": "Rank 1 Spells: Jolt (lightning bolt in a line), Bellowing Shout (thunderous deafen), Lightning Arc (jumping lightning), Fast as Light (increase a creature's Speed). Each rank unlocks spells of that rank from Aeromancy.",
-    "Study of Blood": "Rank 1 Spells: Vampiric Slash (melee, regain HP), Infatuate (enchant NPC attitude), Enthrall Person (force positive attitude), Infuse Confuse (disorient creature). Each rank unlocks higher-rank Blood spells.",
-    "Study of Contagion": "Rank 1 Spells: Acid Dart, Sicken Pulse (hinder resistance to Poison/Disease), Toxic Wave (poisonous cone), Witherplague (Disease that hinders attacks and healing). Each rank unlocks higher-rank Contagion spells.",
-    "Study of Cryomancy": "Rank 1 Spells: Ice Spear, Sculpt Ice, Daggers of Ice (homing ice daggers), Ice Barrier (resist Slash/Pierce/Blunt damage). Each rank unlocks higher-rank Cryomancy spells.",
-    "Study of Death": "Rank 1 Spells: Reaper Scythe (necrotic scythe weapon), Recompose (extend corpse freshness), Summon Skeleservant, Death Speech (speak with the dead). Each rank unlocks higher-rank Death spells.",
-    "Study of Displacement": "Rank 1 Spells: Pocketswap (steal from distance), Infini Pocket (personal pocket dimension), Body Swap (swap places with an ally), Minor Portals (two linked portals). Each rank unlocks higher-rank Displacement spells.",
-    "Study of Divinity": "Rank 1 Spells: Blessing of Protection (reduce damage taken), Searing Flare (radiant bolt), Vengeful Smite (empowered attack), Blessing of Pacifism (harder to target). Each rank unlocks higher-rank Divinity spells.",
-    "Study of Geomancy": "Rank 1 Spells: Earth Bend (terrain pillars), Rock Catapault (hurl a rock), Repair Minerals (restore armor DP), Spiked Terrain (earth spikes). Each rank unlocks higher-rank Geomancy spells.",
-    "Study of Illusion": "Rank 1 Spells: Lesser Illusion (small image/sound), Fashionate (change your appearance), Greater Illusion (large image you speak through), Create Disguise (disguise as another creature). Each rank unlocks higher-rank Illusion spells.",
-    "Study of Pyromancy": "Rank 1 Spells: Dancing Flame (light source), Fire Ray (beam of flame), Burst Self (fiery explosion), Fire Missile (homing fire ball). Each rank unlocks higher-rank Pyromancy spells.",
-    "Study of Recovery": "Rank 1 Spells: Transfer Life (give HP to ally), Dislocate (force push), Reinvigorate (restore HP), Calm Emotions (restore MP). Each rank unlocks higher-rank Recovery spells.",
-    "Study of Shadows": "Rank 1 Spells: Feed Fear (enhance Fear spells), Manipulate Darkness (create/shape darkness), Terrifying Gloom (Shadow Gloom dealing Fear damage), Fall (Fear damage that may force Prone). Each rank unlocks higher-rank Shadows spells.",
-    "Academic": "Gain an additional language. Gain +2 modifier on Analyze checks related to scholarly knowledge.",
-    "Angelic Blood": "Your HP and DP gain resistance to Radiant damage. +2 modifier on Endure saves against instant-kill effects.",
-    "Animal Ally": "Befriend a small or tiny Beast as a loyal companion that follows your commands (does not fight unless made a Companion).",
-    "Animal Friendship": "You can speak with Beasts and they understand you.",
-    "Backseat Braining": "When an ally within 30 ft makes a Wits-based check, use a Free Action to grant them +2 modifier.",
-    "Caster Initiate": "Learn one Rank 0 Spell from any Study. You can cast it using Wits or Empathy.",
-    "Demonic Blood": "Your HP gains resistance to Necrotic damage. +2 modifier on Insight saves against being Charmed or Frightened.",
-    "Field Medic": "Bandage/Galvanize without a medical kit within 5 ft. +2 modifier on Medical checks.",
-    "Full Dodge": "Once per round, when targeted by an attack or effect, use a Reaction to gain Dodge benefits against that attack.",
-    "Heckler": "Quick action: Taunt a creature within 30 ft. They make an Insight save or get -1 modifier on attacks against creatures other than you.",
-    "Inspiring": "Quick action: inspire an ally within 30 ft — they gain +2 modifier on their next check. Recharges on Intermission.",
-    "Intimidating": "+2 modifier on Intimidate checks. Once per Intermission, a successful Intimidate imposes -1 on target's attacks until your next turn.",
-    "Keen Eyes": "Once per turn (Free action): spot Hidden creatures within 30 ft. +2 modifier on Scout checks.",
-    "Linguist": "Learn two additional languages of your choice.",
-    "Look Over There": "Quick action: one creature within 30 ft makes an Insight save or loses their Reaction until your next turn.",
-    "Luck of the Gods": "Once per Full Rest: after rolling any dice, reroll all of them and take the new result.",
-    "Master Spy": "+2 modifier on Hide and Manipulate checks. Pick locks and disable traps with Finesse (no kit required).",
-    "Min Max": "Choose one Attribute. All checks using that Attribute as the highest Rank in the dice pool gain +1 modifier.",
-    "Mobile": "Your Speed increases by 10 feet.",
-    "Naturally Gifted": "Choose one Skill. That Skill's Rank increases by 1 (up to normal cap).",
-    "Skilled": "Gain 2 additional Skill Points to spend immediately.",
-    "Sneaky": "+2 modifier on Hide checks. When you attack a creature unaware of you, your first attack gains +1 modifier.",
-    "Steady Hands": "+2 modifier on Finesse checks. Ignore penalty for using fine tools in stressful situations.",
-    "Steel Body": "Your max DP increases by 4.",
-    "Steel Mind": "Your max MP increases by 4.",
-    "Steel Muscles": "Your max HP increases by 4.",
-    "Steel Nerves": "+2 modifier on Endure saves and checks to resist Conditions.",
-    "Strong Arm": "+2 modifier on Might checks. When you Push or Shove a creature, the effect distance increases by 5 feet.",
-    "Sturdy": "When you would gain the Prone Condition from an attack, use a Reaction to prevent it.",
-    "Vigilant": "You cannot be Surprised. +2 modifier on initiative checks.",
-    "Warfare Initiate": "Learn one Rank 1 Martial Talent of your choice, even if you do not normally have access to Martial Talents.",
-  };
-  return descs[name] || "Select this talent to use it at Rank 1. Full talent details are in the Realms of Legacy Talents chapter.";
-}
+  // Returns HTML table of rank info for a talent, rank 1 row highlighted
+  const t = TALENT_DATA[name];
+  if (!t) return `<p style="font-style:italic;color:var(--muted)">Full details in the Realms of Legacy Talents chapter.</p>`;
 
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:.82rem;font-family:var(--font-ui)">
+    <thead><tr>
+      <th style="background:var(--head-bg);color:var(--head-txt);padding:6px 10px;text-align:left;width:70px">Rank</th>
+      <th style="background:var(--head-bg);color:var(--head-txt);padding:6px 10px;text-align:left">Description</th>
+    </tr></thead><tbody>`;
+  t.forEach((row, i) => {
+    const isR1 = i === 0;
+    const bg   = isR1 ? 'background:#fff9c4;font-weight:700' : (i%2===0?'background:#f7f7f7':'background:#fff');
+    html += `<tr style="${bg}">
+      <td style="padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top;white-space:nowrap;font-weight:700;color:var(--accent-dk)">Rank ${i+1}${isR1?' ★':''}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid var(--rule);line-height:1.45">${row}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  return html;
+}
 
 
 function startOver() {
@@ -1930,9 +2247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ch.weight  = document.getElementById('char-weight').value;
       ch.age     = document.getElementById('char-age').value;
       ch.notes   = document.getElementById('char-notes').value;
-      ch.currency.silver  = +document.getElementById('curr-silver').value||0;
-      ch.currency.gold    = +document.getElementById('curr-gold').value||0;
-      ch.currency.pluther = +document.getElementById('curr-pluther').value||0;
+
     }
     if (currentStep === 8) {
       ch.specialtyTalent = document.getElementById('talent-specialty').value;

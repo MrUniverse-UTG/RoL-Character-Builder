@@ -1123,6 +1123,8 @@ function goToStep(n) {
       if (mlCb) mlCb.checked = true;
       if (mlPanel) mlPanel.style.display = 'block';
       renderMixedPanel();
+      // Also render extra pickers (Dryvorn bloodline, size choice) in detail area
+      if (ch.mixedLineages.length > 0) renderLineageDetail();
     } else {
       if (mlCb) mlCb.checked = false;
       if (mlPanel) mlPanel.style.display = 'none';
@@ -1555,21 +1557,24 @@ function renderMixedPanel() {
           ])}
         </div>
         ${ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor ? 
-          '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete. Your traits are shown in the preview below.</div>' : 
-          '<div class="warn-box" style="margin-top:12px">Choose a lineage for each assignment above.</div>'}
-        ${ch.mixedLineages.includes('Dryvorn') ? renderDryvornBloodlineHtml('Dryvorn') : ''}
-        ${(ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') ? `
-          <div style="margin-top:12px;padding:12px;background:#f8f7f4;border-radius:var(--r)">
-            <div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;color:var(--accent-dk);margin-bottom:8px">Choose Size (${ch.mixedAssignment.features})</div>
-            <div style="display:flex;gap:10px">
-              <button onclick="setSizeChoice('Small')" style="flex:1;padding:8px;font-family:var(--font-ui);font-weight:600;border-radius:6px;cursor:pointer;border:2px solid ${ch.sizeChoice==='Small'?'var(--accent)':'var(--rule)'};background:${ch.sizeChoice==='Small'?'var(--accent-lt)':'#fff'}">Small</button>
-              <button onclick="setSizeChoice('Medium')" style="flex:1;padding:8px;font-family:var(--font-ui);font-weight:600;border-radius:6px;cursor:pointer;border:2px solid ${ch.sizeChoice==='Medium'?'var(--accent)':'var(--rule)'};background:${ch.sizeChoice==='Medium'?'var(--accent-lt)':'#fff'}">Medium</button>
-            </div>
-            ${!ch.sizeChoice ? '<div style="font-family:var(--font-ui);font-size:.78rem;color:var(--danger);margin-top:6px">Required before continuing.</div>' : ''}
-          </div>` : ''}
+          '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete.'
+          + (ch.mixedLineages.includes('Dryvorn') ? ' <strong>Scroll down to choose your Dryvorn Bloodline.</strong>' : '')
+          + ((ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') ? ' <strong>Scroll down to choose your size.</strong>' : '')
+          + '</div>'
+          : '<div class="warn-box" style="margin-top:12px">Choose a lineage for each assignment above.</div>'}
+
         <div id="mixed-trait-preview" style="margin-top:12px"></div>
       ` : '<div class="warn-box">Choose sub-groups above before assigning traits.</div>'}
     </div>`;
+
+  // Show extra pickers (Dryvorn bloodline, size) in lineage-detail below
+  if (ch.mixedLineages.length > 0) {
+    const detailEl = document.getElementById('lineage-detail');
+    if (detailEl) {
+      detailEl.style.display = 'block';
+      renderLineageDetail();
+    }
+  }
 
   // Render trait preview if assignment complete
   if (assignReady && ch.mixedAssignment.major && ch.mixedAssignment.minor) {
@@ -1773,12 +1778,21 @@ function renderLineageDetail() {
   }
 
   // Human / Ozonian: choose Small or Medium
-  // Dryvorn: bloodline chooser
-  if (ch.lineage === 'Dryvorn') {
+  // For mixed lineage: show pickers for any Dryvorn or Human/Ozonian in either selected lineage
+  if (ch.mixedLineage) {
+    ch.mixedLineages.forEach(lgName => {
+      if (lgName === 'Dryvorn') {
+        html += renderDryvornBloodlineHtml('Dryvorn');
+      }
+    });
+  } else if (ch.lineage === 'Dryvorn') {
     html += renderDryvornBloodlineHtml(null);
   }
 
-  const needsSizeChoice = (ch.lineage === 'Humans' || ch.lineage === 'Ozonian');
+  const needsSizeChoice = ch.mixedLineage
+    ? (ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian'
+       || ch.mixedLineages.some(l => l === 'Humans' || l === 'Ozonian'))
+    : (ch.lineage === 'Humans' || ch.lineage === 'Ozonian');
   if (needsSizeChoice) {
     html += `
       <div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">

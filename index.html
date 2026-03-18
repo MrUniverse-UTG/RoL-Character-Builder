@@ -1641,22 +1641,19 @@ function renderTalentStep() {
     </div>
     <div class="info-box" style="margin-top:8px">
       At Level 1 you may select:
-      ${isMartial ? '<br>• <strong>1 Martial Talent</strong>' : ''}
-      ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong>' : ''}
-      <br>• <strong>up to 2 General Talents</strong>
-      <br>All selected at <strong>Rank 1</strong>. Click any talent name to see its full description.
+      ${isMartial ? '<br>• <strong>1 Martial Talent</strong> (choose from the list below)' : ''}
+      ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong> (choose from the list below)' : ''}
+      <br>All at <strong>Rank 1</strong>. Click any talent name to see its full rank details.
     </div>`;
 
   // Count how many of each type already chosen
   const pickedMartial = (ch.talents||[]).filter(t => MARTIAL_TALENTS.includes(t)).length;
   const pickedSorcery = (ch.talents||[]).filter(t => SORCERY_TALENTS.includes(t)).length;
-  const pickedGeneral = (ch.talents||[]).filter(t => GENERAL_TALENTS.includes(t)).length;
-  const MAX_MARTIAL = 1; const MAX_SORCERY = 1; const MAX_GENERAL = 2;
+  const MAX_MARTIAL = 1; const MAX_SORCERY = 1;
 
   const sections = [];
-  if (isMartial) sections.push({label:`Martial Talents (choose ${MAX_MARTIAL})`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
-  if (isSorcery) sections.push({label:`Sorcery Talents (choose ${MAX_SORCERY})`,list:SORCERY_TALENTS,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
-  sections.push({label:`General Talents (choose up to ${MAX_GENERAL})`,list:GENERAL_TALENTS,type:'general',picked:pickedGeneral,max:MAX_GENERAL});
+  if (isMartial) sections.push({label:`Martial Talents — choose 1`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
+  if (isSorcery) sections.push({label:`Sorcery Talents — choose 1`,list:SORCERY_TALENTS,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
 
   browserEl.innerHTML = sections.map(sec => {
     const atMax = sec.picked >= sec.max;
@@ -1713,7 +1710,7 @@ function renderTalentSlots() {
   const empty  = (ch.talents||[]).map((t,i)=>({t,i})).filter(x=>!x.t);
   const all    = [...filled, ...empty.slice(0, 9-filled.length)];
 
-  all.slice(0,9).forEach(({t,i}) => {
+  all.slice(0,1).forEach(({t,i}) => {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:7px';
     row.innerHTML = `
@@ -1898,7 +1895,8 @@ async function exportPDF() {
     // Status points
     set('HP max', calcHP());  set('HP cur', calcHP());
     set('MP max', calcMP());  set('MP Cur', calcMP());
-    set('DP max', 0);         set('DP Cur', 0);
+    const dpVal = ch.dp || 0;
+    set('DP max', dpVal);     set('DP Cur', dpVal);
     set('Sorce Max', calcSP()); set('Sorce Cur', calcSP());
     set('Recovery Max', ch.level||1); set('Recovery Cur', ch.level||1);
     set('Specialty max', 0); set('Specialty Cur', 0);
@@ -1910,20 +1908,22 @@ async function exportPDF() {
     set('Gold',    ch.currency?.gold||0);
     set('Pluther', ch.currency?.pluther||0);
 
-    // Equipment
-    const equipLabels = ['Armor Slot','Back 1','Back 2','Belt 1','Belt 2','Kit'];
-    ch.equip.slice(0,6).forEach((e,i)=> set(`Equipment ${i+1}`, e));
-
-    // Weapons
-    ch.weapons.slice(0,5).forEach((w,i) => {
-      const n = i+1;
-      set(`attack name ${n}`,     w.name);
-      set(`attack range ${n}`,    w.range);
-      set(`attack mod ${n}`,      w.mod);
-      set(`attack damage ${n}`,   w.damage);
-      set(`attack pool ${n}`,     w.pool);
-      set(`attack features ${n}`, w.features);
-    });
+    // Equipment — smart slot assignment from gear selections
+    // PDF fields: Equipment 1=Armor, 2=Back, 3=Back2, 4=Belt, 5=Belt2, 6=Kit
+    const ARMOR_NAMES_PDF = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
+    const gearVals = Object.values(ch.gearSelections || {});
+    const armorItem  = gearVals.find(v => ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a))) || '';
+    const nonBackpack = gearVals.filter(v => v !== armorItem && v.toLowerCase() !== 'backpack');
+    const isWeaponItem = v => ['sword','bow','axe','mace','dagger','pistol','wand','staff',
+      'crossbow','instrument','hammer','longsword','shortsword','flintlock'].some(w => v.toLowerCase().includes(w));
+    const weaponItems = nonBackpack.filter(isWeaponItem);
+    const otherItems  = nonBackpack.filter(v => !isWeaponItem(v));
+    set('Equipment 1', armorItem);
+    set('Equipment 2', weaponItems[0]||'');
+    set('Equipment 3', weaponItems[1]||'');
+    set('Equipment 4', otherItems[0]||'');
+    set('Equipment 5', otherItems[1]||'');
+    set('Equipment 6', 'Backpack');;
 
     // Page 2 — Lifepath
     set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
@@ -1950,12 +1950,12 @@ async function exportPDF() {
       } catch(e) {}
     };
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 7);
-    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 9);
+    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 7);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
-    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => setSmall(talentFields[i], t, 9));
+    ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => setSmall(talentFields[i], t, 7));
     // Also set small font on talent rank fields in the main table
     for (let ti = 1; ti <= 10; ti++) {
-      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 8);
+      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 7);
       setSmall('MP Talent rank ' + ti, ch.talents[ti-1] ? '1' : '', 9);
     }
 
@@ -2030,7 +2030,27 @@ function renderGearStep() {
   if (!ch.gearSelections) ch.gearSelections = {};
   if (!ch.currency.silver) ch.currency.silver = silver;
 
-  const slotLabels = ['Weapon / Attack','Weapon / Off-hand or Ammo','Armor','Kit','Pack','Extra'];
+  // Detect slot types: armor, weapon, other
+  const ARMOR_NAMES = ['Quilted Vest','Quilted Vest armor','Layered Plate Armor','Layered Plate armor',
+                       'Light Leather armor','Reinforced Tunic','Brigandine armor set'];
+  const isArmorSlot = opts => opts.some(o => ARMOR_NAMES.some(a => o.toLowerCase().includes(a.toLowerCase()) || a.toLowerCase().includes(o.toLowerCase().replace(' armor',''))));
+  const isWeaponSlot = (opts, i) => i === 0 || (!isArmorSlot(opts) && opts.some(o =>
+    ['sword','bow','axe','mace','dagger','pistol','wand','staff','crossbow','instrument','hammer'].some(w => o.toLowerCase().includes(w))));
+
+  // Auto-initialize all single-option slots
+  slots.forEach((options, i) => {
+    if (options.length === 1 && !ch.gearSelections[i]) {
+      ch.gearSelections[i] = options[0];
+      ch.equip[i] = options[0];
+    }
+    // Also init multi-option slots to first option if not yet set
+    if (!ch.gearSelections[i]) {
+      ch.gearSelections[i] = options[0];
+      ch.equip[i] = options[0];
+    }
+  });
+  // After init, extract DP
+  extractNumericDP();
 
   el.innerHTML = `
     <div class="info-box" style="margin-bottom:20px">
@@ -2039,21 +2059,18 @@ function renderGearStep() {
     <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px;margin-bottom:16px">
       <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:14px">Equipment Choices</h3>
       ${slots.map((options, i) => {
-        const label = slotLabels[i] || `Slot ${i+1}`;
         const selected = ch.gearSelections[i] || options[0];
+        const armor = isArmorSlot(options);
+        const weapon = !armor && isWeaponSlot(options, i);
+        const label = armor ? 'Armor' : weapon ? `Weapon${i>0?' / Ammo':''}` : 'Other Gear';
         if (options.length === 1) {
-          // Single option — just display it, auto-set
-          if (!ch.gearSelections[i]) {
-            ch.gearSelections[i] = options[0];
-            ch.equip[i] = options[0];
-          }
           return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:120px">${label}</label>
+            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${label}</label>
             <div style="flex:1;padding:8px 12px;background:#f8f7f4;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.88rem">${options[0]}</div>
           </div>`;
         }
         return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-          <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:120px">${label}</label>
+          <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${label}</label>
           <select onchange="updateGearSlot(${i}, this.value)"
                   style="flex:1;padding:8px 12px;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.88rem;background:#fff">
             ${options.map(opt => `<option value="${opt}" ${selected===opt?'selected':''}>${opt}</option>`).join('')}
@@ -2164,8 +2181,8 @@ function addTalentFromView(name) {
   if (isSorcery && ch.talents.filter(t=>SORCERY_TALENTS.includes(t)).length >= 1) {
     alert('You can only select 1 Sorcery Talent at Level 1.'); return;
   }
-  if (isGeneral && ch.talents.filter(t=>GENERAL_TALENTS.includes(t)).length >= 2) {
-    alert('You can only select up to 2 General Talents at Level 1.'); return;
+  if (isGeneral) {
+    alert('General Talents are not selected during character creation. Only 1 Martial or Sorcery Talent is chosen at Level 1.'); return;
   }
   const emptyIdx = ch.talents.findIndex(t => !t);
   if (emptyIdx === -1) { alert('All talent slots are filled. Remove one first.'); return; }

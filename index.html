@@ -1069,6 +1069,7 @@ let ch = {
   mixedLineages: [],      // up to 2 traditional lineages
   mixedSubTraits: {},     // subTrait per lineage if needed
   mixedAssignment: {features: null, major: null, minor: null},
+  mixedForcedSmall: false,
   cls: null,
   clsSkillChoices: {},
   specialty: null,
@@ -1360,6 +1361,7 @@ function toggleMixedLineage(checked) {
   ch.mixedLineage = checked;
   ch.mixedLineages = [];
   ch.mixedAssignment = {features: null, major: null, minor: null};
+  ch.mixedForcedSmall = false;
   ch.lineage = null;
   ch.lineageTrait = null;
   document.getElementById('lineage-detail').style.display = 'none';
@@ -1503,6 +1505,7 @@ function renderMixedPanel() {
             {lineage:lg1name, traitName:lg1.size+', '+lg1.speed+' ft'},
             {lineage:lg2name, traitName:lg2.size+', '+lg2.speed+' ft'},
           ])}
+          ${ch.mixedForcedSmall ? '<div style="font-family:var(--font-ui);font-size:.8rem;color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;margin-bottom:8px">⚠ Size overridden to <strong>Small</strong> by Small and Nimble (Fueglin Major Trait).</div>' : ''}
           ${assignRow('Major Trait', 'major', [
             {lineage:lg1name, traitName:t1?.major?.name||'(no major)'},
             {lineage:lg2name, traitName:t2?.major?.name||'(no major)'},
@@ -1529,6 +1532,7 @@ function renderMixedPanel() {
     if (preview) {
       preview.innerHTML = `
         <div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Your Traits</div>
+        ${ch.mixedForcedSmall ? '<div class="warn-box" style="margin-bottom:10px">⚠ Your size is forced to <strong>Small</strong> because you selected the Fueglin Small and Nimble Major Trait.</div>' : ''}
         ${majorTraits?.major ? `
           <div style="margin-bottom:8px;padding:10px;background:#fffbea;border:1px solid var(--gold);border-radius:6px">
             <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:3px">${majorTraits.major.name} (Major — from ${ch.mixedAssignment.major})</div>
@@ -1551,6 +1555,22 @@ function setMixedSubTrait(lgName, traitKey) {
 
 function setMixedAssignment(field, lgName) {
   ch.mixedAssignment[field] = lgName;
+
+  // Special rule: if Fueglin's Small and Nimble is selected as Major Trait, force Small size
+  if (field === 'major') {
+    const sub = ch.mixedSubTraits[lgName];
+    const traits = getLineageTraits(lgName, sub);
+    if (traits?.major?.name === 'Small and Nimble') {
+      ch.mixedForcedSmall = true;
+      // Show alert informing the player
+      setTimeout(() => {
+        alert('Small and Nimble (Fueglin Major Trait): When taken in a Mixed Lineage, your creature size becomes Small. Your character size has been set to Small.');
+      }, 50);
+    } else {
+      ch.mixedForcedSmall = false;
+    }
+  }
+
   renderMixedPanel();
   updateMixedLineageBenefits();
 }
@@ -2197,7 +2217,9 @@ async function exportPDF() {
     set('LINEAGE', lineagePDFName);
     set('LEVEL', ch.level||1);
     set('XP', 0);
-    set('SIZE', lg.size||'');
+    // If mixed lineage with Fueglin Small and Nimble, force Small
+    const effectiveSize = (ch.mixedForcedSmall) ? 'Small' : (lg.size||'');
+    set('SIZE', effectiveSize);
     set('LANGUAGES', (lg.langs?.speak||[]).join(', '));
     set('LANGUAGES read', (lg.langs?.read||[]).join(', '));
     set('SPEED', lg.speed ? lg.speed+' ft' : '30 ft');

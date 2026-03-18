@@ -82,7 +82,7 @@ body{font-family:var(--font-body);font-size:1.05rem;line-height:1.6;color:var(--
 
 /* Attribute assignment */
 #attr-assign{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
-.attr-slot{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:14px}
+.attr-slot{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:14px;display:flex;flex-direction:column}
 .attr-slot label{font-family:var(--font-ui);font-weight:700;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px}
 .attr-slot .attr-name{font-weight:700;color:var(--accent-dk);font-size:1rem;margin-bottom:4px}
 .attr-slot .attr-desc{font-size:.82rem;color:var(--muted);margin-bottom:10px}
@@ -1084,6 +1084,7 @@ let ch = {
   mixedLineages: [],      // up to 2 traditional lineages
   mixedSubTraits: {},     // subTrait per lineage if needed
   mixedAssignment: {features: null, major: null, minor: null},
+  undeadRepurposedLineage: null,
   mixedForcedSmall: false,
   cls: null,
   clsSkillChoices: {},
@@ -1202,6 +1203,10 @@ function validateStep(step) {
         return true;
       }
       if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
+      if (ch.lineage === 'Undead' && !ch.undeadRepurposedLineage) {
+        alert('Please choose your original Traditional Lineage for the Repurposed trait.');
+        return false;
+      }
       const lg3 = LINEAGES.find(l=>l.name===ch.lineage);
       if (lg3 && lg3.traits.length > 1 && lg3.traitDetails && !ch.lineageTrait) {
         alert('Please choose a ' + ch.lineage + ' sub-group (' + lg3.traits.join(' or ') + ') before continuing.');
@@ -1274,7 +1279,7 @@ function renderAttrAssign() {
       return `
       <div class="attr-slot">
         <div class="attr-name">${attr.name}</div>
-        <div class="attr-desc">${attr.desc}</div>
+        <div class="attr-desc" style="min-height:2.8em">${attr.desc}</div>
         <select class="rank-select" onchange="assignAttr('${attr.key}', this.value)">
           <option value="">- assign rank -</option>
           ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${isAssigned && currentVal===n?'selected':''}>${n}</option>`).join('')}
@@ -1612,7 +1617,8 @@ function updateMixedLineageBenefits() {
 
 function selectLineage(name) {
   ch.lineage = name;
-  ch.lineageTrait = null; // reset sub-trait when lineage changes
+  ch.lineageTrait = null;
+  ch.undeadRepurposedLineage = null; // reset undead choice
   renderLineageGrid();
   renderLineageDetail();
 }
@@ -1712,9 +1718,42 @@ function renderLineageDetail() {
       </div>`;
   }
 
+  // Undead: pick a Traditional lineage for Repurposed (gains that lineage's major trait)
+  if (ch.lineage === 'Undead') {
+    const traditionals = LINEAGES.filter(l => l.type === 'Traditional');
+    html += `
+      <div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+        <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+          Repurposed — Choose your Original Lineage
+        </div>
+        <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+          Your body was originally from one of the Traditional Lineages. You gain that lineage's Major Trait.
+        </p>
+        <div class="option-grid cols4" style="gap:8px">
+          ${traditionals.map(lg => {
+            const majorName = lg.traitDetails
+              ? Object.values(lg.traitDetails)[0]?.major?.name || '?'
+              : (lg.major?.name || '?');
+            const isSelected = ch.undeadRepurposedLineage === lg.name;
+            return '<div class="option-card ' + (isSelected?'selected':'') + '" '
+              + 'onclick="setUndeadRepurposed(\'' + lg.name + '\')" '
+              + 'style="padding:10px 12px;cursor:pointer">'
+              + '<div class="card-title" style="font-size:.88rem">' + lg.name + '</div>'
+              + '<div style="font-family:var(--font-ui);font-size:.73rem;color:var(--muted);margin-top:3px">' + majorName + '</div>'
+              + '</div>';
+          }).join('')}
+        </div>
+        ${ch.undeadRepurposedLineage ? '' : '<div class="warn-box" style="margin-top:10px">Please choose an original lineage to continue.</div>'}
+      </div>`;
+  }
+
   detail.innerHTML = html;
-  // Update lineage benefits for step 8
   updateLineageBenefits();
+}
+
+function setUndeadRepurposed(lgName) {
+  ch.undeadRepurposedLineage = lgName;
+  renderLineageDetail();
 }
 
 function selectLineageTrait(traitKey) {
@@ -1731,7 +1770,26 @@ function updateLineageBenefits() {
   const lg = LINEAGES.find(l=>l.name===ch.lineage);
   if (!lg) return;
   if (lg.otherworldlyTraits) {
-    ch.lineageBenefits = lg.otherworldlyTraits.map(t => t.name + ': ' + t.text).join('\n\n');
+    // Undead: replace Repurposed trait text with the actual chosen lineage's major trait
+    let traits = [...lg.otherworldlyTraits];
+    if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage) {
+      const origLg = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
+      if (origLg) {
+        // Get major trait from the original lineage (handle sub-trait lineages)
+        const origTraits = origLg.traitDetails
+          ? origLg.traitDetails[Object.keys(origLg.traitDetails)[0]]
+          : origLg;
+        const majorName = origTraits?.major?.name || '';
+        const majorText = origTraits?.major?.text || '';
+        traits = traits.map(t =>
+          t.name === 'Repurposed'
+            ? {name: 'Repurposed (from ' + ch.undeadRepurposedLineage + ')',
+               text: majorName + ': ' + majorText}
+            : t
+        );
+      }
+    }
+    ch.lineageBenefits = traits.map(t => t.name + ': ' + t.text).join('\n\n');
   } else {
     const traits = getLineageTraits(ch.lineage, ch.lineageTrait);
     let text = lg.name + ' Lineage:\n';

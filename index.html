@@ -1216,6 +1216,13 @@ function validateStep(step) {
         alert('Please choose a size (Small or Medium) for your ' + ch.lineage + ' character.');
         return false;
       }
+      if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage) {
+        const repLg3 = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
+        if (repLg3?.traitDetails && !(ch.mixedSubTraits && ch.mixedSubTraits['undead_' + ch.undeadRepurposedLineage])) {
+          alert('Please choose a sub-group for your ' + ch.undeadRepurposedLineage + ' Repurposed trait.');
+          return false;
+        }
+      }
       if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Dryvorn' && !ch.dryvornBloodline) {
         alert('Please choose a Dragon Bloodline for your Dryvorn Repurposed trait.');
         return false;
@@ -1864,6 +1871,36 @@ function renderLineageDetail() {
     html += renderDryvornBloodlineHtml('Dryvorn Repurposed');
   }
 
+  // Undead Repurposed: sub-group picker for Abysian/Sylvanik
+  if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage) {
+    const repLg = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
+    if (repLg && repLg.traits.length > 1 && repLg.traitDetails) {
+      const subKey = 'undead_' + repLg.name;
+      const subChosen = ch.mixedSubTraits && ch.mixedSubTraits[subKey];
+      html += `<div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+        <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+          Choose ${repLg.name} Sub-group (Repurposed)
+        </div>
+        <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+          Your body was originally ${repLg.name}. Choose your variant to determine which Major Trait you gain.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${repLg.traits.map(tk => {
+            const td = repLg.traitDetails[tk];
+            return '<div class="option-card ' + (subChosen===tk?'selected':'') + '" '
+              + 'onclick="setUndeadRepurposedSub(\''+tk+'\''+')" '
+              + 'style="flex:1;min-width:140px;padding:12px;cursor:pointer">'
+              + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;color:var(--accent-dk)">' + td.label + '</div>'
+              + '<div style="font-family:var(--font-ui);font-size:.75rem;color:var(--muted);margin-top:2px">' + td.desc + '</div>'
+              + '<div style="font-size:.8rem;margin-top:6px;color:var(--accent-dk);font-weight:600">' + (td.major?.name||'') + ' (Major)</div>'
+              + '</div>';
+          }).join('')}
+        </div>
+        ${!subChosen ? '<div class="warn-box" style="margin-top:10px">Please choose a sub-group to continue.</div>' : ''}
+      </div>`;
+    }
+  }
+
   if (ch.lineage === 'Undead' && (ch.undeadRepurposedLineage === 'Humans' || ch.undeadRepurposedLineage === 'Ozonian')) {
     html += `
       <div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
@@ -1923,6 +1960,14 @@ function setSizeChoice(size) {
   renderLineageDetail();
 }
 
+function setUndeadRepurposedSub(subKey) {
+  if (!ch.mixedSubTraits) ch.mixedSubTraits = {};
+  const repLg = ch.undeadRepurposedLineage;
+  ch.mixedSubTraits['undead_' + repLg] = subKey;
+  updateLineageBenefits();
+  renderLineageDetail();
+}
+
 function setUndeadRepurposed(lgName) {
   ch.undeadRepurposedLineage = lgName;
   if (lgName === 'Humans' || lgName === 'Ozonian') {
@@ -1954,8 +1999,9 @@ function updateLineageBenefits() {
       const origLg = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
       if (origLg) {
         // Get major trait from the original lineage (handle sub-trait lineages)
+        const subKey = ch.mixedSubTraits && ch.mixedSubTraits['undead_' + origLg.name];
         const origTraits = origLg.traitDetails
-          ? origLg.traitDetails[Object.keys(origLg.traitDetails)[0]]
+          ? origLg.traitDetails[subKey || Object.keys(origLg.traitDetails)[0]]
           : origLg;
         const majorName = origTraits?.major?.name || '';
         const majorText = origTraits?.major?.text || '';

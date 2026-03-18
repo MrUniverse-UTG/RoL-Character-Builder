@@ -2014,10 +2014,10 @@ function renderTalentStep() {
       <div style="display:flex;flex-wrap:wrap;gap:7px">
         ${sec.list.map(t => {
           const picked = (ch.talents||[]).includes(t);
-          const disabled = !picked && atMax;
+          const atMaxNotPicked = !picked && atMax;
           const isViewing = ch._viewingTalent === t;
-          return `<button onclick="${disabled?'':("toggleTalentView('" + t.replace(/'/g,"\\'") + "')")}"
-            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:${disabled?'not-allowed':'pointer'};border-radius:20px;transition:all .12s;border:2px solid ${picked?'var(--safe)':isViewing?'var(--accent)':'var(--rule)'};background:${picked?'#d1fae5':isViewing?'var(--accent-lt)':'#fff'};color:${picked?'var(--safe)':isViewing?'var(--accent-dk)':'var(--ink)'};opacity:${disabled?'0.4':'1'}">
+          return `<button onclick="toggleTalentView('${t.replace(/'/g, "\\'")}')"
+            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:20px;transition:all .12s;border:2px solid ${picked?'var(--safe)':isViewing?'var(--accent)':'var(--rule)'};background:${picked?'#d1fae5':isViewing?'var(--accent-lt)':'#fff'};color:${picked?'var(--safe)':isViewing?'var(--accent-dk)':'var(--ink)'};opacity:${atMaxNotPicked?'0.4':'1'}">
             ${t}${picked?' ✓':''}
           </button>`;
         }).join('')}
@@ -2576,12 +2576,26 @@ function autoFillGear() {
 
 function toggleTalentView(name) {
   const alreadyPicked = (ch.talents||[]).includes(name);
+  const isMartial  = MARTIAL_TALENTS.includes(name);
+  const isSorcery  = SORCERY_TALENTS.includes(name);
+  const currentMartial  = (ch.talents||[]).find(t => MARTIAL_TALENTS.includes(t));
+  const currentSorcery  = (ch.talents||[]).find(t => SORCERY_TALENTS.includes(t));
+
   if (alreadyPicked) {
-    // Clicking a selected talent deselects it and clears the view
-    removeTalentByName(name);
-    ch._viewingTalent = null;
+    // Clicking the already-selected talent: just view it (toggle detail view)
+    ch._viewingTalent = (ch._viewingTalent === name) ? null : name;
+  } else if (isMartial && currentMartial) {
+    // Replace existing martial selection with this one
+    removeTalentByName(currentMartial);
+    addTalentFromView(name);
+    ch._viewingTalent = name;
+  } else if (isSorcery && currentSorcery) {
+    // Replace existing sorcery selection with this one
+    removeTalentByName(currentSorcery);
+    addTalentFromView(name);
+    ch._viewingTalent = name;
   } else {
-    // Clicking an unselected talent selects it AND opens the details
+    // Normal select
     addTalentFromView(name);
     ch._viewingTalent = name;
   }

@@ -1075,6 +1075,8 @@ let ch = {
   mixedSubTraits: {},     // subTrait per lineage if needed
   mixedAssignment: {features: null, major: null, minor: null},
   undeadRepurposedLineage: null,
+  sizeChoice: null,             // 'Small' or 'Medium' for Human/Ozonian
+  dryvornBloodline: null,       // chosen Dragon Bloodline for Dryvorn
   mixedForcedSmall: false,
   cls: null,
   clsSkillChoices: {},
@@ -1185,6 +1187,14 @@ function validateStep(step) {
     case 3: {
       if (ch.mixedLineage) {
         if (ch.mixedLineages.length < 2) { alert('Please select two Traditional Lineages for Mixed Lineage.'); return false; }
+        if (ch.mixedLineages.includes('Dryvorn') && !ch.dryvornBloodline) {
+          alert('Please choose a Dragon Bloodline for Dryvorn.');
+          return false;
+        }
+        if ((ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') && !ch.sizeChoice) {
+          alert('Please choose a size (Small or Medium) for your ' + ch.mixedAssignment.features + ' Features lineage.');
+          return false;
+        }
         if (!ch.mixedAssignment.features) { alert('Please choose which lineage provides your Features.'); return false; }
         if (!ch.mixedAssignment.major)    { alert('Please choose which lineage provides your Major Trait.'); return false; }
         if (!ch.mixedAssignment.minor)    { alert('Please choose which lineage provides your Minor Trait.'); return false; }
@@ -1196,6 +1206,18 @@ function validateStep(step) {
         return true;
       }
       if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
+      if (ch.lineage === 'Dryvorn' && !ch.dryvornBloodline) {
+        alert('Please choose a Dragon Bloodline for your Dryvorn character.');
+        return false;
+      }
+      if ((ch.lineage === 'Humans' || ch.lineage === 'Ozonian') && !ch.sizeChoice) {
+        alert('Please choose a size (Small or Medium) for your ' + ch.lineage + ' character.');
+        return false;
+      }
+      if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Dryvorn' && !ch.dryvornBloodline) {
+        alert('Please choose a Dragon Bloodline for your Dryvorn Repurposed trait.');
+        return false;
+      }
       if (ch.lineage === 'Undead' && !ch.undeadRepurposedLineage) {
         alert('Please choose your original Traditional Lineage for the Repurposed trait.');
         return false;
@@ -1535,6 +1557,16 @@ function renderMixedPanel() {
         ${ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor ? 
           '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete. Your traits are shown in the preview below.</div>' : 
           '<div class="warn-box" style="margin-top:12px">Choose a lineage for each assignment above.</div>'}
+        ${ch.mixedLineages.includes('Dryvorn') ? renderDryvornBloodlineHtml('Dryvorn') : ''}
+        ${(ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') ? `
+          <div style="margin-top:12px;padding:12px;background:#f8f7f4;border-radius:var(--r)">
+            <div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;color:var(--accent-dk);margin-bottom:8px">Choose Size (${ch.mixedAssignment.features})</div>
+            <div style="display:flex;gap:10px">
+              <button onclick="setSizeChoice('Small')" style="flex:1;padding:8px;font-family:var(--font-ui);font-weight:600;border-radius:6px;cursor:pointer;border:2px solid ${ch.sizeChoice==='Small'?'var(--accent)':'var(--rule)'};background:${ch.sizeChoice==='Small'?'var(--accent-lt)':'#fff'}">Small</button>
+              <button onclick="setSizeChoice('Medium')" style="flex:1;padding:8px;font-family:var(--font-ui);font-weight:600;border-radius:6px;cursor:pointer;border:2px solid ${ch.sizeChoice==='Medium'?'var(--accent)':'var(--rule)'};background:${ch.sizeChoice==='Medium'?'var(--accent-lt)':'#fff'}">Medium</button>
+            </div>
+            ${!ch.sizeChoice ? '<div style="font-family:var(--font-ui);font-size:.78rem;color:var(--danger);margin-top:6px">Required before continuing.</div>' : ''}
+          </div>` : ''}
         <div id="mixed-trait-preview" style="margin-top:12px"></div>
       ` : '<div class="warn-box">Choose sub-groups above before assigning traits.</div>'}
     </div>`;
@@ -1572,6 +1604,11 @@ function setMixedSubTrait(lgName, traitKey) {
 
 function setMixedAssignment(field, lgName) {
   ch.mixedAssignment[field] = lgName;
+  // Reset size choice when Features lineage changes to/from Human or Ozonian
+  if (field === 'features') {
+    ch.sizeChoice = null;
+  ch.dryvornBloodline = null;
+  }
 
   // Special rule: if Fueglin's Small and Nimble is selected as Major Trait, force Small size
   if (field === 'major') {
@@ -1611,7 +1648,8 @@ function updateMixedLineageBenefits() {
 function selectLineage(name) {
   ch.lineage = name;
   ch.lineageTrait = null;
-  ch.undeadRepurposedLineage = null; // reset undead choice
+  ch.undeadRepurposedLineage = null;
+  ch.sizeChoice = null;
   renderLineageGrid();
   renderLineageDetail();
 }
@@ -1632,6 +1670,19 @@ function formatTraitParagraphs(lgName, subTrait) {
   if (!lg) return '';
 
   // Otherworldly lineages: show all traits without Major/Minor labels
+  // Dryvorn: inject chosen bloodline into trait descriptions
+  const getDryvornText = (lgName) => {
+    if (lgName !== 'Dryvorn' || !ch.dryvornBloodline) return null;
+    const bl = DRYVORN_BLOODLINES.find(b => b.name === ch.dryvornBloodline);
+    if (!bl) return null;
+    return {
+      major: {name:'Dragon Breath',
+              text:`You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is ${bl.damage} (${bl.name} bloodline). The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.`},
+      minor: {name:'Dragon Resistance',
+              text:`Your HP gains resistance to ${bl.damage} damage (${bl.name} bloodline).`},
+    };
+  };
+
   if (lg.otherworldlyTraits) {
     return lg.otherworldlyTraits.map((t, i) => `
       <div style="${i < lg.otherworldlyTraits.length - 1 ? 'margin-bottom:10px' : ''}">
@@ -1665,6 +1716,16 @@ function formatTraitParagraphs(lgName, subTrait) {
   return html;
 }
 
+
+
+const DRYVORN_BLOODLINES = [
+  {name:'Ravano',  color:'Red',    damage:'Fire'},
+  {name:'Golgun',  color:'Green',  damage:'Acid'},
+  {name:'Voivern', color:'Black',  damage:'Necrotic'},
+  {name:'Sargon',  color:'Yellow', damage:'Radiant'},
+  {name:'Byvern',  color:'White',  damage:'Frost'},
+  {name:'Thundron',color:'Blue',   damage:'Electric'},
+];
 
 function renderLineageDetail() {
   if (!ch.lineage) return;
@@ -1711,6 +1772,41 @@ function renderLineageDetail() {
       </div>`;
   }
 
+  // Human / Ozonian: choose Small or Medium
+  // Dryvorn: bloodline chooser
+  if (ch.lineage === 'Dryvorn') {
+    html += renderDryvornBloodlineHtml(null);
+  }
+
+  const needsSizeChoice = (ch.lineage === 'Humans' || ch.lineage === 'Ozonian');
+  if (needsSizeChoice) {
+    html += `
+      <div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+        <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+          Choose Your Size
+        </div>
+        <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+          ${ch.lineage === 'Humans' ? 'Humans can range from 3-6 feet tall and may be classified as Small or Medium.'
+            : 'Ozonians can range from 3-6 feet tall and may be classified as Small or Medium.'}
+        </p>
+        <div style="display:flex;gap:12px">
+          <div class="option-card ${ch.sizeChoice==='Small'?'selected':''}"
+               onclick="setSizeChoice('Small')"
+               style="flex:1;text-align:center;padding:14px;cursor:pointer">
+            <div style="font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--accent-dk)">Small</div>
+            <div style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted);margin-top:4px">3'–4' tall</div>
+          </div>
+          <div class="option-card ${ch.sizeChoice==='Medium'?'selected':''}"
+               onclick="setSizeChoice('Medium')"
+               style="flex:1;text-align:center;padding:14px;cursor:pointer">
+            <div style="font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--accent-dk)">Medium</div>
+            <div style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted);margin-top:4px">4'–6' tall</div>
+          </div>
+        </div>
+        ${!ch.sizeChoice ? '<div class="warn-box" style="margin-top:10px">Please choose a size to continue.</div>' : ''}
+      </div>`;
+  }
+
   // Undead: pick a Traditional lineage for Repurposed (gains that lineage's major trait)
   if (ch.lineage === 'Undead') {
     const traditionals = LINEAGES.filter(l => l.type === 'Traditional');
@@ -1740,12 +1836,78 @@ function renderLineageDetail() {
       </div>`;
   }
 
+  // For Undead: if repurposed from Human/Ozonian, also offer size choice
+  if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Dryvorn') {
+    html += renderDryvornBloodlineHtml('Dryvorn Repurposed');
+  }
+
+  if (ch.lineage === 'Undead' && (ch.undeadRepurposedLineage === 'Humans' || ch.undeadRepurposedLineage === 'Ozonian')) {
+    html += `
+      <div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+        <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+          Choose Your Size (${ch.undeadRepurposedLineage})
+        </div>
+        <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:10px">
+          Your body was originally from ${ch.undeadRepurposedLineage}. Choose your size.
+        </p>
+        <div style="display:flex;gap:12px">
+          <div class="option-card ${ch.sizeChoice==='Small'?'selected':''}" onclick="setSizeChoice('Small')" style="flex:1;text-align:center;padding:12px;cursor:pointer">
+            <div style="font-family:var(--font-ui);font-weight:700">Small</div>
+          </div>
+          <div class="option-card ${ch.sizeChoice==='Medium'?'selected':''}" onclick="setSizeChoice('Medium')" style="flex:1;text-align:center;padding:12px;cursor:pointer">
+            <div style="font-family:var(--font-ui);font-weight:700">Medium</div>
+          </div>
+        </div>
+        ${!ch.sizeChoice ? '<div class="warn-box" style="margin-top:8px">Please choose a size to continue.</div>' : ''}
+      </div>`;
+  }
+
   detail.innerHTML = html;
   updateLineageBenefits();
 }
 
+
+function renderDryvornBloodlineHtml(contextLabel) {
+  const chosen = ch.dryvornBloodline;
+  return `<div style="margin-top:16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+    <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+      Choose Dragon Bloodline${contextLabel ? ' (' + contextLabel + ')' : ''}
+    </div>
+    <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+      Your bloodline determines your Dragon Breath damage type and Dragon Resistance.
+    </p>
+    <div class="option-grid cols3" style="gap:8px">
+      ${DRYVORN_BLOODLINES.map(bl => `
+        <div class="option-card ${chosen===bl.name?'selected':''}"
+             onclick="setDryvornBloodline('${bl.name}')"
+             style="padding:10px 12px;cursor:pointer;text-align:center">
+          <div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;color:var(--accent-dk)">${bl.name}</div>
+          <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--muted);margin-top:2px">${bl.color} | ${bl.damage}</div>
+        </div>`).join('')}
+    </div>
+    ${!chosen ? '<div class="warn-box" style="margin-top:10px">Please choose a bloodline to continue.</div>'
+              : '<div class="info-box" style="margin-top:10px">Dragon Breath damage: <strong>' + (DRYVORN_BLOODLINES.find(b=>b.name===chosen)?.damage||'') + '</strong> | Resistance: <strong>' + (DRYVORN_BLOODLINES.find(b=>b.name===chosen)?.damage||'') + '</strong></div>'}
+  </div>`;
+}
+
+function setDryvornBloodline(name) {
+  ch.dryvornBloodline = name;
+  renderLineageDetail();
+}
+
+function setSizeChoice(size) {
+  ch.sizeChoice = size;
+  renderLineageDetail();
+}
+
 function setUndeadRepurposed(lgName) {
   ch.undeadRepurposedLineage = lgName;
+  if (lgName === 'Humans' || lgName === 'Ozonian') {
+    ch.sizeChoice = null;
+  }
+  if (lgName !== 'Dryvorn') {
+    ch.dryvornBloodline = null;
+  }
   renderLineageDetail();
 }
 
@@ -1784,7 +1946,8 @@ function updateLineageBenefits() {
     }
     ch.lineageBenefits = traits.map(t => t.name + ': ' + t.text).join('\n\n');
   } else {
-    const traits = getLineageTraits(ch.lineage, ch.lineageTrait);
+    const dryvornOverride = getDryvornText(ch.lineage);
+    const traits = dryvornOverride || getLineageTraits(ch.lineage, ch.lineageTrait);
     let text = lg.name + ' Lineage:\n';
     if (traits?.major) text += traits.major.name + ' (Major Trait): ' + traits.major.text;
     if (traits?.minor) text += '\n\n' + traits.minor.name + ' (Minor Trait): ' + traits.minor.text;
@@ -2456,7 +2619,9 @@ async function exportPDF() {
     set('LEVEL', ch.level||1);
     set('XP', 0);
     // If mixed lineage with Fueglin Small and Nimble, force Small
-    const effectiveSize = (ch.mixedForcedSmall) ? 'Small' : (lg.size||'');
+    const effectiveSize = ch.mixedForcedSmall ? 'Small'
+      : (ch.sizeChoice && (featuresLineageName === 'Humans' || featuresLineageName === 'Ozonian')) ? ch.sizeChoice
+      : (lg.size||'');
     set('SIZE', effectiveSize);
     const baseSpeakLangs = lg.langs?.speak || [];
     const baseReadLangs  = lg.langs?.read  || [];

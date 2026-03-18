@@ -1946,12 +1946,28 @@ async function exportPDF() {
     bpItems.slice(0,16).forEach((item,i) => set(`Gear Name ${i+1}`, item||''));
 
     // Page 3 — Talents (small font size for compact display)
+    // Strip HTML tags from a string (for plain text PDF fields)
+    const stripHtml = s => String(s||'').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+
     const setSmall = (fieldName, val, size) => {
       try {
         const field = form.getTextField(fieldName);
-        // Attempt font size — some multiline fields reject this, so isolate it
-        try { field.setFontSize(size || 7); } catch(fe) {}
-        field.setText(String(val||''));
+        const cleanVal = stripHtml(val);
+        // For multiline fields setFontSize may fail — try both approaches
+        try {
+          field.setFontSize(size || 7);
+        } catch(fe) {
+          // Multiline field: patch the /DA (Default Appearance) stream directly
+          try {
+            const widgets = field.acroField.getWidgets();
+            const daStr = '/Helvetica ' + (size||7) + ' Tf 0 g';
+            widgets.forEach(w => {
+              w.setDefaultAppearance(daStr);
+            });
+            field.acroField.setDefaultAppearance(daStr);
+          } catch(da) {}
+        }
+        field.setText(cleanVal);
       } catch(e) {}
     };
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 7);
@@ -1959,8 +1975,9 @@ async function exportPDF() {
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => {
       if (i === 0 && TALENT_DATA[t] && TALENT_DATA[t][0]) {
-        // First talent box: show name + Rank 1 description
-        setSmall(talentFields[i], t + '\nRank 1: ' + TALENT_DATA[t][0], 6);
+        // First talent box: show name + Rank 1 description (strip HTML tags)
+        const rank1Text = TALENT_DATA[t][0].replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+        setSmall(talentFields[i], t + '\nRank 1: ' + rank1Text, 6);
       } else {
         setSmall(talentFields[i], t, 7);
       }

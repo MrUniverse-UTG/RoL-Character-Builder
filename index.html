@@ -1048,6 +1048,7 @@ let ch = {
   lineageBenefits: '',
   name: '', level: 1, height: '', weight: '', age: '', notes: '',
   weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
+  gearSelections: {},
   _viewingTalent: null,
 };
 
@@ -1615,20 +1616,21 @@ function getAvailableTalents() {
 }
 
 function renderTalentStep() {
-  const specEl = document.getElementById('talent-specialty');
-  const lgEl   = document.getElementById('talent-lineage');
-  const autoEl = document.getElementById('auto-talents');
-  const browserEl = document.getElementById('talent-browser');
-  // Guard: if key elements don't exist yet, skip
-  if (!specEl || !autoEl || !browserEl) return;
+  // Always update ch state even if DOM elements aren't present
   if (ch.specialty) {
-    specEl.value = ch.specialty + ' Specialty Talent (Rank 1)';
     ch.specialtyTalent = ch.specialty + ' Specialty Talent';
   }
   if (ch.lineage) {
     updateLineageBenefits();
-    lgEl.value = ch.lineageBenefits || '';
   }
+  const specEl = document.getElementById('talent-specialty');
+  const lgEl   = document.getElementById('talent-lineage');
+  const autoEl = document.getElementById('auto-talents');
+  const browserEl = document.getElementById('talent-browser');
+  // Guard: if key DOM elements aren't present, ch state is still updated above
+  if (!specEl || !autoEl || !browserEl) return;
+  if (specEl) specEl.value = ch.specialtyTalent + ' (Rank 1)';
+  if (lgEl)   lgEl.value = ch.lineageBenefits || '';
 
   const cls = CLASSES.find(c=>c.name===ch.cls);
   const isMartial  = cls && (cls.name==='Fighter'||cls.name==='Vagabond');
@@ -1911,7 +1913,9 @@ async function exportPDF() {
     // Equipment — smart slot assignment from gear selections
     // PDF fields: Equipment 1=Armor, 2=Back, 3=Back2, 4=Belt, 5=Belt2, 6=Kit
     const ARMOR_NAMES_PDF = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
-    const gearVals = Object.values(ch.gearSelections || {});
+    // Use gearSelections if populated, otherwise fall back to ch.equip
+    const rawGearVals = Object.values(ch.gearSelections || {}).filter(v => v);
+    const gearVals = rawGearVals.length > 0 ? rawGearVals : ch.equip.filter(v => v);
     const armorItem  = gearVals.find(v => ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a))) || '';
     const nonBackpack = gearVals.filter(v => !ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a)) && v.toLowerCase() !== 'backpack');
     const isWeaponItem = v => ['sword','bow','axe','mace','dagger','pistol','wand','staff',
@@ -2264,18 +2268,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Sync live fields on step changes
   document.getElementById('btn-next').addEventListener('click', () => {
-    if (currentStep === 9) {
+    if (currentStep === 10) {
       ch.name    = document.getElementById('char-name').value;
       ch.level   = +document.getElementById('char-level').value||1;
       ch.height  = document.getElementById('char-height').value;
       ch.weight  = document.getElementById('char-weight').value;
       ch.age     = document.getElementById('char-age').value;
       ch.notes   = document.getElementById('char-notes').value;
-
-    }
-    if (currentStep === 8) {
-      ch.specialtyTalent = document.getElementById('talent-specialty').value;
-      ch.lineageBenefits = document.getElementById('talent-lineage').value;
     }
   });
 

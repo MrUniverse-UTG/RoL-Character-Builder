@@ -1718,7 +1718,8 @@ function renderLineageDetail() {
   const detail = document.getElementById('lineage-detail');
   detail.style.display = 'block';
 
-  const hasSubTraits = lg.traits.length > 1 && lg.traitDetails;
+  // In mixed lineage mode, sub-groups are handled in the mixed block below
+  const hasSubTraits = !ch.mixedLineage && lg.traits.length > 1 && lg.traitDetails;
 
   // Base info card
   let html = `

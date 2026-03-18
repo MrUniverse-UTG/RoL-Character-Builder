@@ -1949,7 +1949,8 @@ async function exportPDF() {
     const setSmall = (fieldName, val, size) => {
       try {
         const field = form.getTextField(fieldName);
-        field.setFontSize(size || 7);  // must set BEFORE setText for pdf-lib
+        // Attempt font size — some multiline fields reject this, so isolate it
+        try { field.setFontSize(size || 7); } catch(fe) {}
         field.setText(String(val||''));
       } catch(e) {}
     };

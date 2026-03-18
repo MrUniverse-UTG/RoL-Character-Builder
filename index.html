@@ -85,7 +85,7 @@ body{font-family:var(--font-body);font-size:1.05rem;line-height:1.6;color:var(--
 .attr-slot{background:#fff;border:2px solid var(--rule);border-radius:var(--r);padding:14px;display:flex;flex-direction:column}
 .attr-slot label{font-family:var(--font-ui);font-weight:700;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px}
 .attr-slot .attr-name{font-weight:700;color:var(--accent-dk);font-size:1rem;margin-bottom:4px}
-.attr-slot .attr-desc{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.attr-slot .attr-desc{font-size:.82rem;color:var(--muted);margin-bottom:10px;flex-grow:1}
 .rank-select{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.9rem;background:#fff;color:var(--ink);cursor:pointer}
 .rank-display{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-ui);font-size:1.1rem;font-weight:700;color:var(--accent-dk)}
 .rank-display.locked{color:var(--safe)}
@@ -1279,7 +1279,7 @@ function renderAttrAssign() {
       return `
       <div class="attr-slot">
         <div class="attr-name">${attr.name}</div>
-        <div class="attr-desc" style="min-height:2.8em">${attr.desc}</div>
+        <div class="attr-desc">${attr.desc}</div>
         <select class="rank-select" onchange="assignAttr('${attr.key}', this.value)">
           <option value="">- assign rank -</option>
           ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${isAssigned && currentVal===n?'selected':''}>${n}</option>`).join('')}
@@ -2236,10 +2236,23 @@ function renderSummary() {
     </div>
     <div class="summary-block" style="grid-column:1/-1">
       <h3>Skills</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">
-        ${Object.keys(allSkills).filter(k=>allSkills[k]>0).map(k=>`
-          <div class="summary-row"><span class="s-label">${k}</span><span class="s-val">Rank ${allSkills[k]}</span></div>
-        `).join('')}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+        ${['STR','AGI','WIT','EMP'].map(attrKey => {
+          const attr = ATTRIBUTES.find(a=>a.key===attrKey);
+          const attrSkills = SKILLS[attrKey] || [];
+          return '<div style="padding:0 8px 0 0">'
+            + '<div style="font-family:var(--font-ui);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:6px 8px 4px;border-bottom:1px solid var(--rule);margin-bottom:4px">'
+            + attr.name + '</div>'
+            + attrSkills.map(skill => {
+                const rank = allSkills[skill.key] || 0;
+                const hasRank = rank > 0;
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;margin-bottom:2px;background:' + (hasRank?'var(--accent-lt)':'transparent') + '">'
+                  + '<span style="font-family:var(--font-ui);font-size:.88rem;color:' + (hasRank?'var(--accent-dk)':'var(--muted)') + ';font-weight:' + (hasRank?'600':'400') + '">' + skill.name + '</span>'
+                  + (hasRank ? '<span style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--accent);background:#fff;border:1px solid var(--accent);border-radius:4px;padding:1px 6px">Rank ' + rank + '</span>' : '<span style="font-family:var(--font-ui);font-size:.75rem;color:#ccc">—</span>')
+                  + '</div>';
+              }).join('')
+            + '</div>';
+        }).join('')}
       </div>
     </div>
   `;

@@ -247,6 +247,19 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <h2>Step 3 - Choose a Lineage</h2>
     <p>Your Lineage determines your size, Speed, languages, and special traits.</p>
   </div>
+  <div style="margin-bottom:16px;padding:12px 16px;background:#fff;border:1px solid var(--rule);border-radius:var(--r);display:flex;align-items:center;gap:12px">
+    <input type="checkbox" id="mixed-lineage-cb" onchange="toggleMixedLineage(this.checked)"
+           style="width:18px;height:18px;cursor:pointer;accent-color:var(--accent)">
+    <div>
+      <label for="mixed-lineage-cb" style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;cursor:pointer;color:var(--accent-dk)">
+        Mixed Lineage
+      </label>
+      <div style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted)">
+        Select two Traditional Lineages. Choose which provides your Features, Major Trait, and Minor Trait.
+      </div>
+    </div>
+  </div>
+  <div id="mixed-lineage-panel" style="display:none;margin-bottom:16px"></div>
   <div class="option-grid cols2" id="lineage-grid"></div>
   <div id="lineage-detail" style="display:none;margin-top:20px"></div>
 </div>
@@ -425,16 +438,14 @@ const LINEAGES = [
      Highlander:{
        label:'Highlander',
        desc:'These nimble Abysians have more Humanoid features and physiology in their face and limbs.',
-       features:`Catlike Reflexes (Major Trait): You can use a Quick action to move up to 15 feet without provoking Opportunity Strikes. You cannot use this trait more than once in a round.
-
-Mountain Climber (Minor Trait): Gain a Climb Speed equal to your base Speed.`
+       major:{name:'Catlike Reflexes',text:'You can use a Quick action to move up to 15 feet without provoking Opportunity Strikes. You cannot use this trait more than once in a round.'},
+       minor:{name:'Mountain Climber',text:'Gain a Climb Speed equal to your base Speed.'},
      },
      Kogon:{
        label:'Kogon',
        desc:'These thicker Abysians have a more feline-like physiology in their faces and limbs.',
-       features:`For the Hunt (Major Trait): You can use a Quick action to move up to 30 feet until the end of your turn. You cannot use this trait more than once in a round.
-
-Stubborn (Minor Trait): When you start your turn with 0 HP, you can use this trait to regain up to 12 HP. You cannot use this trait again until you finish an Intermission.`
+       major:{name:'For the Hunt',text:'You can use a Quick action to move up to 30 feet until the end of your turn. You cannot use this trait more than once in a round.'},
+       minor:{name:'Stubborn',text:'When you start your turn with 0 HP, you can use this trait to regain up to 12 HP. You cannot use this trait again until you finish an Intermission.'},
      },
    },
    features:'Choose a sub-group below.'},
@@ -443,6 +454,8 @@ Stubborn (Minor Trait): When you start your turn with 0 HP, you can use this tra
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
    desc:'Dragon-blessed Humanoids attuned to a special element. Mature at 19, live to ~135.',
    traits:['Dragon Bloodline'],
+   major:{name:'Dragon Breath',text:'You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is dependent on your Dragon Bloodline. The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.'},
+   minor:{name:'Dragon Resistance',text:'Your HP gains resistance to the damage type associated with your Dragon Bloodline.'},
    features:`Dragon Breath (Major Trait): You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is dependent on your Dragon Bloodline. The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.
 
 Dragon Resistance (Minor Trait): Your HP gains resistance to the damage type associated with your Dragon Bloodline.
@@ -453,14 +466,18 @@ Dragon Bloodlines - choose one: Ravano (Red, Fire) | Golgun (Green, Acid) | Voiv
    langs:{speak:['Fuegi','Gaian'], read:['Sylvan','Gaian']},
    desc:'Small fungus people who can consume corpses to gain memories. Mature at 10, live to ~80.',
    traits:['Fueglin'],
-   features:`Small and Nimble (Major Trait): When you make a Move save and fail, you can use this trait to gain 1 success. You cannot use this trait on a Pushed check. Once you use this trait, you cannot use it again until you finish an Intermission. If you take this trait in a mixed Lineage or as part of an otherworldly Lineage, your creature size becomes Small.
+   major:{name:'Small and Nimble',text:'When you make a Move save and fail, you can use this trait to gain 1 success. You cannot use this trait on a Pushed check. Once you use this trait, you cannot use it again until you finish an Intermission.'},
+   minor:{name:'Taste of the Past',text:'You gain a +2 modifier on Endure checks against Poisons or Diseases from contaminated meat. When near a corpse, consume a part to gain one memory of the creature. You can pick a time and day; the GM determines what is revealed. Once used three times, you must finish a Light or Full Rest before using again.'},
+   features:`Small and Nimble (Major Trait): When you make a Move save and fail, you can use this trait to gain 1 success. You cannot use this trait on a Pushed check. Once you use this trait, you cannot use it again until you finish an Intermission.
 
-Taste of the Past (Minor Trait): You gain a +2 modifier on Endure checks against Poisons or Diseases gained from eating contaminated meat. When near a corpse, you can use this trait to consume a part of it. When you do so, you gain one memory of the creature whose corpse you consumed. You can pick a time and day when you think the creature was alive, and the GM determines what is revealed in that memory. Memories can be clear or cryptic. You cannot gain more than one memory from a single dead creature with this trait. Once you've used this trait three times, you must finish a Light or Full Rest before you can use it again.`},
+Taste of the Past (Minor Trait): You gain a +2 modifier on Endure checks against Poisons or Diseases gained from eating contaminated meat. When near a corpse, consume a part to gain one memory of the creature. Once used three times, finish a Light or Full Rest before using again.`},
 
   {name:'Guodons', type:'Traditional', size:'Medium', speed:30, height:"6'–8'",
    langs:{speak:['Godun','Gaian'], read:['Eldar','Gaian']},
    desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia. Mature at 20, live to ~120.',
    traits:['Guodon'],
+   major:{name:'Titan Blood',text:'When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.'},
+   minor:{name:'Thick Build',text:'You can wield heavy weapons and shields in one hand but cannot wield more than one at once.'},
    features:`Titan Blood (Major Trait): When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.
 
 Thick Build (Minor Trait): You can wield heavy weapons and shields in one hand but cannot wield more than one at once.`},
@@ -469,15 +486,19 @@ Thick Build (Minor Trait): You can wield heavy weapons and shields in one hand b
    langs:{speak:['Hunon','Gaian'], read:['Aquon','Gaian']},
    desc:'Resilient Humanoids that spread and adapt to other societies. Mature at 24, live to ~80.',
    traits:['Human'],
+   major:{name:'Human Recovery',text:"After you roll dice to gain a Wound, you can use this trait to change one of those dice results to a 1. Once you use this trait, you can't use it again until you finish an Intermission."},
+   minor:{name:'Beyond Limits',text:"You can Push a check that you have gained a success in, potentially making it a critical or supercritical success but also risking a Break. Once you have used this trait, you can't do so again until you finish an Intermission."},
    features:`Human Recovery (Major Trait): After you roll dice to gain a Wound, you can use this trait to change one of those dice results to a 1. Once you use this trait, you can't use it again until you finish an Intermission.
 
 Beyond Limits (Minor Trait): You can Push a check that you have gained a success in, potentially making it a critical or supercritical success but also risking a Break. Once you have used this trait, you can't do so again until you finish an Intermission.`},
 
   {name:'Ocotos', type:'Traditional', size:'Medium', speed:30, height:"4'–6'",
    langs:{speak:['Aquon','Gaian'], read:['Aquon','Gaian']},
-   desc:'Cephalopod Humanoids - last surviving nobility from the lost world. Mature at 18, live to ~92.',
+   desc:"Cephalopod Humanoids - last surviving nobility from the lost world. Mature at 18, live to ~92.",
    traits:['Ocoto'],
-   features:`Colorful Skin (Major Trait): Ocotos can change the color of their skin at will and match it to their surroundings. When not wearing Plate armor, Ocotos can use a Quick action to Camouflage. While in Camouflage, you gain the Obscured Condition against creatures that are more than 5 feet away from you. Camouflage lasts until you attack, cast a Spell, or physically interact with another creature. While in Camouflage, every 1 foot of movement costs 2 feet of Speed.
+   major:{name:'Colorful Skin',text:"Ocotos can change the color of their skin at will and match it to their surroundings. When not wearing Plate armor, use a Quick action to Camouflage. While Camouflaged, you gain the Obscured Condition against creatures more than 5 feet away. Camouflage lasts until you attack, cast a Spell, or physically interact with another creature. Every 1 foot of movement costs 2 feet of Speed while Camouflaged."},
+   minor:{name:'Deep Sea Creature',text:'You can breathe underwater and have a Swim Speed equal to your base Speed. Your HP also gains resistance against Force damage.'},
+   features:`Colorful Skin (Major Trait): Ocotos can change the color of their skin at will. When not wearing Plate armor, use a Quick action to Camouflage. While Camouflaged, you gain the Obscured Condition against creatures more than 5 feet away. Camouflage lasts until you attack, cast a Spell, or physically interact with another creature.
 
 Deep Sea Creature (Minor Trait): You can breathe underwater and have a Swim Speed equal to your base Speed. Your HP also gains resistance against Force damage.`},
 
@@ -485,12 +506,11 @@ Deep Sea Creature (Minor Trait): You can breathe underwater and have a Swim Spee
    langs:{speak:['Prado','Gaian'], read:['Sybus','Gaian']},
    desc:'Insectoid creatures from the deep underground of Gaia. Mature at 15, live to ~90.',
    traits:['Pridae'],
-   features:`Evolved Purpose (Major Trait): Pridae in a colony are often given an evolutionary trait that can vary from colony to colony. When making a Pridae, select one of the following traits to gain. Once chosen, this trait cannot be changed.
-• Hardened Shell: Your max DP when wearing an armor set is increased by 5 (doubled at Level 10). If not wearing an armor set, you gain Natural DP equal to this bonus.
-• Small Wings: You have a pair of small hidden wings. Use a Quick action to gain a Fly Speed equal to your base Speed until the end of your turn.
-• Enhanced Antennae: You can telepathically speak with creatures you can see within 30 feet. You understand each other as long as both speak a common language.
+   major:{name:'Evolved Purpose',text:'Select one of the following traits: Hardened Shell (max DP when wearing armor increased by 5), Small Wings (gain Fly Speed equal to base Speed as Quick action), or Enhanced Antennae (telepathically speak with creatures within 30 ft).'},
+   minor:{name:'Additional Arms',text:'You have two additional smaller arms. They cannot use weapons without the Light Feature nor wield shields. You can use these arms to perform the Interact action as a Free action once per turn.'},
+   features:`Evolved Purpose (Major Trait): Select one of the following traits: Hardened Shell (max DP when wearing armor increased by 5), Small Wings (gain a Fly Speed equal to your base Speed as a Quick action), or Enhanced Antennae (telepathically speak with creatures you can see within 30 ft).
 
-Additional Arms (Minor Trait): Pridae have two additional smaller arms. These arms function like regular arms except they cannot use weapons without the Light Feature, nor wield shields. You can use these arms to perform the Interact action as a Free action once per turn.`},
+Additional Arms (Minor Trait): You have two additional smaller arms. These arms cannot use weapons without the Light Feature, nor wield shields. You can use them to perform the Interact action as a Free action once per turn.`},
 
   {name:'Sylvaniks', type:'Traditional', size:'Medium', speed:30, height:"5'–7'",
    langs:{speak:['Sylvan','Gaian'], read:['Sylvan','Gaian']},
@@ -500,16 +520,14 @@ Additional Arms (Minor Trait): Pridae have two additional smaller arms. These ar
      Sunlight:{
        label:'Sunlight',
        desc:'Sunlight Sylvaniks.',
-       features:`One with Nature (Major Trait): You gain the ability to talk with Beasts and commune with Plants. When communing with a Plant, you must touch it over the course of 1 minute, and the Plant must be alive. During that minute, you see the Plant's memories of its surroundings in the past 24 hours.
-
-Blessed Health (Minor Trait): You know how to make the most out of your meditations. When you expend a Recovery die toward your HP or MP, you replenish an additional 2 Status Points per Recovery die spent.`
+       major:{name:'One with Nature',text:"You gain the ability to talk with Beasts and commune with Plants. When communing with a Plant, touch it over 1 minute. During that minute, you see the Plant's memories of its surroundings in the past 24 hours."},
+       minor:{name:'Blessed Health',text:'When you expend a Recovery die toward your HP or MP, you replenish an additional 2 Status Points per Recovery die spent.'},
      },
      Midnight:{
        label:'Midnight',
        desc:'Midnight Sylvaniks.',
-       features:`Mind Over Matter (Major Trait): When you start your turn with the Dazed or Shocked condition, you can use this trait as a Free Action to cleanse yourself of it. Once you use this trait, you cannot use it again until you finish an Intermission.
-
-Enhanced Meditation (Minor Trait): When you expend a Recovery die toward your Sorce Points, you replenish an additional 3 Sorce Points per Recovery die spent.`
+       major:{name:'Mind Over Matter',text:'When you start your turn with the Dazed or Shocked condition, you can use this trait as a Free Action to cleanse yourself of it. Once you use this trait, you cannot use it again until you finish an Intermission.'},
+       minor:{name:'Enhanced Meditation',text:'When you expend a Recovery die toward your Sorce Points, you replenish an additional 3 Sorce Points per Recovery die spent.'},
      },
    },
    features:'Choose a sub-group below.'},
@@ -518,19 +536,23 @@ Enhanced Meditation (Minor Trait): When you expend a Recovery die toward your So
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
    desc:'Living crystals that infect suits of armor to gain a body. Constructs - do not age.',
    traits:['Armorai'],
-   features:`Construct Nature: Your HP is special as you are completely made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. You can still wear and benefit from armor sets as normal. When you wear an armor set, you attach it to your body as a fortification instead of wearing it. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you.
+   major:{name:'Construct Nature',text:"Your HP is special as you are made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you."},
+   minor:{name:'Iron Veins',text:'You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You still must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.'},
+   features:`Construct Nature (Major Trait): Your HP is special as you are made of metal. When a creature attempts to Bandage you, they must use a tool kit. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you.
 
-Iron Veins: You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You still must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.
+Iron Veins (Minor Trait): You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.
 
-Creatures of Logic: You gain resistance to Fear damage but have a -4 modifier on all Empathy checks. When creating or playing as an Armorai, you can choose not to follow this path, removing the Creatures of Logic trait from your Lineage Talent.`},
+Creatures of Logic: You gain resistance to Fear damage but have a -4 modifier on all Empathy checks. You can choose to remove this trait when creating your character.`},
 
   {name:'Darkaen', type:'Otherworldly', size:'Medium', speed:30, height:"4'–6'",
    langs:{speak:['Demoid','Gaian'], read:['Demoid','Gaian']},
    desc:'Demons created from the souls of Gaians. Mature at 18, live to ~666 years.',
    traits:['Darkaen'],
-   features:`Night Flight: You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.
+   major:{name:'Night Flight',text:'You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.'},
+   minor:{name:'Shadow Eyes / Unholy',text:'You gain Gloom Vision. Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.'},
+   features:`Night Flight (Major Trait): You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, they wrap around you like a cloak.
 
-Shadow Eyes: You gain Gloom Vision.
+Shadow Eyes (Minor Trait): You gain Gloom Vision.
 
 Unholy: Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.`},
 
@@ -538,21 +560,25 @@ Unholy: Your HP gains vulnerability to Radiant damage but resistance to Necrotic
    langs:{speak:["One traditional language (player's choice)",'Gaian'], read:["One traditional language (player's choice)",'Gaian']},
    desc:'Humanoid Slimes with the ability to shift and look like other Lineages.',
    traits:['Ozonian'],
-   features:`Fluid Identity: As a Standard action, you can change your physical appearance to look and feel like another Humanoid that is the same size as you. This includes their race, sex, skin color, hair length, and height (slightly). You cannot change your voice, and your clothes and equipment do not change. If you transform into a race with additional limbs, you grow those limbs, but they are vestigial and cannot be used outside of basic movement.
+   major:{name:'Fluid Identity',text:'As a Standard action, change your physical appearance to look and feel like another Humanoid the same size as you. This includes race, sex, skin color, hair, and height. You cannot change your voice; clothes and equipment do not change.'},
+   minor:{name:'Slippery',text:'When Grappled, you can spend a Quick action to end the Condition on yourself. You may also squeeze through openings as if you were one size smaller.'},
+   features:`Fluid Identity (Major Trait): As a Standard action, change your appearance to look like another Humanoid the same size as you. You cannot change your voice; your clothes and equipment do not change.
 
-Slippery: When Grappled, you can spend a Quick action to end the Condition on yourself. You may also squeeze through openings as if you were one size smaller.
+Slippery (Minor Trait): When Grappled, spend a Quick action to end the Condition. You may squeeze through openings as if one size smaller.
 
-Liquid Form: Your HP gains vulnerability to Frost damage. When your HP is struck with Frost damage and you are in the identity of a different creature, your Fluid Identity cracks and you return to normal.`},
+Liquid Form: Your HP gains vulnerability to Frost damage. When struck with Frost damage while disguised, your Fluid Identity cracks and you return to normal.`},
 
   {name:'Undead', type:'Otherworldly', size:'Varies', speed:30, height:'Varies',
    langs:{speak:['Necrosis','Gaian'], read:['Necrosis','Gaian']},
-   desc:'A soul bound to their corpse or another\'s. Cannot age.',
+   desc:"A soul bound to their corpse or another body. Cannot age.",
    traits:['Undead'],
-   features:`Repurposed: Choose the traditional Lineage that your body and head were originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.
+   major:{name:'Repurposed',text:'Choose the traditional Lineage your body was originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.'},
+   minor:{name:'Build-a-Body',text:'You can remove and replace limbs from your body (5 minutes to adjust). Wounds to those limbs can be cleansed during an Intermission with a spare humanoid corpse.'},
+   features:`Repurposed (Major Trait): Choose the traditional Lineage your body was originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.
 
-Build-a-Body: You can remove and replace limbs from your body. It takes 5 minutes for your body to adjust and control the new limb. Because of this, the Wounds Damaged Arm, Damaged Leg, Destroyed Arm, and Destroyed Leg can be cleansed during an Intermission so long as you have a spare humanoid corpse with the proper limb intact.
+Build-a-Body (Minor Trait): You can remove and replace limbs. Limb Wounds can be cleansed during an Intermission with a spare corpse.
 
-Undead Nature: Healing to HP received from magic and alchemy is halved. You do not need to eat, drink, breathe, or sleep.`},
+Undead Nature: Healing from magic and alchemy is halved. You do not need to eat, drink, breathe, or sleep.`},
 ];
 
 const CLASSES = [
@@ -1039,6 +1065,10 @@ let ch = {
   skills: {},
   lineage: null,
   lineageTrait: null,
+  mixedLineage: false,
+  mixedLineages: [],      // up to 2 traditional lineages
+  mixedSubTraits: {},     // subTrait per lineage if needed
+  mixedAssignment: {features: null, major: null, minor: null},
   cls: null,
   clsSkillChoices: {},
   specialty: null,
@@ -1073,7 +1103,16 @@ function goToStep(n) {
   window.scrollTo({top:0, behavior:'smooth'});
   if (n===1)  { renderArrayPicker(); if (ch.array !== null) renderAttrAssign(); }
   if (n===2)  renderSkillList();
-  if (n===3)  { renderLineageGrid(); if (ch.lineage) renderLineageDetail(); }
+  if (n===3)  {
+    renderLineageGrid();
+    if (ch.mixedLineage) {
+      document.getElementById('mixed-lineage-cb').checked = true;
+      document.getElementById('mixed-lineage-panel').style.display = 'block';
+      renderMixedPanel();
+    } else if (ch.lineage) {
+      renderLineageDetail();
+    }
+  }
   if (n===4)  { renderClassGrid(); renderClassSkillChoices(); }
   if (n===5)  renderSpecialtyGrid();
   if (n===6)  renderGearStep();
@@ -1130,10 +1169,22 @@ function validateStep(step) {
       if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
       return true;
     case 3: {
+      if (ch.mixedLineage) {
+        if (ch.mixedLineages.length < 2) { alert('Please select two Traditional Lineages for Mixed Lineage.'); return false; }
+        if (!ch.mixedAssignment.features) { alert('Please choose which lineage provides your Features.'); return false; }
+        if (!ch.mixedAssignment.major)    { alert('Please choose which lineage provides your Major Trait.'); return false; }
+        if (!ch.mixedAssignment.minor)    { alert('Please choose which lineage provides your Minor Trait.'); return false; }
+        // Check sub-traits resolved
+        const [l1,l2] = ch.mixedLineages;
+        const lg1x = LINEAGES.find(l=>l.name===l1), lg2x = LINEAGES.find(l=>l.name===l2);
+        if (lg1x?.traitDetails && !ch.mixedSubTraits[l1]) { alert('Please choose a sub-group for '+l1); return false; }
+        if (lg2x?.traitDetails && !ch.mixedSubTraits[l2]) { alert('Please choose a sub-group for '+l2); return false; }
+        return true;
+      }
       if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
       const lg3 = LINEAGES.find(l=>l.name===ch.lineage);
       if (lg3 && lg3.traits.length > 1 && lg3.traitDetails && !ch.lineageTrait) {
-        alert(`Please choose a ${ch.lineage} sub-group (${lg3.traits.join(' or ')}) before continuing.`);
+        alert('Please choose a ' + ch.lineage + ' sub-group (' + lg3.traits.join(' or ') + ') before continuing.');
         return false;
       }
       return true;
@@ -1303,21 +1354,222 @@ function updateSkillPips() {
 // ═══════════════════════════════════════════════════════════════
 // STEP 3 - LINEAGE
 // ═══════════════════════════════════════════════════════════════
+
+// ── Mixed Lineage ──────────────────────────────────────────────────────
+function toggleMixedLineage(checked) {
+  ch.mixedLineage = checked;
+  ch.mixedLineages = [];
+  ch.mixedAssignment = {features: null, major: null, minor: null};
+  ch.lineage = null;
+  ch.lineageTrait = null;
+  document.getElementById('lineage-detail').style.display = 'none';
+  document.getElementById('mixed-lineage-panel').style.display = checked ? 'block' : 'none';
+  renderLineageGrid();
+  renderMixedPanel();
+}
+
 function renderLineageGrid() {
   const container = document.getElementById('lineage-grid');
-  container.innerHTML = LINEAGES.map(lg => `
-    <div class="option-card ${ch.lineage===lg.name?'selected':''}" onclick="selectLineage('${lg.name}')">
-      <div class="card-tag">${lg.type}</div>
-      <div class="card-title">${lg.name}</div>
-      <div class="card-body">${lg.desc}</div>
-      <div class="card-stats">
-        <span class="stat-badge size">Size: ${lg.size}</span>
-        <span class="stat-badge">Speed: ${lg.speed} ft</span>
-        <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
-      </div>
-    </div>
-  `).join('');
+  const onlyTraditional = ch.mixedLineage;
+  const shown = onlyTraditional ? LINEAGES.filter(l => l.type === 'Traditional') : LINEAGES;
+
+  container.innerHTML = shown.map(lg => {
+    let isSelected, isDisabled = false, selClass = '';
+    if (ch.mixedLineage) {
+      isSelected = ch.mixedLineages.includes(lg.name);
+      // Disable if 2 already selected and this isn't one of them
+      if (ch.mixedLineages.length >= 2 && !isSelected) isDisabled = true;
+      selClass = isSelected ? 'selected' : '';
+    } else {
+      isSelected = ch.lineage === lg.name;
+      selClass = isSelected ? 'selected' : '';
+    }
+    return `
+      <div class="option-card ${selClass}" style="${isDisabled ? 'opacity:.4;cursor:not-allowed' : ''}"
+           onclick="${isDisabled ? '' : `selectLineageCard('${lg.name}')`}">
+        <div class="card-tag">${lg.type}</div>
+        <div class="card-title">${lg.name}</div>
+        <div class="card-body">${lg.desc}</div>
+        <div class="card-stats">
+          <span class="stat-badge size">Size: ${lg.size}</span>
+          <span class="stat-badge">Speed: ${lg.speed} ft</span>
+          <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
+        </div>
+      </div>`;
+  }).join('');
 }
+
+function selectLineageCard(name) {
+  if (ch.mixedLineage) {
+    // Toggle selection in mixedLineages array
+    const idx = ch.mixedLineages.indexOf(name);
+    if (idx !== -1) {
+      ch.mixedLineages.splice(idx, 1);
+      // Reset assignment if deselected
+      if (ch.mixedAssignment.features === name) ch.mixedAssignment.features = null;
+      if (ch.mixedAssignment.major === name)    ch.mixedAssignment.major = null;
+      if (ch.mixedAssignment.minor === name)    ch.mixedAssignment.minor = null;
+    } else if (ch.mixedLineages.length < 2) {
+      ch.mixedLineages.push(name);
+    }
+    // Set ch.lineage to first selected for compatibility
+    ch.lineage = ch.mixedLineages[0] || null;
+    renderLineageGrid();
+    renderMixedPanel();
+    updateMixedLineageBenefits();
+  } else {
+    selectLineage(name);
+  }
+}
+
+function renderMixedPanel() {
+  const panel = document.getElementById('mixed-lineage-panel');
+  if (!panel || !ch.mixedLineage) return;
+
+  if (ch.mixedLineages.length < 2) {
+    panel.innerHTML = `<div class="info-box">Select ${2 - ch.mixedLineages.length} more Traditional Lineage${ch.mixedLineages.length === 0 ? 's' : ''} from the list below.</div>`;
+    return;
+  }
+
+  const [lg1name, lg2name] = ch.mixedLineages;
+  const lg1 = LINEAGES.find(l => l.name === lg1name);
+  const lg2 = LINEAGES.find(l => l.name === lg2name);
+
+  const getNeedsSubTrait = (lg) => lg.traits.length > 1 && lg.traitDetails;
+
+  // Sub-trait selectors for lineages that need them
+  let subTraitHtml = '';
+  [lg1, lg2].forEach(lg => {
+    if (getNeedsSubTrait(lg)) {
+      subTraitHtml += `
+        <div style="margin-bottom:12px;padding:12px;background:#f8f7f4;border-radius:var(--r)">
+          <label style="font-family:var(--font-ui);font-weight:700;font-size:.85rem;color:var(--accent-dk)">
+            ${lg.name} Sub-group:
+          </label>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            ${lg.traits.map(tk => `
+              <button onclick="setMixedSubTrait('${lg.name}','${tk}')"
+                style="padding:6px 14px;font-family:var(--font-ui);font-size:.85rem;font-weight:600;cursor:pointer;border-radius:20px;
+                       border:2px solid ${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent)':'var(--rule)'};
+                       background:${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent-lt)':'#fff'};
+                       color:${(ch.mixedSubTraits[lg.name]===tk)?'var(--accent-dk)':'var(--ink)'}">
+                ${tk}
+              </button>`).join('')}
+          </div>
+        </div>`;
+    }
+  });
+
+  const getT = (lgName) => {
+    const sub = ch.mixedSubTraits[lgName];
+    return getLineageTraits(lgName, sub);
+  };
+  const t1 = getT(lg1name), t2 = getT(lg2name);
+
+  const assignRow = (label, field, options) => {
+    return `<div style="margin-bottom:10px">
+      <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">${label}</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${options.map(opt => `
+          <button onclick="setMixedAssignment('${field}','${opt.lineage}')"
+            style="padding:7px 14px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:6px;text-align:left;
+                   border:2px solid ${ch.mixedAssignment[field]===opt.lineage?'var(--accent)':'var(--rule)'};
+                   background:${ch.mixedAssignment[field]===opt.lineage?'var(--accent-lt)':'#fff'};
+                   color:${ch.mixedAssignment[field]===opt.lineage?'var(--accent-dk)':'var(--ink)'}">
+            <strong>${opt.lineage}</strong><br>
+            <span style="font-size:.75rem;font-weight:400">${opt.traitName}</span>
+          </button>`).join('')}
+      </div>
+    </div>`;
+  };
+
+  // Only show assignment options if sub-traits are resolved (or not needed)
+  const lg1Ready = !getNeedsSubTrait(lg1) || ch.mixedSubTraits[lg1name];
+  const lg2Ready = !getNeedsSubTrait(lg2) || ch.mixedSubTraits[lg2name];
+  const assignReady = lg1Ready && lg2Ready;
+
+  panel.innerHTML = `
+    <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
+      <div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">
+        Mixed Lineage: ${lg1name} / ${lg2name}
+      </div>
+      ${subTraitHtml}
+      ${assignReady ? `
+        <div style="margin-top:4px">
+          <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:12px">
+            Choose which lineage provides each benefit. You get all Features from one, the Major Trait from one, and the Minor Trait from the other.
+          </p>
+          ${assignRow('Features (size, speed, languages)', 'features', [
+            {lineage:lg1name, traitName:lg1.size+', '+lg1.speed+' ft'},
+            {lineage:lg2name, traitName:lg2.size+', '+lg2.speed+' ft'},
+          ])}
+          ${assignRow('Major Trait', 'major', [
+            {lineage:lg1name, traitName:t1?.major?.name||'(no major)'},
+            {lineage:lg2name, traitName:t2?.major?.name||'(no major)'},
+          ])}
+          ${assignRow('Minor Trait', 'minor', [
+            {lineage:lg1name, traitName:t1?.minor?.name||'(no minor)'},
+            {lineage:lg2name, traitName:t2?.minor?.name||'(no minor)'},
+          ])}
+        </div>
+        ${ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor ? 
+          '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete. Your traits are shown in the preview below.</div>' : 
+          '<div class="warn-box" style="margin-top:12px">Choose a lineage for each assignment above.</div>'}
+        <div id="mixed-trait-preview" style="margin-top:12px"></div>
+      ` : '<div class="warn-box">Choose sub-groups above before assigning traits.</div>'}
+    </div>`;
+
+  // Render trait preview if assignment complete
+  if (assignReady && ch.mixedAssignment.major && ch.mixedAssignment.minor) {
+    const majorSub = ch.mixedSubTraits[ch.mixedAssignment.major];
+    const minorSub = ch.mixedSubTraits[ch.mixedAssignment.minor];
+    const majorTraits = getLineageTraits(ch.mixedAssignment.major, majorSub);
+    const minorTraits = getLineageTraits(ch.mixedAssignment.minor, minorSub);
+    const preview = document.getElementById('mixed-trait-preview');
+    if (preview) {
+      preview.innerHTML = `
+        <div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Your Traits</div>
+        ${majorTraits?.major ? `
+          <div style="margin-bottom:8px;padding:10px;background:#fffbea;border:1px solid var(--gold);border-radius:6px">
+            <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:3px">${majorTraits.major.name} (Major — from ${ch.mixedAssignment.major})</div>
+            <div style="font-size:.85rem">${majorTraits.major.text}</div>
+          </div>` : ''}
+        ${minorTraits?.minor ? `
+          <div style="padding:10px;background:#f8f7f4;border:1px solid var(--rule);border-radius:6px">
+            <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:3px">${minorTraits.minor.name} (Minor — from ${ch.mixedAssignment.minor})</div>
+            <div style="font-size:.85rem">${minorTraits.minor.text}</div>
+          </div>` : ''}`;
+    }
+    updateMixedLineageBenefits();
+  }
+}
+
+function setMixedSubTrait(lgName, traitKey) {
+  ch.mixedSubTraits[lgName] = traitKey;
+  renderMixedPanel();
+}
+
+function setMixedAssignment(field, lgName) {
+  ch.mixedAssignment[field] = lgName;
+  renderMixedPanel();
+  updateMixedLineageBenefits();
+}
+
+function updateMixedLineageBenefits() {
+  if (!ch.mixedLineage || ch.mixedLineages.length < 2) return;
+  const maj = ch.mixedAssignment.major;
+  const min = ch.mixedAssignment.minor;
+  if (!maj || !min) return;
+  const majSub = ch.mixedSubTraits[maj];
+  const minSub = ch.mixedSubTraits[min];
+  const majTraits = getLineageTraits(maj, majSub);
+  const minTraits = getLineageTraits(min, minSub);
+  ch.lineageBenefits = '';
+  if (majTraits?.major) ch.lineageBenefits += `${majTraits.major.name} (Major Trait from ${maj}): ${majTraits.major.text}`;
+  if (minTraits?.minor) ch.lineageBenefits += (ch.lineageBenefits ? '\n\n' : '') + `${minTraits.minor.name} (Minor Trait from ${min}): ${minTraits.minor.text}`;
+}
+
+
 
 function selectLineage(name) {
   ch.lineage = name;
@@ -1325,6 +1577,41 @@ function selectLineage(name) {
   renderLineageGrid();
   renderLineageDetail();
 }
+
+// Get the effective major/minor traits for the current lineage (and sub-trait if any)
+function getLineageTraits(lgName, subTrait) {
+  const lg = LINEAGES.find(l => l.name === lgName);
+  if (!lg) return null;
+  if (lg.traitDetails && subTrait && lg.traitDetails[subTrait]) {
+    return { major: lg.traitDetails[subTrait].major, minor: lg.traitDetails[subTrait].minor };
+  }
+  return { major: lg.major, minor: lg.minor };
+}
+
+// Format a lineage's traits as separate HTML paragraphs
+function formatTraitParagraphs(lgName, subTrait) {
+  const traits = getLineageTraits(lgName, subTrait);
+  if (!traits) return '';
+  let html = '';
+  if (traits.major) {
+    html += `<div style="margin-bottom:10px">
+      <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;text-transform:uppercase;color:var(--accent-dk);letter-spacing:.05em;margin-bottom:3px">
+        ${traits.major.name} <span style="color:var(--gold);font-size:.7rem">(Major Trait)</span>
+      </div>
+      <div style="font-size:.88rem;line-height:1.5">${traits.major.text}</div>
+    </div>`;
+  }
+  if (traits.minor) {
+    html += `<div>
+      <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:3px">
+        ${traits.minor.name} <span style="font-size:.7rem">(Minor Trait)</span>
+      </div>
+      <div style="font-size:.88rem;line-height:1.5">${traits.minor.text}</div>
+    </div>`;
+  }
+  return html;
+}
+
 
 function renderLineageDetail() {
   if (!ch.lineage) return;
@@ -1345,7 +1632,7 @@ function renderLineageDetail() {
         <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
         <span class="stat-badge">Reads: ${lg.langs.read.join(', ')}</span>
       </div>
-      <div class="card-body" style="margin-top:10px">${lg.features}</div>
+      <div style="margin-top:12px">${formatTraitParagraphs(lg.name, ch.lineageTrait)}</div>
     </div>`;
 
   // Sub-trait chooser for Abysian and Sylvanik
@@ -1363,7 +1650,7 @@ function renderLineageDetail() {
               <div class="option-card ${isSelected?'selected':''}" onclick="selectLineageTrait('${traitKey}')">
                 <div class="card-title">${td.label}</div>
                 <div class="card-body" style="margin-bottom:8px">${td.desc}</div>
-                <div style="font-family:var(--font-ui);font-size:.82rem;color:#444;white-space:pre-line">${td.features}</div>
+                <div style="margin-top:8px">${formatTraitParagraphs(lg.name, traitKey)}</div>
               </div>`;
           }).join('')}
         </div>
@@ -1382,13 +1669,18 @@ function selectLineageTrait(traitKey) {
 }
 
 function updateLineageBenefits() {
+  if (ch.mixedLineage) {
+    updateMixedLineageBenefits();
+    return;
+  }
   if (!ch.lineage) return;
   const lg = LINEAGES.find(l=>l.name===ch.lineage);
-  if (lg.traitDetails && ch.lineageTrait && lg.traitDetails[ch.lineageTrait]) {
-    ch.lineageBenefits = `${lg.name} (${lg.traitDetails[ch.lineageTrait].label}): ${lg.traitDetails[ch.lineageTrait].features}`;
-  } else {
-    ch.lineageBenefits = `${lg.name} Lineage: ${lg.features}`;
-  }
+  if (!lg) return;
+  const traits = getLineageTraits(ch.lineage, ch.lineageTrait);
+  let text = lg.name + ' Lineage:\n';
+  if (traits?.major) text += traits.major.name + ' (Major Trait): ' + traits.major.text;
+  if (traits?.minor) text += '\n\n' + traits.minor.name + ' (Minor Trait): ' + traits.minor.text;
+  ch.lineageBenefits = text;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1865,7 +2157,9 @@ async function exportPDF() {
     const pdf = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
     const form = pdf.getForm();
 
-    const lg = LINEAGES.find(l=>l.name===ch.lineage) || {};
+    // For mixed lineage, pull stats from the Features lineage
+    const featuresLineageName = ch.mixedLineage ? (ch.mixedAssignment.features || ch.mixedLineages[0]) : ch.lineage;
+    const lg = LINEAGES.find(l=>l.name===featuresLineageName) || {};
     const allSkills = {};
     for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
 
@@ -1896,7 +2190,11 @@ async function exportPDF() {
     set('Character Name', ch.name);
     set('JOB', ch.cls);
     set('SPECIALTY', ch.specialty);
-    set('LINEAGE', ch.lineage);
+    // Lineage name — show both if Mixed
+    const lineagePDFName = ch.mixedLineage && ch.mixedLineages.length === 2
+      ? ch.mixedLineages.join(' / ')
+      : (ch.lineage || '');
+    set('LINEAGE', lineagePDFName);
     set('LEVEL', ch.level||1);
     set('XP', 0);
     set('SIZE', lg.size||'');

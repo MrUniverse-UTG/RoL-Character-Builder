@@ -536,8 +536,11 @@ Additional Arms (Minor Trait): You have two additional smaller arms. These arms 
    langs:{speak:['Draconic','Gaian'], read:['Draconic','Gaian']},
    desc:'Living crystals that infect suits of armor to gain a body. Constructs - do not age.',
    traits:['Armorai'],
-   major:{name:'Construct Nature',text:"Your HP is special as you are made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you."},
-   minor:{name:'Iron Veins',text:'You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You still must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.'},
+   otherworldlyTraits:[
+     {name:'Construct Nature', text:"Your HP is special as you are made of metal. When a creature attempts to Bandage you, they must use a tool kit instead of a medical kit. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you."},
+     {name:'Iron Veins', text:'You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.'},
+     {name:'Creatures of Logic', text:'You gain resistance to Fear damage but have a -4 modifier on all Empathy checks. You can choose to remove this trait when creating your character.'},
+   ],
    features:`Construct Nature (Major Trait): Your HP is special as you are made of metal. When a creature attempts to Bandage you, they must use a tool kit. Whenever you replenish your armor's DP, you regain HP equal to half the amount restored. Magical and alchemical healing toward HP do not work on you.
 
 Iron Veins (Minor Trait): You are immune to Disease and the Poisoned Condition. You do not need to eat, drink, or breathe. You must spend approximately 4 hours a day meditating to prevent your mind from deteriorating.
@@ -548,8 +551,11 @@ Creatures of Logic: You gain resistance to Fear damage but have a -4 modifier on
    langs:{speak:['Demoid','Gaian'], read:['Demoid','Gaian']},
    desc:'Demons created from the souls of Gaians. Mature at 18, live to ~666 years.',
    traits:['Darkaen'],
-   major:{name:'Night Flight',text:'You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.'},
-   minor:{name:'Shadow Eyes / Unholy',text:'You gain Gloom Vision. Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.'},
+   otherworldlyTraits:[
+     {name:'Night Flight', text:'You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.'},
+     {name:'Shadow Eyes', text:'You gain Gloom Vision.'},
+     {name:'Unholy', text:'Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.'},
+   ],
    features:`Night Flight (Major Trait): You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, they wrap around you like a cloak.
 
 Shadow Eyes (Minor Trait): You gain Gloom Vision.
@@ -560,8 +566,11 @@ Unholy: Your HP gains vulnerability to Radiant damage but resistance to Necrotic
    langs:{speak:["One traditional language (player's choice)",'Gaian'], read:["One traditional language (player's choice)",'Gaian']},
    desc:'Humanoid Slimes with the ability to shift and look like other Lineages.',
    traits:['Ozonian'],
-   major:{name:'Fluid Identity',text:'As a Standard action, change your physical appearance to look and feel like another Humanoid the same size as you. This includes race, sex, skin color, hair, and height. You cannot change your voice; clothes and equipment do not change.'},
-   minor:{name:'Slippery',text:'When Grappled, you can spend a Quick action to end the Condition on yourself. You may also squeeze through openings as if you were one size smaller.'},
+   otherworldlyTraits:[
+     {name:'Fluid Identity', text:'As a Standard action, change your physical appearance to look and feel like another Humanoid the same size as you. This includes race, sex, skin color, hair, and height. You cannot change your voice; clothes and equipment do not change.'},
+     {name:'Slippery', text:'When Grappled, you can spend a Quick action to end the Condition on yourself. You may also squeeze through openings as if you were one size smaller.'},
+     {name:'Liquid Form', text:'Your HP gains vulnerability to Frost damage. When struck with Frost damage while in the identity of a different creature, your Fluid Identity cracks and you return to normal.'},
+   ],
    features:`Fluid Identity (Major Trait): As a Standard action, change your appearance to look like another Humanoid the same size as you. You cannot change your voice; your clothes and equipment do not change.
 
 Slippery (Minor Trait): When Grappled, spend a Quick action to end the Condition. You may squeeze through openings as if one size smaller.
@@ -572,8 +581,11 @@ Liquid Form: Your HP gains vulnerability to Frost damage. When struck with Frost
    langs:{speak:['Necrosis','Gaian'], read:['Necrosis','Gaian']},
    desc:"A soul bound to their corpse or another body. Cannot age.",
    traits:['Undead'],
-   major:{name:'Repurposed',text:'Choose the traditional Lineage your body was originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.'},
-   minor:{name:'Build-a-Body',text:'You can remove and replace limbs from your body (5 minutes to adjust). Wounds to those limbs can be cleansed during an Intermission with a spare humanoid corpse.'},
+   otherworldlyTraits:[
+     {name:'Repurposed', text:'Choose the traditional Lineage your body was originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.'},
+     {name:'Build-a-Body', text:'You can remove and replace limbs from your body (5 minutes to adjust). Wounds to those limbs can be cleansed during an Intermission with a spare humanoid corpse.'},
+     {name:'Undead Nature', text:'Healing to HP received from magic and alchemy is halved. You do not need to eat, drink, breathe, or sleep.'},
+   ],
    features:`Repurposed (Major Trait): Choose the traditional Lineage your body was originally from. You gain the major trait of that Lineage. If your body or head is destroyed, you die.
 
 Build-a-Body (Minor Trait): You can remove and replace limbs. Limb Wounds can be cleansed during an Intermission with a spare corpse.
@@ -1614,6 +1626,21 @@ function getLineageTraits(lgName, subTrait) {
 
 // Format a lineage's traits as separate HTML paragraphs
 function formatTraitParagraphs(lgName, subTrait) {
+  const lg = LINEAGES.find(l => l.name === lgName);
+  if (!lg) return '';
+
+  // Otherworldly lineages: show all traits without Major/Minor labels
+  if (lg.otherworldlyTraits) {
+    return lg.otherworldlyTraits.map((t, i) => `
+      <div style="${i < lg.otherworldlyTraits.length - 1 ? 'margin-bottom:10px' : ''}">
+        <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;text-transform:uppercase;color:var(--accent-dk);letter-spacing:.05em;margin-bottom:3px">
+          ${t.name}
+        </div>
+        <div style="font-size:.88rem;line-height:1.5">${t.text}</div>
+      </div>`).join('');
+  }
+
+  // Traditional lineages: show Major / Minor labels
   const traits = getLineageTraits(lgName, subTrait);
   if (!traits) return '';
   let html = '';
@@ -1700,11 +1727,15 @@ function updateLineageBenefits() {
   if (!ch.lineage) return;
   const lg = LINEAGES.find(l=>l.name===ch.lineage);
   if (!lg) return;
-  const traits = getLineageTraits(ch.lineage, ch.lineageTrait);
-  let text = lg.name + ' Lineage:\n';
-  if (traits?.major) text += traits.major.name + ' (Major Trait): ' + traits.major.text;
-  if (traits?.minor) text += '\n\n' + traits.minor.name + ' (Minor Trait): ' + traits.minor.text;
-  ch.lineageBenefits = text;
+  if (lg.otherworldlyTraits) {
+    ch.lineageBenefits = lg.otherworldlyTraits.map(t => t.name + ': ' + t.text).join('\n\n');
+  } else {
+    const traits = getLineageTraits(ch.lineage, ch.lineageTrait);
+    let text = lg.name + ' Lineage:\n';
+    if (traits?.major) text += traits.major.name + ' (Major Trait): ' + traits.major.text;
+    if (traits?.minor) text += '\n\n' + traits.minor.name + ' (Minor Trait): ' + traits.minor.text;
+    ch.lineageBenefits = text;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1758,7 +1789,7 @@ function renderClassSkillChoices() {
   if (!cls.skillChoice || cls.skillChoice.length === 0) { container.style.display='none'; return; }
   container.style.display = 'block';
   container.innerHTML = `
-    <div class="info-box"><strong>${cls.name} Skill Bonuses</strong> - choose your additional skills:</div>
+    <div class="info-box"><strong>${cls.name} Skill Bonuses</strong> - choose which skills to increase:</div>
     ${cls.skillChoice.map((choice, ci) => `
       <div style="margin-bottom:14px">
         <div class="field-label" style="display:block;margin-bottom:8px">${choice.label}</div>

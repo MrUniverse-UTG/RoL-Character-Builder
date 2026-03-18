@@ -1490,9 +1490,16 @@ function renderSpecialtyGrid() {
   }).join('');
 }
 
+const SPECIALTY_TALENT_TEXT = {
+  Pugilist: 'Pugilist Form: As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.',
+};
+
+const WARLOCK_STUDIES = ['Study of Blood', 'Study of Aeromancy', 'Study of Cryomancy', 'Study of Geomancy', 'Study of Divinity', 'Study of Death', 'Study of Pyromancy', 'Study of Contagion', 'Study of Shadows', 'Study of Illusion', 'Study of Recovery', 'Study of Displacement'];
+
 function selectSpecialty(name) {
   ch.specialty = name;
-  ch.specialtyTalent = name + ' Specialty Talent';
+  ch.specialtyTalent = SPECIALTY_TALENT_TEXT[name] || (name + ' Specialty Talent');
+  ch.warlockStudy = null; // reset warlock study on specialty change
   renderSpecialtyGrid();
 }
 
@@ -1618,7 +1625,7 @@ function getAvailableTalents() {
 function renderTalentStep() {
   // Always update ch state even if DOM elements aren't present
   if (ch.specialty) {
-    ch.specialtyTalent = ch.specialty + ' Specialty Talent';
+    ch.specialtyTalent = SPECIALTY_TALENT_TEXT[ch.specialty] || (ch.specialty + ' Specialty Talent');
   }
   if (ch.lineage) {
     updateLineageBenefits();
@@ -1655,7 +1662,8 @@ function renderTalentStep() {
 
   const sections = [];
   if (isMartial) sections.push({label:`Martial Talents — choose 1`,list:MARTIAL_TALENTS,type:'martial',picked:pickedMartial,max:MAX_MARTIAL});
-  if (isSorcery) sections.push({label:`Sorcery Talents — choose 1`,list:SORCERY_TALENTS,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
+  const sorceryList = (ch.specialty === 'Warlock') ? WARLOCK_STUDIES : SORCERY_TALENTS;
+  if (isSorcery) sections.push({label:`${ch.specialty === 'Warlock' ? 'Patron Study (choose 1 — becomes Patron\'s Gift)' : 'Sorcery Talents — choose 1'}`,list:sorceryList,type:'sorcery',picked:pickedSorcery,max:MAX_SORCERY});
 
   browserEl.innerHTML = sections.map(sec => {
     const atMax = sec.picked >= sec.max;
@@ -1970,21 +1978,21 @@ async function exportPDF() {
         field.setText(cleanVal);
       } catch(e) {}
     };
-    setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 7);
-    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 6);
+    setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 11);
+    setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 11);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => {
       if (i === 0 && TALENT_DATA[t] && TALENT_DATA[t][0]) {
         // First talent box: show name + Rank 1 description (strip HTML tags)
         const rank1Text = TALENT_DATA[t][0].replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
-        setSmall(talentFields[i], t + '\nRank 1: ' + rank1Text, 6);
+        setSmall(talentFields[i], t + '\nRank 1: ' + rank1Text, 9);
       } else {
-        setSmall(talentFields[i], t, 7);
+        setSmall(talentFields[i], t, 11);
       }
     });
     // Also set small font on talent rank fields in the main table
     for (let ti = 1; ti <= 10; ti++) {
-      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 7);
+      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 11);
       setSmall('MP Talent rank ' + ti, ch.talents[ti-1] ? '1' : '', 9);
     }
 
@@ -2210,6 +2218,10 @@ function addTalentFromView(name) {
   if (isSorcery && ch.talents.filter(t=>SORCERY_TALENTS.includes(t)).length >= 1) {
     alert('You can only select 1 Sorcery Talent at Level 1.'); return;
   }
+  // Warlock: chosen Study becomes Patron's Gift in specialty talent
+  if (isSorcery && ch.specialty === 'Warlock') {
+    ch.specialtyTalent = name + " (Patron's Gift)";
+  }
   if (isGeneral) {
     alert('General Talents are not selected during character creation. Only 1 Martial or Sorcery Talent is chosen at Level 1.'); return;
   }
@@ -2224,6 +2236,10 @@ function removeTalentByName(name) {
   const idx = ch.talents.indexOf(name);
   if (idx !== -1) { ch.talents[idx] = ''; }
   if (ch._viewingTalent === name) ch._viewingTalent = null;
+  // If Warlock removes their Study, reset specialty talent
+  if (ch.specialty === 'Warlock' && WARLOCK_STUDIES.includes(name)) {
+    ch.specialtyTalent = SPECIALTY_TALENT_TEXT['Warlock'] || 'Warlock Specialty Talent';
+  }
   renderTalentStep();
 }
 

@@ -2030,9 +2030,9 @@ function renderTalentStep() {
               <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted)">${MARTIAL_TALENTS.includes(ch._viewingTalent)?'Martial Talent':SORCERY_TALENTS.includes(ch._viewingTalent)?'Sorcery Talent':'General Talent'}</div>
             </div>
             <div style="display:flex;gap:8px">
-              ${!(ch.talents||[]).includes(ch._viewingTalent)?
-                `<button onclick="addTalentFromView('${(ch._viewingTalent||'').replace(/'/g,"\'")}')" style="padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-weight:600;font-size:.85rem">+ Select</button>`:
-                `<button onclick="removeTalentByName('${(ch._viewingTalent||'').replace(/'/g,"\'")}')" style="padding:6px 14px;background:#fee2e2;color:var(--danger);border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-weight:600;font-size:.85rem">✕ Remove</button>`}
+              <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);padding:4px 8px">
+                ${(ch.talents||[]).includes(ch._viewingTalent) ? '✓ Selected — click the talent chip again to deselect' : 'Click the talent chip to select'}
+              </div>
               <button onclick="ch._viewingTalent=null;renderTalentStep()" style="padding:6px 10px;background:#f0f0f0;border:1px solid var(--rule);border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-size:.82rem">✕</button>
             </div>
           </div>
@@ -2575,7 +2575,16 @@ function autoFillGear() {
 
 
 function toggleTalentView(name) {
-  ch._viewingTalent = (ch._viewingTalent === name) ? null : name;
+  const alreadyPicked = (ch.talents||[]).includes(name);
+  if (alreadyPicked) {
+    // Clicking a selected talent deselects it and clears the view
+    removeTalentByName(name);
+    ch._viewingTalent = null;
+  } else {
+    // Clicking an unselected talent selects it AND opens the details
+    addTalentFromView(name);
+    ch._viewingTalent = name;
+  }
   renderTalentStep();
 }
 

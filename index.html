@@ -1056,7 +1056,7 @@ const STARTING_GEAR = {
   Berserker:   {silver:20, items:['Long sword, mace, or battle axe','Quilted Vest or Layered Plate armor','Backpack']},
   Engineer:    {silver:20, items:['Shortsword or flintlock pistol','Small shield or bullet pouch','Quilted Vest or Layered Plate armor','Engineer tool kit','Backpack']},
   Pugilist:    {silver:20, items:['Quilted Vest or Layered Plate armor','Limb Wraps','Backpack']},
-  Sharpshooter:{silver:20, items:['Short bow, pistol, or light crossbow','Arrow quiver, bolt pouch, or bullet pouch','Quilted Vest or Light Leather armor','Backpack']},
+  Sharpshooter:{silver:20, items:['Short bow, flintlock pistol, or light crossbow','Arrow quiver, bolt pouch, or bullet pouch','Quilted Vest or Light Leather armor','Backpack']},
   Elemancer:   {silver:20, items:['Short sword, mace, battle axe, or dagger','Quilted Vest or Light Leather armor','Backpack']},
   Alchemist:   {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Alchemy kit','Backpack']},
   Reaver:      {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Backpack']},
@@ -1064,9 +1064,9 @@ const STARTING_GEAR = {
   Warlock:     {silver:20, items:['Arcane wand or arcane staff','Quilted Vest armor','Backpack']},
   Oracle:      {silver:20, items:['Arcane wand or arcane staff','Quilted Vest or Light Leather armor','Backpack']},
   Witch:       {silver:20, items:['Arcane wand or arcane staff','Quilted Vest armor','Backpack']},
-  Shapeshifter:{silver:20, items:['Arcane wand or a longsword','Reinforced Tunic or Brigandine armor set','Backpack']},
-  Summoner:    {silver:20, items:['Arcane wand, shortbow with arrow quiver, or shortsword','Quilted Vest or Light Leather armor','Backpack']},
-  Sonneteer:   {silver:20, items:['Arcane wand or arcane instrument','2 daggers','Quilted Vest armor','Backpack']},
+  Shapeshifter:{silver:20, items:['Arcane wand or a longsword','Quilted Vest or Layered Plate armor','Backpack']},
+  Summoner:    {silver:20, items:['Arcane wand, shortbow (with arrow quiver), or shortsword','Quilted Vest or Light Leather armor','Backpack']},
+  Sonneteer:   {silver:20, items:['Arcane wand or arcane instrument','Dagger','Dagger','Quilted Vest armor','Backpack']},
   Cleric:      {silver:20, items:['Arcane staff or mace','Quilted Vest or Layered Plate armor','Backpack']},
 };
 
@@ -2313,14 +2313,63 @@ async function exportPDF() {
     const nonBackpack = gearVals.filter(v => !ARMOR_NAMES_PDF.some(a => v.toLowerCase().includes(a)) && v.toLowerCase() !== 'backpack');
     const isWeaponItem = v => ['sword','bow','axe','mace','dagger','pistol','wand','staff',
       'crossbow','instrument','hammer','longsword','shortsword','flintlock'].some(w => v.toLowerCase().includes(w));
-    const weaponItems = nonBackpack.filter(isWeaponItem);
-    const otherItems  = nonBackpack.filter(v => !isWeaponItem(v));
+    const isKitItem = v => ['alchemy kit','engineer tool kit'].some(k => v.toLowerCase().includes(k));
+
+    // Belt items by keyword
+    const BELT_KEYWORDS = ['short sword','hand axe','hammer','long sword','battle axe',
+      'flintlock pistol','bullet pouch','limb wraps','bolt pouch','dagger','arcane wand',
+      'shortsword','pistol'];
+    const BACK_KEYWORDS = ['small shield','mace','light crossbow','short bow','shortbow',
+      'arrow quiver','arcane staff','arcane instrument','longsword','longsword','staff'];
+
+    const slotOf = v => {
+      const lv = v.toLowerCase();
+      if (BACK_KEYWORDS.some(k => lv.includes(k))) return 'back';
+      if (BELT_KEYWORDS.some(k => lv.includes(k))) return 'belt';
+      return 'belt'; // default to belt
+    };
+
+    const kitItem   = nonBackpack.find(isKitItem) || '';
+    const gearItems = nonBackpack.filter(v => !isKitItem(v));
+
+    // Special: if Summoner chose Shortbow, add Arrow Quiver
+    const expandedGear = [];
+    gearItems.forEach(v => {
+      expandedGear.push(v);
+      if (v.toLowerCase() === 'shortbow') expandedGear.push('Arrow Quiver');
+    });
+
+    const backItems = expandedGear.filter(v => slotOf(v) === 'back');
+    const beltItems = expandedGear.filter(v => slotOf(v) === 'belt');
+
+    // Fill Back (Equipment 2-3) and Belt (Equipment 4-5)
+    // Overflow rules:
+    //   - Belt overflow → Back slots (if space), else Backpack (Gear Name)
+    //   - Back overflow → Backpack (Gear Name), NOT Belt
+    const backSlots = backItems.slice(0, 2);
+    const backOverflow = backItems.slice(2);       // back items that didn't fit → backpack
+
+    const beltSlots = beltItems.slice(0, 2);
+    let beltOverflow = beltItems.slice(2);          // belt items that didn't fit
+
+    // Belt overflow can use remaining back slots
+    const remainingBackSlots = 2 - backSlots.length;
+    if (remainingBackSlots > 0 && beltOverflow.length > 0) {
+      const promoted = beltOverflow.splice(0, remainingBackSlots);
+      backSlots.push(...promoted);
+    }
+    // Any remaining belt overflow → backpack
+    const backpackItems = [...backOverflow, ...beltOverflow];
+
     set('Equipment 1', armorItem);
-    set('Equipment 2', weaponItems[0]||'');
-    set('Equipment 3', weaponItems[1]||'');
-    set('Equipment 4', otherItems[0]||'');
-    set('Equipment 5', otherItems[1]||'');
-    set('Equipment 6', '');  // Kit slot - left empty (backpack handled below)
+    set('Equipment 2', backSlots[0]||'');
+    set('Equipment 3', backSlots[1]||'');
+    set('Equipment 4', beltSlots[0]||'');
+    set('Equipment 5', beltSlots[1]||'');
+    set('Equipment 6', kitItem);  // Kit slot
+
+    // Overflow items → Gear Name slots (backpack inventory on page 2)
+    backpackItems.slice(0, 16).forEach((item, i) => set('Gear Name ' + (i+1), item));
 
     // Page 2 - Lifepath
     set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
@@ -2455,7 +2504,7 @@ function applyStartingGear() {
 }
 
 
-const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Small shield"], ["Quilted Vest", "Layered Plate Armor"], ["Backpack"]], "Berserker": [["Long sword", "Mace", "Battle axe"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Engineer": [["Shortsword", "Flintlock pistol"], ["Small shield", "Bullet pouch"], ["Quilted Vest", "Layered Plate armor"], ["Engineer tool kit"], ["Backpack"]], "Pugilist": [["Quilted Vest", "Layered Plate armor"], ["Limb Wraps"], ["Backpack"]], "Sharpshooter": [["Short bow", "Pistol", "Light crossbow"], ["Arrow quiver", "Bolt pouch", "Bullet pouch"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Elemancer": [["Short sword", "Mace", "Battle axe", "Dagger"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Alchemist": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Alchemy kit"], ["Backpack"]], "Reaver": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Spellweaver": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Warlock": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Oracle": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Witch": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Shapeshifter": [["Arcane wand", "Longsword"], ["Reinforced Tunic", "Brigandine armor set"], ["Backpack"]], "Summoner": [["Arcane wand", "Shortbow with arrow quiver", "Shortsword"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Sonneteer": [["Arcane wand", "Arcane instrument"], ["2 daggers"], ["Quilted Vest armor"], ["Backpack"]], "Cleric": [["Arcane staff", "Mace"], ["Quilted Vest armor", "Layered Plate armor"], ["Backpack"]]};
+const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Small shield"], ["Quilted Vest", "Layered Plate Armor"], ["Backpack"]], "Berserker": [["Long sword", "Mace", "Battle axe"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Engineer": [["Shortsword", "Flintlock pistol"], ["Small shield", "Bullet pouch"], ["Quilted Vest", "Layered Plate armor"], ["Engineer tool kit"], ["Backpack"]], "Pugilist": [["Quilted Vest", "Layered Plate armor"], ["Limb Wraps"], ["Backpack"]], "Sharpshooter": [["Short bow", "Flintlock pistol", "Light crossbow"], ["Arrow quiver", "Bolt pouch", "Bullet pouch"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Elemancer": [["Short sword", "Mace", "Battle axe", "Dagger"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Alchemist": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Alchemy kit"], ["Backpack"]], "Reaver": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Spellweaver": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Warlock": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Oracle": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Witch": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Shapeshifter": [["Arcane wand", "Longsword"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Summoner": [["Arcane wand", "Shortbow", "Shortsword"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Sonneteer": [["Arcane wand", "Arcane instrument"], ["Dagger"], ["Dagger"], ["Quilted Vest armor"], ["Backpack"]], "Cleric": [["Arcane staff", "Mace"], ["Quilted Vest armor", "Layered Plate armor"], ["Backpack"]]};
 
 const ARMOR_DP_MAP = {"Quilted Vest": 10, "Quilted Vest armor": 10, "Layered Plate Armor": 20, "Layered Plate armor": 20, "Light Leather armor": null, "Reinforced Tunic": 12, "Brigandine armor set": 16};
 

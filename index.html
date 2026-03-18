@@ -1581,6 +1581,18 @@ function renderStatusPoints() {
     `<strong>MP</strong> = (WIT ${ch.attrs.WIT||0} + EMP ${ch.attrs.EMP||0}) × 2 + 4 = <strong>${mp}</strong> &nbsp;|&nbsp; ` +
     `<strong>Sorce Points</strong> = max MP = <strong>${sp}</strong>`;
 
+  // Compute DP from armor selected in Step 6
+  extractNumericDP();  // ensure ch.dp is current
+  const dpVal = ch.dp || 0;
+  const dpFormula = (() => {
+    const gearVals = Object.values(ch.gearSelections || {});
+    const ARMOR_NAMES_CHECK = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
+    const armor = gearVals.find(v => ARMOR_NAMES_CHECK.some(a => v.toLowerCase().includes(a)));
+    if (!armor) return ch.specialty ? 'Choose armor in Step 6' : 'Set by armor';
+    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${ch.attrs.AGI||0})×3`;
+    return armor + ' = ' + dpVal + ' DP';
+  })();
+
   document.getElementById('status-grid').innerHTML = `
     <div class="status-card hp">
       <div class="status-name">Max HP</div>
@@ -1594,8 +1606,8 @@ function renderStatusPoints() {
     </div>
     <div class="status-card dp">
       <div class="status-name">Max DP</div>
-      <div class="status-val">-</div>
-      <div class="status-formula">Set by armor</div>
+      <div class="status-val">${dpVal}</div>
+      <div class="status-formula">${dpFormula}</div>
     </div>
     <div class="status-card sp">
       <div class="status-name">Sorce Points</div>

@@ -3006,10 +3006,7 @@ async function exportPDF() {
     set('Recovery Max', ch.level||1); set('Recovery Cur', ch.level||1);
     set('Specialty max', 0); set('Specialty Cur', 0);
 
-    // Sync notes from the textarea before export (in case user didn't click Next)
-    const notesEl = document.getElementById('char-notes');
-    if (notesEl && notesEl.value) ch.notes = notesEl.value;
-    setSmall('CHARACTER NOTES', ch.notes||'', 9);
+    // CHARACTER NOTES filled below after setSmall is declared
 
     // Weapons — auto-fill from gear selections
     const gearValsForWeapons = Object.values(ch.gearSelections || {}).filter(v => v);
@@ -3165,6 +3162,11 @@ async function exportPDF() {
     setSmall('carry Cur', '8', 14);
 
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 11);
+
+    // Sync notes from textarea and fill CHARACTER NOTES field
+    const notesEl = document.getElementById('char-notes');
+    if (notesEl && notesEl.value) ch.notes = notesEl.value;
+    setSmall('CHARACTER NOTES', ch.notes||'', 9);
 
     // Spells — fill page 4 if a Study of Sorcery talent was selected
     const studyTalent = (ch.talents||[]).find(t => t && t.startsWith('Study of'));

@@ -2701,6 +2701,133 @@ function getWeaponName(item) {
 }
 
 
+
+// ── Spell data by Study ──────────────────────────────────────────────
+// Each spell: {name, study, pl (power level or '-'), range, ct (casting time), shape, dur, focus (bool)}
+const STUDY_SPELLS = {
+  'Study of Aeromancy': {
+    rank0: [
+      {name:'Jolt',            study:'Aeromancy', pl:'-',  range:'15-ft. line', ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Bellowing Shout', study:'Aeromancy', pl:'-',  range:'Self',        ct:'Quick',  shape:'-', dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Lightning Arc',   study:'Aeromancy', pl:'3',  range:'40 ft.',      ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Fast as Light',   study:'Aeromancy', pl:'-',  range:'Touch',       ct:'Quick',  shape:'-', dur:'instant',  focus:false},
+    ],
+  },
+  'Study of Blood': {
+    rank0: [
+      {name:'Vampiric Slash',  study:'Blood', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Infatuate',       study:'Blood', pl:'-',  range:'10 ft.',  ct:'Quick',  shape:'-', dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Enthrall Person', study:'Blood', pl:'0',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'8 Hours',  focus:true},
+      {name:'Infuse Confuse',  study:'Blood', pl:'0',  range:'60 ft.',  ct:'Quick',  shape:'-', dur:'instant',  focus:false},
+    ],
+  },
+  'Study of Contagion': {
+    rank0: [
+      {name:'Acid Dart',       study:'Contagion', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Sicken Pulse',    study:'Contagion', pl:'-',  range:'20 ft.',  ct:'React',  shape:'-', dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Toxic Wave',      study:'Contagion', pl:'3',  range:'Self',    ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Witherplague',    study:'Contagion', pl:'0',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+    ],
+  },
+  'Study of Cryomancy': {
+    rank0: [
+      {name:'Sculpt Ice',      study:'Cryomancy', pl:'-',  range:'20 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Ice Spear',       study:'Cryomancy', pl:'-',  range:'60 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Ice Barrier',     study:'Cryomancy', pl:'-',  range:'Self',     ct:'React',  shape:'-', dur:'instant',  focus:false},
+      {name:'Daggers of Ice',  study:'Cryomancy', pl:'3',  range:'120 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+    ],
+  },
+  'Study of Death': {
+    rank0: [
+      {name:'Reaper Scythe',   study:'Death', pl:'-',  range:'Self',    ct:'Quick',  shape:'-', dur:'1 Min',          focus:false},
+      {name:'Recompose',       study:'Death', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant',        focus:false},
+    ],
+    rank1: [
+      {name:'Summon Skeleservant', study:'Death', pl:'-',  range:'15 ft.', ct:'Stan.',  shape:'-', dur:'Until Dispelled', focus:true},
+      {name:'Death Speech',    study:'Death', pl:'-',  range:'15 ft.', ct:'Stan.',  shape:'-', dur:'5 Min',           focus:false},
+    ],
+  },
+  'Study of Displacement': {
+    rank0: [
+      {name:'Pocketswap',      study:'Displacement', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+      {name:'Infini Pocket',   study:'Displacement', pl:'-',  range:'Touch',   ct:'Quick',  shape:'-', dur:'1 Week',  focus:false},
+    ],
+    rank1: [
+      {name:'Body Swap',       study:'Displacement', pl:'-',  range:'30 ft.',  ct:'Quick',  shape:'-', dur:'instant', focus:false},
+      {name:'Minor Portals',   study:'Displacement', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:true},
+    ],
+  },
+  'Study of Divinity': {
+    rank0: [
+      {name:'Blessing of Protection', study:'Divinity', pl:'-',  range:'10 ft.',  ct:'React',  shape:'-', dur:'instant', focus:false},
+      {name:'Searing Flare',   study:'Divinity', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+    ],
+    rank1: [
+      {name:'Vengeful Smite',  study:'Divinity', pl:'-',  range:'Self',    ct:'Quick',  shape:'-', dur:'1 Min',   focus:false},
+      {name:'Blessing of Pacifism', study:'Divinity', pl:'-',  range:'15 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:false},
+    ],
+  },
+  'Study of Geomancy': {
+    rank0: [
+      {name:'Earth Bend',      study:'Geomancy', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Rock Catapault',  study:'Geomancy', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Repair Minerals', study:'Geomancy', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
+      {name:'Spiked Terrain',  study:'Geomancy', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',    focus:false},
+    ],
+  },
+  'Study of Illusion': {
+    rank0: [
+      {name:'Lesser Illusion', study:'Illusion', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:false},
+      {name:'Fashionate',      study:'Illusion', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:false},
+    ],
+    rank1: [
+      {name:'Greater Illusion',study:'Illusion', pl:'0',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:true},
+      {name:'Create Disguise', study:'Illusion', pl:'-',  range:'Self',    ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:false},
+    ],
+  },
+  'Study of Pyromancy': {
+    rank0: [
+      {name:'Dancing Flame',   study:'Pyromancy', pl:'-',  range:'30 ft.',   ct:'Stan.',  shape:'-',              dur:'1 Hour',  focus:false},
+      {name:'Fire Ray',        study:'Pyromancy', pl:'-',  range:'60 ft.',   ct:'Stan.',  shape:'-',              dur:'instant', focus:false},
+    ],
+    rank1: [
+      {name:'Burst Self',      study:'Pyromancy', pl:'3',  range:'Self',     ct:'Stan.',  shape:'5-ft. radius',  dur:'instant', focus:false},
+      {name:'Fire Missile',    study:'Pyromancy', pl:'4',  range:'120 ft.',  ct:'Stan.',  shape:'-',              dur:'instant', focus:false},
+    ],
+  },
+  'Study of Recovery': {
+    rank0: [
+      {name:'Transfer Life',   study:'Recovery', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+      {name:'Dislocate',       study:'Recovery', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+    ],
+    rank1: [
+      {name:'Reinvigorate',    study:'Recovery', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+      {name:'Calm Emotions',   study:'Recovery', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
+    ],
+  },
+  'Study of Shadows': {
+    rank0: [
+      {name:'Feed Fear',           study:'Shadows', pl:'-',  range:'15 ft.',   ct:'Quick',  shape:'-',                   dur:'instant',  focus:false},
+      {name:'Manipulate Darkness', study:'Shadows', pl:'-',  range:'30 ft.',   ct:'Stan.',  shape:'-',                   dur:'instant',  focus:false},
+    ],
+    rank1: [
+      {name:'Terrifying Gloom',    study:'Shadows', pl:'-',  range:'120 ft.',  ct:'Stan.',  shape:'15-ft. radius sphere', dur:'10 Min',   focus:true},
+      {name:'Fall',                study:'Shadows', pl:'0',  range:'60 ft.',   ct:'Stan.',  shape:'-',                   dur:'instant',  focus:false},
+    ],
+  },
+};
+
+
 async function exportPDF() {
   const btn = document.getElementById('export-btn');
   btn.disabled = true;
@@ -2859,6 +2986,38 @@ async function exportPDF() {
       set('attack pool '     + n, w.pool);
       set('attack features ' + n, w.features);
     });
+
+    // Spells — fill page 4 if a Study of Sorcery talent was selected
+    const studyTalent = (ch.talents||[]).find(t => t && t.startsWith('Study of'));
+    if (studyTalent && STUDY_SPELLS[studyTalent]) {
+      const study = STUDY_SPELLS[studyTalent];
+
+      // Rank 0 spells
+      (study.rank0 || []).slice(0, 7).forEach((sp, i) => {
+        const n = i + 1;
+        set('r0sname' + n,     winansi(sp.name));
+        set('r0sstudy' + n,    winansi(sp.study));
+        set('r0srange' + n,    winansi(sp.range));
+        set('r0sct' + n,       winansi(sp.ct));
+        set('r0sshape' + n,    winansi(sp.shape));
+        set('r0sduration' + n, winansi(sp.dur));
+        setSmall('rank0spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
+        if (sp.focus) { try { form.getCheckBox('rk0f' + n).check(); } catch(e) {} }
+      });
+
+      // Rank 1 spells
+      (study.rank1 || []).slice(0, 7).forEach((sp, i) => {
+        const n = i + 1;
+        set('r1sname' + n,     winansi(sp.name));
+        set('r1sstudy' + n,    winansi(sp.study));
+        set('r1srange' + n,    winansi(sp.range));
+        set('r1sct' + n,       winansi(sp.ct));
+        set('r1sshape' + n,    winansi(sp.shape));
+        set('r1sduration' + n, winansi(sp.dur));
+        setSmall('rank1spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
+        if (sp.focus) { try { form.getCheckBox('rk1f' + n).check(); } catch(e) {} }
+      });
+    }
 
     // Currency
     set('Silver',  ch.currency?.silver||0);

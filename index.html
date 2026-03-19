@@ -1049,7 +1049,7 @@ const STARTING_GEAR = {
   Berserker:   {silver:20, items:['Long sword, mace, or battle axe','Quilted Vest or Layered Plate armor','Backpack']},
   Engineer:    {silver:20, items:['Shortsword or flintlock pistol','Small shield or bullet pouch','Quilted Vest or Layered Plate armor','Engineer tool kit','Backpack']},
   Pugilist:    {silver:20, items:['Quilted Vest or Layered Plate armor','Limb Wraps','Backpack']},
-  Sharpshooter:{silver:20, items:['Short bow, flintlock pistol, or light crossbow','Arrow quiver, bolt pouch, or bullet pouch','Quilted Vest or Light Leather armor','Backpack']},
+  Sharpshooter:{silver:20, items:['Short bow, flintlock pistol, or crossbow','Arrow quiver, bolt pouch, or bullet pouch','Quilted Vest or Light Leather armor','Backpack']},
   Elemancer:   {silver:20, items:['Short sword, mace, battle axe, or dagger','Quilted Vest or Light Leather armor','Backpack']},
   Alchemist:   {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Alchemy kit','Backpack']},
   Reaver:      {silver:20, items:['Short sword or short bow','Dagger or arrow quiver','Quilted Vest or Light Leather armor','Backpack']},
@@ -2640,6 +2640,67 @@ function renderSummary() {
 // ═══════════════════════════════════════════════════════════════
 // PDF EXPORT
 // ═══════════════════════════════════════════════════════════════
+
+// ── Weapon data for attack section auto-fill ──────────────────────────
+const WEAPON_DATA = {
+  'Short Sword':      {range:'5 ft.', mod:'+1', damage:'6 Slash',  attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced'},
+  'Shortsword':       {range:'5 ft.', mod:'+1', damage:'6 Slash',  attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced'},
+  'Hand Axe':         {range:'5 ft.', mod:'+1', damage:'4 Slash',  attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced, Throwing, Savage'},
+  'Hammer':           {range:'5 ft.', mod:'+1', damage:'4 Blunt',  attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced, Throwing, Penetrate'},
+  'Mace':             {range:'5 ft.', mod:'0',  damage:'6 Blunt',  attr:'STR',          skill:'Brawl', features:'Versatile, Penetrate'},
+  'Long Sword':       {range:'5 ft.', mod:'0',  damage:'8 Slash',  attr:'STR',          skill:'Brawl', features:'Versatile'},
+  'Longsword':        {range:'5 ft.', mod:'0',  damage:'8 Slash',  attr:'STR',          skill:'Brawl', features:'Versatile'},
+  'Battle Axe':       {range:'5 ft.', mod:'0',  damage:'6 Slash',  attr:'STR',          skill:'Brawl', features:'Versatile, Savage'},
+  'Limb Wraps':       {name:'Unarmed Strike', range:'5 ft.', mod:'0', damage:'6 Blunt', attr:'STR_AGI_HIGH', skill:'Brawl', features:'none'},
+  'Arcane Staff':     {range:'5 ft.', mod:'0',  damage:'6 Blunt',  attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced, Versatile'},
+  'Dagger':           {range:'5 ft.', mod:'+1', damage:'4 Pierce', attr:'STR_AGI_HIGH', skill:'Brawl', features:'Balanced, Throwing, Dueling'},
+  'Crossbow':         {range:'80 ft.', mod:'0', damage:'6 Pierce', attr:'AGI',          skill:'Shoot', features:'Slow Load, Heavy, Savage, Ammo (Bolt Pouch)'},
+  'Shortbow':         {range:'40 ft.', mod:'+1', damage:'6 Pierce', attr:'AGI',         skill:'Shoot', features:'Heavy, Ammo (Arrow Quiver)'},
+  'Shortbow and Arrow Quiver': {name:'Shortbow', range:'40 ft.', mod:'+1', damage:'6 Pierce', attr:'AGI', skill:'Shoot', features:'Heavy, Ammo (Arrow Quiver)'},
+  'Flintlock Pistol': {range:'40 ft.', mod:'+1', damage:'4 Pierce', attr:'AGI',         skill:'Shoot', features:'Slow Load, Penetrate, Ammo (Bullet Pouch)'},
+  'Flintlock pistol': {range:'40 ft.', mod:'+1', damage:'4 Pierce', attr:'AGI',         skill:'Shoot', features:'Slow Load, Penetrate, Ammo (Bullet Pouch)'},
+};
+
+// Build dice pool string from attribute rank + skill rank + mod
+function buildDicePool(attrKey, skillKey, modStr) {
+  let attrVal = 0;
+  if (attrKey === 'STR_AGI_HIGH') {
+    const s = ch.attrs.STR || 0, a = ch.attrs.AGI || 0;
+    attrVal = (s >= a) ? s : a;
+  } else if (attrKey === 'STR') {
+    attrVal = ch.attrs.STR || 0;
+  } else if (attrKey === 'AGI') {
+    attrVal = ch.attrs.AGI || 0;
+  }
+  const skillVal = ch.skills[skillKey] || 0;
+
+  let d8s = 0, d6s = 0;
+  if (attrVal === 0 && skillVal === 0) {
+    d6s = 1;
+  } else {
+    const high = Math.max(attrVal, skillVal);
+    const low  = Math.min(attrVal, skillVal);
+    d8s = low;
+    d6s = high - low;
+  }
+
+  // +1 mod adds 1d6
+  if (modStr === '+1') d6s += 1;
+
+  let parts = [];
+  if (d8s > 0) parts.push(d8s + 'd8');
+  if (d6s > 0) parts.push(d6s + 'd6');
+  return parts.length ? parts.join('+') : '1d6';
+}
+
+// Get weapon name displayed in attack fields
+function getWeaponName(item) {
+  const w = WEAPON_DATA[item];
+  if (!w) return null;
+  return w.name || item;
+}
+
+
 async function exportPDF() {
   const btn = document.getElementById('export-btn');
   btn.disabled = true;
@@ -2764,6 +2825,33 @@ async function exportPDF() {
 
     set('CHARACTER NOTES', ch.notes);
 
+    // Weapons — auto-fill from gear selections
+    const gearValsForWeapons = Object.values(ch.gearSelections || {}).filter(v => v);
+    const weaponEntries = [];
+    gearValsForWeapons.forEach(item => {
+      // Normalize key for lookup
+      const w = WEAPON_DATA[item] || WEAPON_DATA[item.charAt(0).toUpperCase() + item.slice(1)];
+      if (w) {
+        weaponEntries.push({
+          name:     w.name || item,
+          range:    w.range,
+          mod:      w.mod,
+          damage:   w.damage,
+          pool:     buildDicePool(w.attr, w.skill, w.mod),
+          features: w.features,
+        });
+      }
+    });
+    weaponEntries.slice(0, 5).forEach((w, i) => {
+      const n = i + 1;
+      set('attack name '     + n, w.name);
+      set('attack range '    + n, w.range);
+      set('attack mod '      + n, w.mod);
+      set('attack damage '   + n, w.damage);
+      set('attack pool '     + n, w.pool);
+      set('attack features ' + n, w.features);
+    });
+
     // Currency
     set('Silver',  ch.currency?.silver||0);
     set('Gold',    ch.currency?.gold||0);
@@ -2785,7 +2873,7 @@ async function exportPDF() {
     const BELT_KEYWORDS = ['short sword','hand axe','hammer','long sword','battle axe',
       'flintlock pistol','bullet pouch','limb wraps','bolt pouch','dagger','arcane wand',
       'shortsword','pistol'];
-    const BACK_KEYWORDS = ['small shield','mace','light crossbow','short bow','shortbow',
+    const BACK_KEYWORDS = ['small shield','mace','crossbow','short bow','shortbow',
       'arrow quiver','arcane staff','arcane instrument','longsword','longsword','staff'];
 
     const slotOf = v => {
@@ -2970,7 +3058,7 @@ function applyStartingGear() {
 }
 
 
-const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Small shield"], ["Quilted Vest", "Layered Plate Armor"], ["Backpack"]], "Berserker": [["Long sword", "Mace", "Battle axe"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Engineer": [["Shortsword", "Flintlock pistol"], ["Small shield", "Bullet pouch"], ["Quilted Vest", "Layered Plate armor"], ["Engineer tool kit"], ["Backpack"]], "Pugilist": [["Quilted Vest", "Layered Plate armor"], ["Limb Wraps"], ["Backpack"]], "Sharpshooter": [["Short bow", "Flintlock pistol", "Light crossbow"], ["Arrow quiver", "Bolt pouch", "Bullet pouch"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Elemancer": [["Short sword", "Mace", "Battle axe", "Dagger"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Alchemist": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Alchemy kit"], ["Backpack"]], "Reaver": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Spellweaver": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Warlock": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Oracle": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Witch": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Shapeshifter": [["Arcane wand", "Longsword"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Summoner": [["Arcane wand", "Shortbow and Arrow Quiver", "Shortsword"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Sonneteer": [["Arcane wand", "Arcane instrument"], ["Dagger"], ["Dagger"], ["Quilted Vest armor"], ["Backpack"]], "Cleric": [["Arcane staff", "Mace"], ["Quilted Vest armor", "Layered Plate armor"], ["Backpack"]]};
+const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Small shield"], ["Quilted Vest", "Layered Plate Armor"], ["Backpack"]], "Berserker": [["Long sword", "Mace", "Battle axe"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Engineer": [["Shortsword", "Flintlock pistol"], ["Small shield", "Bullet pouch"], ["Quilted Vest", "Layered Plate armor"], ["Engineer tool kit"], ["Backpack"]], "Pugilist": [["Quilted Vest", "Layered Plate armor"], ["Limb Wraps"], ["Backpack"]], "Sharpshooter": [["Short bow", "Flintlock pistol", "Crossbow"], ["Arrow quiver", "Bolt pouch", "Bullet pouch"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Elemancer": [["Short sword", "Mace", "Battle axe", "Dagger"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Alchemist": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Alchemy kit"], ["Backpack"]], "Reaver": [["Short sword", "Short bow"], ["Dagger", "Arrow quiver"], ["Quilted Vest", "Light Leather armor"], ["Backpack"]], "Spellweaver": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Warlock": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Oracle": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Witch": [["Arcane wand", "Arcane staff"], ["Quilted Vest armor"], ["Backpack"]], "Shapeshifter": [["Arcane wand", "Longsword"], ["Quilted Vest", "Layered Plate armor"], ["Backpack"]], "Summoner": [["Arcane wand", "Shortbow and Arrow Quiver", "Shortsword"], ["Quilted Vest armor", "Light Leather armor"], ["Backpack"]], "Sonneteer": [["Arcane wand", "Arcane instrument"], ["Dagger"], ["Dagger"], ["Quilted Vest armor"], ["Backpack"]], "Cleric": [["Arcane staff", "Mace"], ["Quilted Vest armor", "Layered Plate armor"], ["Backpack"]]};
 
 const ARMOR_DP_MAP = {"Quilted Vest": 10, "Quilted Vest armor": 10, "Layered Plate Armor": 20, "Layered Plate armor": 20, "Light Leather armor": null, "Reinforced Tunic": 12, "Brigandine armor set": 16};
 

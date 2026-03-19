@@ -348,11 +348,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <div><label class="field-label">Character Name *</label><input type="text" id="char-name" placeholder="Enter name..."></div>
     <div><label class="field-label">Level</label><input type="number" id="char-level" value="1" min="1" max="1" readonly style="background:#f8f7f4;color:var(--muted)"><div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);margin-top:4px">This builder creates Level 1 characters only.</div></div>
   </div>
-  <div class="form-row cols3">
-    <div><label class="field-label">Height</label><input type="text" id="char-height" placeholder="e.g. 5'10&quot;"></div>
-    <div><label class="field-label">Weight</label><input type="text" id="char-weight" placeholder="e.g. 165 lbs"></div>
-    <div><label class="field-label">Age</label><input type="text" id="char-age" placeholder="e.g. 24"></div>
-  </div>
+
   <div class="form-row">
     <div><label class="field-label">Character Notes / Appearance</label><textarea id="char-notes" rows="4" placeholder="Appearance, background notes, personality details..."></textarea></div>
   </div>
@@ -2613,6 +2609,9 @@ function renderDetailsStep() {
       `).join('')}
     </div>
   `;
+  // Restore notes textarea
+  const notesEl = document.getElementById('char-notes');
+  if (notesEl && ch.notes) notesEl.value = ch.notes;
 }
 
 
@@ -3007,7 +3006,10 @@ async function exportPDF() {
     set('Recovery Max', ch.level||1); set('Recovery Cur', ch.level||1);
     set('Specialty max', 0); set('Specialty Cur', 0);
 
-    set('CHARACTER NOTES', ch.notes);
+    // Sync notes from the textarea before export (in case user didn't click Next)
+    const notesEl = document.getElementById('char-notes');
+    if (notesEl && notesEl.value) ch.notes = notesEl.value;
+    setSmall('CHARACTER NOTES', ch.notes||'', 9);
 
     // Weapons — auto-fill from gear selections
     const gearValsForWeapons = Object.values(ch.gearSelections || {}).filter(v => v);
@@ -3555,9 +3557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentStep === 10) {
       ch.name    = document.getElementById('char-name').value;
       ch.level   = +document.getElementById('char-level').value||1;
-      ch.height  = document.getElementById('char-height').value;
-      ch.weight  = document.getElementById('char-weight').value;
-      ch.age     = document.getElementById('char-age').value;
+
       ch.notes   = document.getElementById('char-notes').value;
     }
   });

@@ -2987,38 +2987,6 @@ async function exportPDF() {
       set('attack features ' + n, w.features);
     });
 
-    // Spells — fill page 4 if a Study of Sorcery talent was selected
-    const studyTalent = (ch.talents||[]).find(t => t && t.startsWith('Study of'));
-    if (studyTalent && STUDY_SPELLS[studyTalent]) {
-      const study = STUDY_SPELLS[studyTalent];
-
-      // Rank 0 spells
-      (study.rank0 || []).slice(0, 7).forEach((sp, i) => {
-        const n = i + 1;
-        set('r0sname' + n,     winansi(sp.name));
-        set('r0sstudy' + n,    winansi(sp.study));
-        set('r0srange' + n,    winansi(sp.range));
-        set('r0sct' + n,       winansi(sp.ct));
-        set('r0sshape' + n,    winansi(sp.shape));
-        set('r0sduration' + n, winansi(sp.dur));
-        setSmall('rank0spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
-        if (sp.focus) { try { form.getCheckBox('rk0f' + n).check(); } catch(e) {} }
-      });
-
-      // Rank 1 spells
-      (study.rank1 || []).slice(0, 7).forEach((sp, i) => {
-        const n = i + 1;
-        set('r1sname' + n,     winansi(sp.name));
-        set('r1sstudy' + n,    winansi(sp.study));
-        set('r1srange' + n,    winansi(sp.range));
-        set('r1sct' + n,       winansi(sp.ct));
-        set('r1sshape' + n,    winansi(sp.shape));
-        set('r1sduration' + n, winansi(sp.dur));
-        setSmall('rank1spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
-        if (sp.focus) { try { form.getCheckBox('rk1f' + n).check(); } catch(e) {} }
-      });
-    }
-
     // Currency
     set('Silver',  ch.currency?.silver||0);
     set('Gold',    ch.currency?.gold||0);
@@ -3138,6 +3106,34 @@ async function exportPDF() {
     setSmall('carry Cur', '8', 14);
 
     setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 11);
+
+    // Spells — fill page 4 if a Study of Sorcery talent was selected
+    const studyTalent = (ch.talents||[]).find(t => t && t.startsWith('Study of'));
+    if (studyTalent && STUDY_SPELLS[studyTalent]) {
+      const study = STUDY_SPELLS[studyTalent];
+      (study.rank0 || []).slice(0, 7).forEach((sp, i) => {
+        const n = i + 1;
+        set('r0sname' + n,     winansi(sp.name));
+        set('r0sstudy' + n,    winansi(sp.study));
+        set('r0srange' + n,    winansi(sp.range));
+        set('r0sct' + n,       winansi(sp.ct));
+        set('r0sshape' + n,    winansi(sp.shape));
+        set('r0sduration' + n, winansi(sp.dur));
+        setSmall('rank0spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
+        if (sp.focus) { try { form.getCheckBox('rk0f' + n).check(); } catch(e) {} }
+      });
+      (study.rank1 || []).slice(0, 7).forEach((sp, i) => {
+        const n = i + 1;
+        set('r1sname' + n,     winansi(sp.name));
+        set('r1sstudy' + n,    winansi(sp.study));
+        set('r1srange' + n,    winansi(sp.range));
+        set('r1sct' + n,       winansi(sp.ct));
+        set('r1sshape' + n,    winansi(sp.shape));
+        set('r1sduration' + n, winansi(sp.dur));
+        setSmall('rank1spower' + n, sp.pl === '-' ? '' : sp.pl, 9);
+        if (sp.focus) { try { form.getCheckBox('rk1f' + n).check(); } catch(e) {} }
+      });
+    }
     setSmall('SPECIALTY TALENT',  ch.specialtyTalent||'', 11);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     ch.talents.filter(t=>t).slice(0,9).forEach((t,i) => {

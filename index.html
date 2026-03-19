@@ -2828,12 +2828,20 @@ async function exportPDF() {
     // Weapons — auto-fill from gear selections
     const gearValsForWeapons = Object.values(ch.gearSelections || {}).filter(v => v);
     const weaponEntries = [];
+    const seenWeaponNames = new Set();
     gearValsForWeapons.forEach(item => {
-      // Normalize key for lookup
-      const w = WEAPON_DATA[item] || WEAPON_DATA[item.charAt(0).toUpperCase() + item.slice(1)];
+      // Case-insensitive lookup: try exact, then title-case, then by lowercased key match
+      const wExact = WEAPON_DATA[item];
+      const wTitle = WEAPON_DATA[item.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')];
+      const wLower = Object.keys(WEAPON_DATA).find(k => k.toLowerCase() === item.toLowerCase());
+      const w = wExact || wTitle || (wLower ? WEAPON_DATA[wLower] : null);
       if (w) {
+        const entryName = w.name || item;
+        // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
+        if (seenWeaponNames.has(entryName.toLowerCase())) return;
+        seenWeaponNames.add(entryName.toLowerCase());
         weaponEntries.push({
-          name:     w.name || item,
+          name:     entryName,
           range:    w.range,
           mod:      w.mod,
           damage:   w.damage,

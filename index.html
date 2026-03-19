@@ -2688,9 +2688,20 @@ async function exportPDF() {
     set('LEVEL', ch.level||1);
     set('XP', 0);
     // If mixed lineage with Fueglin Small and Nimble, force Small
-    const effectiveSize = ch.mixedForcedSmall ? 'Small'
-      : (ch.sizeChoice && (featuresLineageName === 'Humans' || featuresLineageName === 'Ozonian')) ? ch.sizeChoice
-      : (lg.size||'');
+    // Undead: size comes from the Repurposed lineage (not Undead's own 'Varies')
+    let effectiveSize = lg.size || '';
+    if (ch.mixedForcedSmall) {
+      effectiveSize = 'Small';
+    } else if (featuresLineageName === 'Undead' && ch.undeadRepurposedLineage) {
+      const repLgSize = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
+      const repSize = repLgSize?.size || '';
+      // Human/Ozonian use sizeChoice; others use their defined size
+      effectiveSize = (ch.undeadRepurposedLineage === 'Humans' || ch.undeadRepurposedLineage === 'Ozonian')
+        ? (ch.sizeChoice || repSize)
+        : repSize;
+    } else if (ch.sizeChoice && (featuresLineageName === 'Humans' || featuresLineageName === 'Ozonian')) {
+      effectiveSize = ch.sizeChoice;
+    }
     set('SIZE', effectiveSize);
     const baseSpeakLangs = lg.langs?.speak || [];
     const baseReadLangs  = lg.langs?.read  || [];

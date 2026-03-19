@@ -1599,7 +1599,7 @@ function setMixedAssignment(field, lgName) {
   // Reset size choice when Features lineage changes to/from Human or Ozonian
   if (field === 'features') {
     ch.sizeChoice = null;
-  ch.dryvornBloodline = null;
+    // Don't reset dryvornBloodline — it persists as long as Dryvorn is in the selected lineages
   }
 
   // Special rule: if Fueglin's Small and Nimble is selected as Major Trait, force Small size
@@ -1910,6 +1910,63 @@ function renderLineageDetail() {
         </div>
         ${!ch.sizeChoice ? '<div class="warn-box" style="margin-top:8px">Please choose a size to continue.</div>' : ''}
       </div>`;
+  }
+
+  // For Mixed Lineage: show assignment panel at the bottom after all sub-pickers
+  if (ch.mixedLineage && ch.mixedLineages.length === 2) {
+    const [lg1name, lg2name] = ch.mixedLineages;
+    const lg1 = LINEAGES.find(l => l.name === lg1name);
+    const lg2 = LINEAGES.find(l => l.name === lg2name);
+    const lg1SubOk = !(lg1?.traitDetails && !ch.mixedSubTraits[lg1name]);
+    const lg2SubOk = !(lg2?.traitDetails && !ch.mixedSubTraits[lg2name]);
+    const lg1BlOk  = !(lg1name === 'Dryvorn' && !ch.dryvornBloodline);
+    const lg2BlOk  = !(lg2name === 'Dryvorn' && !ch.dryvornBloodline);
+    const allReady = lg1SubOk && lg2SubOk && lg1BlOk && lg2BlOk;
+
+    if (allReady) {
+      const getT = (lgName) => {
+        const sub = ch.mixedSubTraits[lgName];
+        if (lgName === 'Dryvorn') return getDryvornText(lgName);
+        return getLineageTraits(lgName, sub);
+      };
+      const t1 = getT(lg1name), t2 = getT(lg2name);
+
+      const aBtn = (field, lgName, traitName) => {
+        const sel = ch.mixedAssignment[field] === lgName;
+        return '<button onclick="setMixedAssignment(\'' + field + '\',\'' + lgName + '\')" '
+          + 'style="padding:7px 14px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:6px;'
+          + 'border:2px solid ' + (sel ? 'var(--accent)' : 'var(--rule)') + ';'
+          + 'background:' + (sel ? 'var(--accent-lt)' : '#fff') + ';'
+          + 'color:' + (sel ? 'var(--accent-dk)' : 'var(--ink)') + '">'
+          + '<strong>' + lgName + '</strong><br><span style="font-size:.75rem;font-weight:400">' + traitName + '</span></button>';
+      };
+      const assignRow = (label, field, opts) =>
+        '<div style="margin-bottom:10px">'
+        + '<label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px">' + label + '</label>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + opts.map(o => aBtn(field, o.l, o.t)).join('') + '</div></div>';
+
+      html += '<div style="margin-top:20px;background:#fff;border:2px solid var(--accent);border-radius:var(--r);padding:16px">'
+        + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">Assign Lineage Benefits</div>'
+        + '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">Choose which lineage provides your Features, Major Trait, and Minor Trait.</p>'
+        + assignRow('Features (size, speed, languages)', 'features', [
+            {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft'},
+            {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft'},
+          ])
+        + assignRow('Major Trait', 'major', [
+            {l:lg1name, t:t1?.major?.name||'(no major)'},
+            {l:lg2name, t:t2?.major?.name||'(no major)'},
+          ])
+        + assignRow('Minor Trait', 'minor', [
+            {l:lg1name, t:t1?.minor?.name||'(no minor)'},
+            {l:lg2name, t:t2?.minor?.name||'(no minor)'},
+          ])
+        + (ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor
+            ? '<div class="info-box" style="margin-top:10px">Assignment complete.</div>'
+            : '<div class="warn-box" style="margin-top:10px">Choose a lineage for each row above.</div>')
+        + '</div>';
+    } else {
+      html += '<div class="warn-box" style="margin-top:20px">Complete all sub-group and bloodline selections above before assigning traits.</div>';
+    }
   }
 
   detail.innerHTML = html;

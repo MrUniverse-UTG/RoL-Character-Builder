@@ -2686,7 +2686,7 @@ async function exportPDF() {
     // Spellcasting attribute: Wits for Magi, Empathy for Druid
     const clsData = CLASSES.find(c => c.name === ch.cls);
     if (clsData?.spellcasting) {
-      set('Spellcasting Attribute', clsData.spellcasting);
+      set('spell att', clsData.spellcasting);
     }
     set('SPECIALTY', ch.specialty);
     // Lineage name — show both if Mixed

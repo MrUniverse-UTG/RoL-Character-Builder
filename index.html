@@ -2679,6 +2679,11 @@ async function exportPDF() {
     // Page 1 - Identity
     set('Character Name', ch.name);
     set('JOB', ch.cls);
+    // Spellcasting attribute: Wits for Magi, Empathy for Druid
+    const clsData = CLASSES.find(c => c.name === ch.cls);
+    if (clsData?.spellcasting) {
+      set('Spellcasting Attribute', clsData.spellcasting);
+    }
     set('SPECIALTY', ch.specialty);
     // Lineage name — show both if Mixed
     const lineagePDFName = ch.mixedLineage && ch.mixedLineages.length === 2

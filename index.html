@@ -1663,17 +1663,7 @@ function formatTraitParagraphs(lgName, subTrait) {
 
   // Otherworldly lineages: show all traits without Major/Minor labels
   // Dryvorn: inject chosen bloodline into trait descriptions
-  const getDryvornText = (lgName) => {
-    if (lgName !== 'Dryvorn' || !ch.dryvornBloodline) return null;
-    const bl = DRYVORN_BLOODLINES.find(b => b.name === ch.dryvornBloodline);
-    if (!bl) return null;
-    return {
-      major: {name:'Dragon Breath',
-              text:`You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is ${bl.damage} (${bl.name} bloodline). The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.`},
-      minor: {name:'Dragon Resistance',
-              text:`Your HP gains resistance to ${bl.damage} damage (${bl.name} bloodline).`},
-    };
-  };
+    // getDryvornText defined globally below
 
   if (lg.otherworldlyTraits) {
     return lg.otherworldlyTraits.map((t, i) => `
@@ -1983,6 +1973,20 @@ function selectLineageTrait(traitKey) {
   ch.lineageTrait = traitKey;
   renderLineageDetail();
 }
+
+// Global helper: get bloodline-specific trait text for Dryvorn
+function getDryvornText(lgName) {
+  if (lgName !== 'Dryvorn' || !ch.dryvornBloodline) return null;
+  const bl = DRYVORN_BLOODLINES.find(b => b.name === ch.dryvornBloodline);
+  if (!bl) return null;
+  return {
+    major: {name:'Dragon Breath',
+            text:'You can spend a Standard action and three Sorce Points to exhale a 15-foot cone or 30-foot line breath attack. The damage type is ' + bl.damage + ' (' + bl.name + ' bloodline). The breath deals 12 damage. Creatures hit can make a Move save to reduce damage.'},
+    minor: {name:'Dragon Resistance',
+            text:'Your HP gains resistance to ' + bl.damage + ' damage (' + bl.name + ' bloodline).'},
+  };
+}
+
 
 function updateLineageBenefits() {
   if (ch.mixedLineage) {

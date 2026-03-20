@@ -1626,38 +1626,13 @@ function renderMixedPanel() {
 
   panel.innerHTML = `
     <div style="background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:16px">
-      <div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">
+      <div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:6px">
         Mixed Lineage: ${lg1name} / ${lg2name}
       </div>
-      ${assignReady ? `
-        <div style="margin-top:4px">
-          <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted);margin-bottom:12px">
-            Choose which lineage provides each benefit. You get all Features from one, the Major Trait from one, and the Minor Trait from the other.
-          </p>
-          ${assignRow('Features (size, speed, languages)', 'features', [
-            {lineage:lg1name, traitName:lg1.size+', '+lg1.speed+' ft'},
-            {lineage:lg2name, traitName:lg2.size+', '+lg2.speed+' ft'},
-          ])}
-          ${ch.mixedForcedSmall ? '<div style="font-family:var(--font-ui);font-size:.8rem;color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;margin-bottom:8px">⚠ Size overridden to <strong>Small</strong> by Small and Nimble (Fueglin Major Trait).</div>' : ''}
-          ${assignRow('Major Trait', 'major', [
-            {lineage:lg1name, traitName:t1?.major?.name||'(no major)'},
-            {lineage:lg2name, traitName:t2?.major?.name||'(no major)'},
-          ])}
-          ${assignRow('Minor Trait', 'minor', [
-            {lineage:lg1name, traitName:t1?.minor?.name||'(no minor)'},
-            {lineage:lg2name, traitName:t2?.minor?.name||'(no minor)'},
-          ])}
-        </div>
-        ${ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor ? 
-          '<div class="info-box" style="margin-top:12px">Mixed Lineage assignment complete.'
-          + (ch.mixedLineages.some(l=>{const lg=LINEAGES.find(x=>x.name===l);return lg&&lg.traits.length>1&&lg.traitDetails;}) ? ' <strong>Scroll down to choose sub-groups.</strong>' : '')
-          + (ch.mixedLineages.includes('Dryvorn') ? ' <strong>Scroll down to choose your Dryvorn Bloodline.</strong>' : '')
-          + ((ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') ? ' <strong>Scroll down to choose your size.</strong>' : '')
-          + '</div>'
-          : '<div class="warn-box" style="margin-top:12px">Choose a lineage for each assignment above.</div>'}
-
-        <div id="mixed-trait-preview" style="margin-top:12px"></div>
-      ` : '<div class="warn-box">Choose sub-groups above before assigning traits.</div>'}
+      <p style="font-family:var(--font-ui);font-size:.85rem;color:var(--muted)">
+        Select both lineages below. Once sub-group and bloodline choices are resolved, assign Features, Major Trait, and Minor Trait in the panel that appears beneath.
+      </p>
+      <div id="mixed-trait-preview" style="margin-top:12px"></div>
     </div>`;
 
   // Show extra pickers (Dryvorn bloodline, size) in lineage-detail below
@@ -2037,34 +2012,36 @@ function renderLineageDetail() {
       };
       const t1 = getT(lg1name), t2 = getT(lg2name);
 
-      const aBtn = (field, lgName, traitName) => {
+      const aBtn = (field, lgName, traitName, traitDesc) => {
         const sel = ch.mixedAssignment[field] === lgName;
         return '<button onclick="setMixedAssignment(\'' + field + '\',\'' + lgName + '\')" '
-          + 'style="padding:7px 14px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:6px;'
+          + 'style="padding:9px 14px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:6px;text-align:left;max-width:340px;'
           + 'border:2px solid ' + (sel ? 'var(--accent)' : 'var(--rule)') + ';'
           + 'background:' + (sel ? 'var(--accent-lt)' : '#fff') + ';'
           + 'color:' + (sel ? 'var(--accent-dk)' : 'var(--ink)') + '">'
-          + '<strong>' + lgName + '</strong><br><span style="font-size:.75rem;font-weight:400">' + traitName + '</span></button>';
+          + '<strong>' + lgName + '</strong> &mdash; <span style="font-size:.8rem;font-weight:600">' + traitName + '</span>'
+          + (traitDesc ? '<br><span style="font-size:.75rem;font-weight:400;color:' + (sel ? 'var(--accent-dk)' : 'var(--muted)') + ';line-height:1.3;display:block;margin-top:3px">' + traitDesc + '</span>' : '')
+          + '</button>';
       };
       const assignRow = (label, field, opts) =>
-        '<div style="margin-bottom:10px">'
+        '<div style="margin-bottom:12px">'
         + '<label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px">' + label + '</label>'
-        + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + opts.map(o => aBtn(field, o.l, o.t)).join('') + '</div></div>';
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + opts.map(o => aBtn(field, o.l, o.t, o.desc||'')).join('') + '</div></div>';
 
       html += '<div style="margin-top:20px;background:#fff;border:2px solid var(--accent);border-radius:var(--r);padding:16px">'
         + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">Assign Lineage Benefits</div>'
         + '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">Choose which lineage provides your Features, Major Trait, and Minor Trait.</p>'
         + assignRow('Features (size, speed, languages)', 'features', [
-            {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft'},
-            {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft'},
+            {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft', desc: (lg1?.langs?.speak||[]).join(', ')},
+            {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft', desc: (lg2?.langs?.speak||[]).join(', ')},
           ])
         + assignRow('Major Trait', 'major', [
-            {l:lg1name, t:t1?.major?.name||'(no major)'},
-            {l:lg2name, t:t2?.major?.name||'(no major)'},
+            {l:lg1name, t:t1?.major?.name||'(no major)', desc:t1?.major?.text||''},
+            {l:lg2name, t:t2?.major?.name||'(no major)', desc:t2?.major?.text||''},
           ])
         + assignRow('Minor Trait', 'minor', [
-            {l:lg1name, t:t1?.minor?.name||'(no minor)'},
-            {l:lg2name, t:t2?.minor?.name||'(no minor)'},
+            {l:lg1name, t:t1?.minor?.name||'(no minor)', desc:t1?.minor?.text||''},
+            {l:lg2name, t:t2?.minor?.name||'(no minor)', desc:t2?.minor?.text||''},
           ])
         + (ch.mixedAssignment.features && ch.mixedAssignment.major && ch.mixedAssignment.minor
             ? '<div class="info-box" style="margin-top:10px">Assignment complete.</div>'

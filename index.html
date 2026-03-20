@@ -219,16 +219,16 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <div class="step-panel" id="step-1">
   <div class="step-header">
     <h2>Step 1 - Allocate Attributes</h2>
-    <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
+    <p>Assign the values <strong>3, 2, 1, and 0</strong> to your four Attributes — one number each.</p>
   </div>
   <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
     <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--muted)">Have a saved character?</div>
     <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-early').click()">📂 Load Saved Progress</button>
     <input type="file" id="load-file-early" accept=".json" style="display:none" onchange="loadJSON(event)">
   </div>
-  <div class="info-box">Choose an array, then assign each number to one Attribute. The class bonus in Step 4 adds +1 to one Attribute, bringing the total to 6 by the end of creation.</div>
-  <div class="array-grid" id="array-picker"></div>
-  <div id="attr-assign" style="display:none"></div>
+  <div class="info-box">The class bonus in Step 4 adds +1 to one Attribute, bringing your total to 7 points by the end of creation.</div>
+  <div id="array-picker" style="margin-bottom:16px"></div>
+  <div id="attr-assign"></div>
 </div>
 
 <!-- ═══════════ STEP 2: SKILLS ═══════════ -->
@@ -284,9 +284,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     Your Specialty Talent at Level 1 grants you either one Martial Talent or one Sorcery Talent.
     Your Specialty's first abilities and its special resource don't come online until Level 2.
     <br><br>
-    <strong>Pugilists</strong> have their Unarmed Strike damage increased to 6 at Level 1.
-    <br>
-    <strong>Warlocks</strong> can only choose a Study of Sorcery at Level 1 for their Patron's Gift.
+    <strong>Pugilists:</strong> you also gain increased Unarmed Strike damage at Level 1.
   </div>
   <div class="option-grid cols2" id="specialty-grid"></div>
 </div>
@@ -409,10 +407,7 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 // GAME DATA
 // ═══════════════════════════════════════════════════════════════
 const ARRAYS = [
-  {nums:[3,2,0,0], hint:"A hyper-specialist. Excellent odds on checks in your top two attributes, but entirely dependent on skills for the other two."},
-  {nums:[3,1,1,0], hint:"A specialist. Exceptional at one attribute and competent in two others — with one gap to work around."},
-  {nums:[2,2,1,0], hint:"A well-rounded adventurer. Solid odds across most skill checks, with no standout weakness."},
-  {nums:[2,1,1,1], hint:"A jack of all trades. Can meaningfully contribute to almost any skill check, but never dominates any single one."},
+  {nums:[3,2,1,0]},
 ];
 
 const ATTRIBUTES = [
@@ -1180,12 +1175,14 @@ function updateNavBtns() {
 
 function validateStep(step) {
   switch(step) {
-    case 1:
-      if (ch.array === null) { alert('Please choose an attribute array.'); return false; }
-      const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
-      const expectedSum = ARRAYS[ch.array].nums.reduce((a,b)=>a+b,0);
-      if (attrSum !== expectedSum) { alert('Please assign all four values from your chosen array to your Attributes before continuing.'); return false; }
+    case 1: {
+      const attrVals = Object.values(ch.attrs);
+      if (attrVals.some(v => v === null || v === undefined || v === '')) {
+        alert('Please assign all four values (3, 2, 1, 0) to your Attributes before continuing.');
+        return false;
+      }
       return true;
+    }
     case 2:
       const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
       if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
@@ -1305,19 +1302,26 @@ const SKILL_HINTS = {
 };
 
 function renderArrayPicker() {
+  // Only one array — auto-select it and show the numbers as reference
+  if (ch.array === null) {
+    ch.array = 0;
+    ch.attrs = {STR:null, AGI:null, WIT:null, EMP:null};
+  }
   const container = document.getElementById('array-picker');
-  container.innerHTML = ARRAYS.map((arr,i) => `
-    <div class="array-card ${ch.array===i?'selected':''}" onclick="selectArray(${i})">
-      <div class="array-nums">
-        ${arr.nums.map(n=>`<div class="array-num">${n}</div>`).join('')}
-      </div>
-      <div class="card-hint">${arr.hint}</div>
+  const nums = ARRAYS[0].nums;
+  container.innerHTML = `
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:8px">
+      ${nums.map(n=>`<div class="array-num">${n}</div>`).join('')}
     </div>
-  `).join('');
+    <p style="text-align:center;font-family:var(--font-ui);font-size:.85rem;color:var(--muted)">
+      Assign each number to one of your four Attributes below.
+    </p>
+  `;
 }
 
 function selectArray(idx) {
-  ch.array = idx;
+  // Kept for compatibility — array is always 0
+  ch.array = 0;
   ch.attrs = {STR:null, AGI:null, WIT:null, EMP:null};
   renderArrayPicker();
   renderAttrAssign();
@@ -2505,12 +2509,12 @@ function renderStatusPoints() {
   `;
 
   const checkEl = document.getElementById('status-check');
-  if (totalCheck === 20) {
+  if (totalCheck === 22) {
     checkEl.className = 'info-box';
-    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} - Correct!`;
+    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} — Correct!`;
   } else {
     checkEl.className = 'warn-box';
-    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 20. Check your Attribute assignments.`;
+    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 22. Check your Attribute assignments.`;
   }
 }
 
@@ -2738,8 +2742,8 @@ function renderSummary() {
   // Validation
   const checks = [];
   const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
-  checks.push({ok: attrSum === 6, msg: `Attribute sum = ${attrSum} (should be 6)`});
-  checks.push({ok: calcHP()+calcMP() === 20, msg: `HP+MP = ${calcHP()+calcMP()} (should be 20 at level 1)`});
+  checks.push({ok: attrSum === 7, msg: `Attribute sum = ${attrSum} (should be 7)`});
+  checks.push({ok: calcHP()+calcMP() === 22, msg: `HP+MP = ${calcHP()+calcMP()} (should be 22 at level 1)`});
   checks.push({ok: !!ch.name, msg: 'Character name is set'});
   checks.push({ok: !!ch.lineage, msg: 'Lineage is chosen'});
   checks.push({ok: !!ch.cls, msg: 'Class is chosen'});
@@ -3588,6 +3592,8 @@ function startOver() {
 function initAllSteps() {
   // Safe init: only render steps that have been reached, or render defensively
   renderArrayPicker();
+  renderAttrAssign();
+  document.getElementById('attr-assign').style.display = 'grid';
   if (ch.array !== null) {
     const aa = document.getElementById('attr-assign');
     if (aa) { aa.style.display = 'grid'; renderAttrAssign(); }

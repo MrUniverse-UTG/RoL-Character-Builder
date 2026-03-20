@@ -1933,7 +1933,50 @@ function renderLineageDetail() {
               + '</div>';
           }).join('')}
         </div>
-        ${ch.undeadRepurposedLineage ? '' : '<div class="warn-box" style="margin-top:10px">Please choose an original lineage to continue.</div>'}
+        ${ch.undeadRepurposedLineage ? (() => {
+          const repLgPreview = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
+          // Get the major trait - handle sub-group lineages by showing all options or the selected one
+          let majorHtml = '';
+          if (repLgPreview) {
+            if (repLgPreview.traitDetails) {
+              const subKey = 'undead_' + repLgPreview.name;
+              const chosenSub = ch.mixedSubTraits && ch.mixedSubTraits[subKey];
+              if (chosenSub && repLgPreview.traitDetails[chosenSub]) {
+                const t = repLgPreview.traitDetails[chosenSub].major;
+                majorHtml = t
+                  ? '<div style="margin-top:10px;padding:10px;background:#fffbea;border:1px solid var(--gold);border-radius:6px">'
+                    + '<div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:4px">Repurposed Major Trait (' + repLgPreview.name + ' — ' + chosenSub + ')</div>'
+                    + '<div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;margin-bottom:3px">' + t.name + '</div>'
+                    + '<div style="font-size:.85rem;line-height:1.45">' + t.text + '</div>'
+                    + '</div>'
+                  : '';
+              } else {
+                majorHtml = '<div class="info-box" style="margin-top:10px">Choose a sub-group below to see your Major Trait.</div>';
+              }
+            } else if (repLgPreview.name === 'Dryvorn') {
+              const dryvornT = getDryvornText('Dryvorn');
+              if (dryvornT && dryvornT.major) {
+                majorHtml = '<div style="margin-top:10px;padding:10px;background:#fffbea;border:1px solid var(--gold);border-radius:6px">'
+                  + '<div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:4px">Repurposed Major Trait (Dryvorn — ' + ch.dryvornBloodline + ' Bloodline)</div>'
+                  + '<div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;margin-bottom:3px">' + dryvornT.major.name + '</div>'
+                  + '<div style="font-size:.85rem;line-height:1.45">' + dryvornT.major.text + '</div>'
+                  + '</div>';
+              } else {
+                majorHtml = '<div class="info-box" style="margin-top:10px">Choose a Bloodline below to see your Major Trait.</div>';
+              }
+            } else {
+              const t = repLgPreview.major;
+              majorHtml = t
+                ? '<div style="margin-top:10px;padding:10px;background:#fffbea;border:1px solid var(--gold);border-radius:6px">'
+                  + '<div style="font-family:var(--font-ui);font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:4px">Repurposed Major Trait (' + repLgPreview.name + ')</div>'
+                  + '<div style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;margin-bottom:3px">' + t.name + '</div>'
+                  + '<div style="font-size:.85rem;line-height:1.45">' + t.text + '</div>'
+                  + '</div>'
+                : '';
+            }
+          }
+          return majorHtml;
+        })() : '<div class="warn-box" style="margin-top:10px">Please choose an original lineage to continue.</div>'}
       </div>`;
   }
 

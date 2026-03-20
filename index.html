@@ -280,6 +280,12 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
     <h2>Step 5 - Choose a Specialty</h2>
     <p>Your Specialty is your playstyle within your Class. You cannot change it later.</p>
   </div>
+  <div class="info-box" style="margin-bottom:14px">
+    Your Specialty Talent at Level 1 grants you either one Martial Talent or one Sorcery Talent.
+    Your Specialty's first abilities and its special resource don't come online until Level 2.
+    <br><br>
+    <strong>Pugilists:</strong> you also gain increased Unarmed Strike damage at Level 1.
+  </div>
   <div class="option-grid cols2" id="specialty-grid"></div>
 </div>
 
@@ -401,10 +407,10 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 // GAME DATA
 // ═══════════════════════════════════════════════════════════════
 const ARRAYS = [
-  {nums:[3,2,0,0], hint:"High peak with a zero - great for specialists"},
-  {nums:[3,1,1,0], hint:"High peak, two support stats"},
-  {nums:[2,2,1,0], hint:"Two strong stats - versatile and balanced"},
-  {nums:[2,1,1,1], hint:"Even spread - well-rounded generalist"},
+  {nums:[3,2,0,0], hint:"A hyper-specialist. Excellent odds on checks in your top two attributes, but entirely dependent on skills for the other two."},
+  {nums:[3,1,1,0], hint:"A specialist. Exceptional at one attribute and competent in two others — with one gap to work around."},
+  {nums:[2,2,1,0], hint:"A well-rounded adventurer. Solid odds across most skill checks, with no standout weakness."},
+  {nums:[2,1,1,1], hint:"A jack of all trades. Can meaningfully contribute to almost any skill check, but never dominates any single one."},
 ];
 
 const ATTRIBUTES = [
@@ -1245,6 +1251,22 @@ function validateStep(step) {
     case 5:
       if (!ch.specialty) { alert('Please choose a Specialty.'); return false; }
       return true;
+    case 7: {
+      // If a lifepath background grants extra languages, all pick slots must be filled
+      if (ch.extraLanguage) {
+        const langOpt = EXTRA_LANGUAGE_OPTIONS.find(o => o.name === ch.extraLanguage);
+        if (langOpt?.picks) {
+          const totalPicks = (langOpt.picks.speak || 0) + (langOpt.picks.speak2 || 0);
+          for (let i = 0; i < totalPicks; i++) {
+            if (!ch.extraLanguagePicks[i]) {
+              alert('Please choose all your extra languages before continuing.');
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
     case 10: {
       // Sync name from DOM before validating
       const nameEl = document.getElementById('char-name');
@@ -1259,6 +1281,27 @@ function validateStep(step) {
 // ═══════════════════════════════════════════════════════════════
 // STEP 1 - ARRAYS + ATTRIBUTE ASSIGNMENT
 // ═══════════════════════════════════════════════════════════════
+
+// Skill descriptions shown as footnotes in skill pickers
+const SKILL_HINTS = {
+  Brawl:      'Melee attacks, parrying, and blocking',
+  Might:      'Grappling, shoving, athletics',
+  Endure:     'Fighting infections, resisting physical stress, maintaining spell focus',
+  Intimidate: 'Scaring creatures and forcing them to attack you',
+  Move:       'Acrobatics and dodging',
+  Hide:       'Being unseen and unheard',
+  Finesse:    'Pickpocket, disarming, handling volatile objects',
+  Shoot:      'Ranged attacks and throwing objects',
+  Analyze:    'Investigating and understanding objects and magic',
+  Scout:      'Searching and detecting things in the area',
+  Insight:    'Recalling knowledge, reading expressions, and resisting magical influence',
+  Survival:   'Detecting poisons and tracking creatures',
+  Manipulate: 'Persuading and lying',
+  Perform:    'Acting, disguising, distracting',
+  Medical:    'Healing, diagnosing, understanding physiology',
+  Tame:       'Communicating, commanding, and calming beasts',
+};
+
 function renderArrayPicker() {
   const container = document.getElementById('array-picker');
   container.innerHTML = ARRAYS.map((arr,i) => `
@@ -1351,10 +1394,13 @@ function renderSkillList() {
           const isSelected = rank >= 1;
           const isClassBonus = rank >= 2;
           return `
-            <div class="skill-chip ${isSelected?'selected':''} ${isClassBonus?'class-bonus':''}"
-                 onclick="toggleSkill('${skill.key}')">
-              <div class="rank-pip">${rank}</div>
-              ${skill.name}
+            <div class="skill-chip-wrap" style="display:flex;flex-direction:column;gap:2px">
+              <div class="skill-chip ${isSelected?'selected':''} ${isClassBonus?'class-bonus':''}"
+                   onclick="toggleSkill('${skill.key}')">
+                <div class="rank-pip">${rank}</div>
+                ${skill.name}
+              </div>
+              <div style="font-size:.72rem;color:var(--muted);padding-left:4px;line-height:1.3">${SKILL_HINTS[skill.key]||''}</div>
             </div>`;
         }).join('')}
       </div>
@@ -2141,10 +2187,13 @@ function renderClassSkillChoices() {
             const chosen = ch.clsSkillChoices[sk];
             // Check if another choice in same group already selected this
             return `
-              <div class="skill-chip ${chosen?'selected class-bonus':''}"
-                   onclick="pickClassSkill(${ci}, '${sk}')">
-                <div class="rank-pip">${chosen?'✓':''}</div>
-                ${sk}
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div class="skill-chip ${chosen?'selected class-bonus':''}"
+                     onclick="pickClassSkill(${ci}, '${sk}')">
+                  <div class="rank-pip">${chosen?'✓':''}</div>
+                  ${sk}
+                </div>
+                <div style="font-size:.72rem;color:var(--muted);padding-left:4px;line-height:1.3">${SKILL_HINTS[sk]||''}</div>
               </div>`;
           }).join('')}
         </div>
@@ -2207,7 +2256,7 @@ function selectSpecialty(name) {
 // ═══════════════════════════════════════════════════════════════
 // STEP 6 - LIFEPATH
 // ═══════════════════════════════════════════════════════════════
-const TRADITIONAL_LANGUAGES = ['Aquan', 'Draconic', 'ESL', 'Fuegi', 'Gaian', 'Godun', 'Hunon', 'Prado', 'Sybus', 'Sylvan'];
+const TRADITIONAL_LANGUAGES = ['Aquon', 'Draconic', 'ESL', 'Fuegi', 'Gaian', 'Godun', 'Hunon', 'Prado', 'Sybus', 'Sylvan'];
 const LANGUAGE_SCRIPTS = {
   Fuegi:   'Sylvan',  // Fueglins read Sylvan script
   Hunon:   'Aquon',   // Humans read Aquon script
@@ -2301,12 +2350,18 @@ function renderExtraLanguagesHtml() {
       const makePicker = (idx, pool, label) => {
         const arr = pool === 'traditional' ? TRADITIONAL_LANGUAGES : EXOTIC_LANGUAGES;
         const val = ch.extraLanguagePicks[idx] || '';
+        // Collect languages already spoken from lineage so they can be excluded
+        const lg = LINEAGES.find(l => l.name === ch.lineage) || {};
+        const lineageSpeak = new Set(lg.langs?.speak || []);
+        // Also exclude languages already chosen in other slots this session
+        const otherPicks = new Set(ch.extraLanguagePicks.filter((l, i) => l && i !== idx));
+        const available = arr.filter(l => !lineageSpeak.has(l) && !otherPicks.has(l));
         return `<div style="margin-bottom:8px">
           <label class="field-label">${label}</label>
           <select class="full" onchange="setExtraLanguagePick(${idx}, this.value, '${pool}')"
                   style="max-width:260px">
             <option value="">-- choose --</option>
-            ${arr.map(l => `<option value="${l}" ${val===l?'selected':''}>${l}</option>`).join('')}
+            ${available.map(l => `<option value="${l}" ${val===l?'selected':''}>${l}</option>`).join('')}
           </select>
         </div>`;
       };

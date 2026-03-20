@@ -219,16 +219,54 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 <div class="step-panel" id="step-1">
   <div class="step-header">
     <h2>Step 1 - Allocate Attributes</h2>
-    <p>Choose one of the four arrays below, then assign each number to an Attribute.</p>
+    <p>Spend your 5 points across the four Attributes. Maximum 3 points in any single Attribute. The class bonus in Step 4 adds +1 to one Attribute.</p>
   </div>
   <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
     <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--muted)">Have a saved character?</div>
     <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-early').click()">📂 Load Saved Progress</button>
     <input type="file" id="load-file-early" accept=".json" style="display:none" onchange="loadJSON(event)">
   </div>
-  <div class="info-box">Choose an array, then assign each number to one Attribute. The class bonus in Step 4 adds +1 to one Attribute, bringing the total to 6 by the end of creation.</div>
-  <div class="array-grid" id="array-picker"></div>
-  <div id="attr-assign" style="display:none"></div>
+  <div class="info-box" style="margin-bottom:16px">
+    <div style="font-family:var(--font-ui);font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-dk);margin-bottom:10px">Attribute Rank Reference</div>
+    <table style="width:100%;border-collapse:collapse;font-family:var(--font-ui);font-size:.85rem">
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;white-space:nowrap;color:var(--accent-dk);width:1%">0</td>
+        <td style="padding:5px 0 5px 10px;font-weight:700;white-space:nowrap;width:1%;padding-right:12px">Very Poor</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Even moderate tasks require help or skill investment to have average odds.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">1</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Average</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Decent odds on routine tasks; hard tasks require help or skill investment to maintain those odds.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">2</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Good</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Capable on most tasks, even hard ones, as long as you invest in relevant skills.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">3</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Great</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Can take on hard tasks without heavy skill investment, though extreme tasks still pose a challenge.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">4</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Natural</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Can handle most tasks, even extreme ones, with a bit of help or skill investment.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule)">
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">5</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Grand</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">Capable of dealing with extreme tasks with little skill investment.</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px 5px 0;font-weight:700;color:var(--accent-dk)">6</td>
+        <td style="padding:5px 12px 5px 10px;font-weight:700;white-space:nowrap">Legendary</td>
+        <td style="padding:5px 0;color:#444;line-height:1.4">With some help or skill investment, even near-impossible tasks are within reach.</td>
+      </tr>
+    </table>
+  </div>
+  <div id="point-buy-ui"></div>
 </div>
 
 <!-- ═══════════ STEP 2: SKILLS ═══════════ -->
@@ -406,12 +444,10 @@ label.field-label{display:block;font-family:var(--font-ui);font-size:.82rem;font
 // ═══════════════════════════════════════════════════════════════
 // GAME DATA
 // ═══════════════════════════════════════════════════════════════
-const ARRAYS = [
-  {nums:[3,2,0,0], hint:"A hyper-specialist. Excellent odds on checks in your top two attributes, but entirely dependent on skills for the other two."},
-  {nums:[3,1,1,0], hint:"A specialist. Exceptional at one attribute and competent in two others; with one gap to work around."},
-  {nums:[2,2,1,0], hint:"A well-rounded adventurer. Solid odds across most skill checks, with no standout weakness."},
-  {nums:[2,1,1,1], hint:"A jack of all trades. Can meaningfully contribute to almost any skill check, but never dominates any single one."},
-];
+// Point buy system — no arrays needed
+const POINT_BUY_TOTAL = 5;
+const POINT_BUY_MAX = 3;
+
 
 const ATTRIBUTES = [
   {key:'STR', name:'Strength',  desc:'Athletic power, fortitude, physical force'},
@@ -1068,7 +1104,7 @@ const STARTING_GEAR = {
 // -- Character State ----------------------------------------------------
 let ch = {
   array: null,
-  attrs: {STR:null, AGI:null, WIT:null, EMP:null},
+  attrs: {STR:0, AGI:0, WIT:0, EMP:0},
   skills: {},
   lineage: null,
   lineageTrait: null,
@@ -1178,12 +1214,14 @@ function updateNavBtns() {
 
 function validateStep(step) {
   switch(step) {
-    case 1:
-      if (ch.array === null) { alert('Please choose an attribute array.'); return false; }
-      const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
-      const expectedSum = ARRAYS[ch.array].nums.reduce((a,b)=>a+b,0);
-      if (attrSum !== expectedSum) { alert('Please assign all four values from your chosen array to your Attributes before continuing.'); return false; }
+    case 1: {
+      const spent = Object.values(ch.attrs).reduce((a,b) => a + (b||0), 0);
+      if (spent < POINT_BUY_TOTAL) {
+        alert(`Please spend all ${POINT_BUY_TOTAL} points before continuing. (${spent} spent, ${POINT_BUY_TOTAL - spent} remaining)`);
+        return false;
+      }
       return true;
+    }
     case 2:
       const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
       if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
@@ -1303,24 +1341,50 @@ const SKILL_HINTS = {
 };
 
 function renderArrayPicker() {
-  const container = document.getElementById('array-picker');
-  container.innerHTML = ARRAYS.map((arr,i) => `
-    <div class="array-card ${ch.array===i?'selected':''}" onclick="selectArray(${i})">
-      <div class="array-nums">
-        ${arr.nums.map(n=>`<div class="array-num">${n}</div>`).join('')}
-      </div>
-      <div class="card-hint">${arr.hint}</div>
-    </div>
-  `).join('');
+  renderPointBuy();
 }
 
-function selectArray(idx) {
-  ch.array = idx;
-  ch.attrs = {STR:null, AGI:null, WIT:null, EMP:null};
-  renderArrayPicker();
-  renderAttrAssign();
-  document.getElementById('attr-assign').style.display = 'grid';
+function renderPointBuy() {
+  const container = document.getElementById('point-buy-ui');
+  if (!container) return;
+  const spent = Object.values(ch.attrs).reduce((a,b) => a + (b||0), 0);
+  const remaining = POINT_BUY_TOTAL - spent;
+
+  let html = '<div class="' + (remaining === 0 ? 'info-box' : 'warn-box') + '" style="margin-bottom:16px">'
+    + '<strong>' + remaining + ' point' + (remaining !== 1 ? 's' : '') + ' remaining</strong> of ' + POINT_BUY_TOTAL
+    + (remaining === 0 ? ' \u2014 all points allocated \u2713' : '') + '</div>';
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">';
+  ATTRIBUTES.forEach(function(attr) {
+    const val = ch.attrs[attr.key] || 0;
+    const canInc = remaining > 0 && val < POINT_BUY_MAX;
+    const canDec = val > 0;
+    const bs = 'width:32px;height:32px;border-radius:50%;border:2px solid var(--rule);background:#fff;font-size:1.1rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;';
+    html += '<div class="attr-slot">'
+      + '<div class="attr-name">' + attr.name + '</div>'
+      + '<div class="attr-desc">' + attr.desc + '</div>'
+      + '<div style="display:flex;align-items:center;gap:12px;margin-top:8px">'
+      + '<button onclick="adjustAttr(\'' + attr.key + '\',-1)" style="' + bs + (canDec ? '' : 'opacity:.3;cursor:not-allowed') + '"' + (canDec ? '' : ' disabled') + '>\u2212</button>'
+      + '<span style="font-family:var(--font-ui);font-size:1.6rem;font-weight:700;color:var(--accent-dk);min-width:20px;text-align:center">' + val + '</span>'
+      + '<button onclick="adjustAttr(\'' + attr.key + '\',1)" style="' + bs + (canInc ? '' : 'opacity:.3;cursor:not-allowed') + '"' + (canInc ? '' : ' disabled') + '>+</button>'
+      + '</div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
+
+function adjustAttr(key, delta) {
+  const val = ch.attrs[key] || 0;
+  const spent = Object.values(ch.attrs).reduce((a,b) => a + (b||0), 0);
+  if (delta > 0 && (val >= POINT_BUY_MAX || spent >= POINT_BUY_TOTAL)) return;
+  if (delta < 0 && val <= 0) return;
+  ch.attrs[key] = val + delta;
+  renderPointBuy();
+  updateSkillPips();
+}
+
+// selectArray no longer used (point buy system)
+
 
 function renderAttrAssign() {
   const nums = [...ARRAYS[ch.array].nums];
@@ -3586,10 +3650,6 @@ function startOver() {
 function initAllSteps() {
   // Safe init: only render steps that have been reached, or render defensively
   renderArrayPicker();
-  if (ch.array !== null) {
-    const aa = document.getElementById('attr-assign');
-    if (aa) { aa.style.display = 'grid'; renderAttrAssign(); }
-  }
   renderSkillList();
   renderLineageGrid();
   if (ch.lineage) {

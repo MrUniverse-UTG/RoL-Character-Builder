@@ -1752,11 +1752,28 @@ function updateMixedLineageBenefits() {
   if (!maj || !min) return;
   const majSub = ch.mixedSubTraits[maj];
   const minSub = ch.mixedSubTraits[min];
-  const majTraits = getLineageTraits(maj, majSub);
+
+  // For Dryvorn as major source, use bloodline-specific text
+  let majTraits;
+  if (maj === 'Dryvorn') {
+    majTraits = getDryvornText('Dryvorn') || getLineageTraits(maj, majSub);
+  } else {
+    majTraits = getLineageTraits(maj, majSub);
+  }
+  // For Pridae as major source, override major text with chosen evolved purpose
+  if (maj === 'Pridae' && ch.evolvedPurpose) {
+    const pp = PRIDAE_PURPOSES.find(p => p.key === ch.evolvedPurpose);
+    if (pp) {
+      majTraits = { ...majTraits, major: { name: 'Evolved Purpose — ' + pp.key, text: pp.desc } };
+    }
+  }
+
   const minTraits = getLineageTraits(min, minSub);
   ch.lineageBenefits = '';
-  if (majTraits?.major) ch.lineageBenefits += `${majTraits.major.name} (Major Trait from ${maj}): ${majTraits.major.text}`;
-  if (minTraits?.minor) ch.lineageBenefits += (ch.lineageBenefits ? '\n\n' : '') + `${minTraits.minor.name} (Minor Trait from ${min}): ${minTraits.minor.text}`;
+  if (majTraits?.major) ch.lineageBenefits += majTraits.major.name + ' (Major Trait from ' + maj + '): ' + majTraits.major.text;
+  if (minTraits?.minor) ch.lineageBenefits += (ch.lineageBenefits ? '\n\n' : '') + minTraits.minor.name + ' (Minor Trait from ' + min + '): ' + minTraits.minor.text;
+
+  // Append evolved purpose for Pridae already handled above in major override
 }
 
 

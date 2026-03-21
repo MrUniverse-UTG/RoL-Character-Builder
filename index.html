@@ -1768,12 +1768,16 @@ function updateMixedLineageBenefits() {
     }
   }
 
-  const minTraits = getLineageTraits(min, minSub);
+  // For Dryvorn as minor source, use bloodline-specific minor text
+  let minTraits;
+  if (min === 'Dryvorn') {
+    minTraits = getDryvornText('Dryvorn') || getLineageTraits(min, minSub);
+  } else {
+    minTraits = getLineageTraits(min, minSub);
+  }
   ch.lineageBenefits = '';
   if (majTraits?.major) ch.lineageBenefits += majTraits.major.name + ' (Major Trait from ' + maj + '): ' + majTraits.major.text;
   if (minTraits?.minor) ch.lineageBenefits += (ch.lineageBenefits ? '\n\n' : '') + minTraits.minor.name + ' (Minor Trait from ' + min + '): ' + minTraits.minor.text;
-
-  // Append evolved purpose for Pridae already handled above in major override
 }
 
 
@@ -2313,13 +2317,25 @@ function updateLineageBenefits() {
     if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage) {
       const origLg = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
       if (origLg) {
-        // Get major trait from the original lineage (handle sub-trait lineages)
-        const subKey = ch.mixedSubTraits && ch.mixedSubTraits['undead_' + origLg.name];
-        const origTraits = origLg.traitDetails
-          ? origLg.traitDetails[subKey || Object.keys(origLg.traitDetails)[0]]
-          : origLg;
-        const majorName = origTraits?.major?.name || '';
-        const majorText = origTraits?.major?.text || '';
+        let majorName = '', majorText = '';
+        if (origLg.name === 'Dryvorn') {
+          // Use bloodline-specific Dryvorn text
+          const dryvornT = getDryvornText('Dryvorn');
+          if (dryvornT) { majorName = dryvornT.major.name; majorText = dryvornT.major.text; }
+          else { majorName = origLg.major?.name || ''; majorText = origLg.major?.text || ''; }
+        } else if (origLg.name === 'Pridae' && ch.evolvedPurpose) {
+          // Use chosen Evolved Purpose
+          const pp = PRIDAE_PURPOSES.find(p => p.key === ch.evolvedPurpose);
+          majorName = 'Evolved Purpose — ' + (pp ? pp.key : '');
+          majorText = pp ? pp.desc : '';
+        } else {
+          const subKey = ch.mixedSubTraits && ch.mixedSubTraits['undead_' + origLg.name];
+          const origTraits = origLg.traitDetails
+            ? origLg.traitDetails[subKey || Object.keys(origLg.traitDetails)[0]]
+            : origLg;
+          majorName = origTraits?.major?.name || '';
+          majorText = origTraits?.major?.text || '';
+        }
         traits = traits.map(t =>
           t.name === 'Repurposed'
             ? {name: 'Repurposed (from ' + ch.undeadRepurposedLineage + ')',

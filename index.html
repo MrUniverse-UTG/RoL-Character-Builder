@@ -3172,6 +3172,8 @@ async function exportPDF() {
   btn.disabled = true;
   btn.textContent = 'Generating PDF...';
   try {
+    // Refresh lineage benefits before export to ensure bloodline/purpose text is current
+    updateLineageBenefits();
     // Fetch the PDF template
     const pdfBytes = await fetch('Character_Sheet_Form_Fill.pdf').then(r => r.arrayBuffer());
     const { PDFDocument } = PDFLib;

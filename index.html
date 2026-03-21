@@ -363,7 +363,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
 <!-- ═══════════ STEP 7: LIFEPATH ═══════════ -->
 <div class="step-panel" id="step-7">
   <div class="step-header">
-    <h2>Step 6 - Create a Lifepath</h2>
+    <h2>Step 7 - Create a Lifepath</h2>
     <p>Click a row to select it, or type your own. These shape your character's backstory.</p>
   </div>
   <div id="lifepath-content"></div>
@@ -372,7 +372,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
 <!-- ═══════════ STEP 7: STATUS POINTS ═══════════ -->
 <div class="step-panel" id="step-8">
   <div class="step-header">
-    <h2>Step 7 - Status Points</h2>
+    <h2>Step 8 - Status Points</h2>
     <p>Your stats are calculated automatically from your Attributes.</p>
   </div>
   <div class="info-box" id="hp-formula"></div>
@@ -385,7 +385,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
 <!-- ═══════════ STEP 8: TALENTS ═══════════ -->
 <div class="step-panel" id="step-9">
   <div class="step-header">
-    <h2>Step 8 - Record Talents</h2>
+    <h2>Step 9 - Record Talents</h2>
     <p>Write down the Talents gained from your Lineage, Specialty, and any General Talents you've selected. These appear on page 3 of your character sheet.</p>
   </div>
   <div id="auto-talents" style="margin-bottom:20px"></div>
@@ -393,6 +393,9 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
     <div>
       <label class="field-label">Specialty Talent (auto-filled)</label>
       <input type="text" id="talent-specialty" readonly style="background:var(--mid);color:var(--text-dim);cursor:default">
+      <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--text-dim);margin-top:5px;line-height:1.4">
+        At Level 1 your Specialty Talent grants you a Martial or Sorcery Talent, but you won't gain your Specialty's features or special resource until Level 2 — unless you're a Pugilist, who gains increased Unarmed Strike damage at Level 1.
+      </div>
     </div>
   </div>
   <div class="form-row">
@@ -409,7 +412,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
 <!-- ═══════════ STEP 9: DETAILS ═══════════ -->
 <div class="step-panel" id="step-10">
   <div class="step-header">
-    <h2>Step 9 - Character Details</h2>
+    <h2>Step 10 - Character Details</h2>
     <p>Fill in your character's name, appearance, and starting gear.</p>
   </div>
   <div class="form-row cols2">
@@ -432,7 +435,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
 <!-- ═══════════ STEP 10: EXPORT ═══════════ -->
 <div class="step-panel" id="step-11">
   <div class="step-header">
-    <h2>Step 10 - Export Character Sheet</h2>
+    <h2>Step 11 - Export Character Sheet</h2>
     <p>Review your character, then export to the Realms of Legacy PDF character sheet.</p>
   </div>
   <div id="summary-grid"></div>
@@ -567,7 +570,7 @@ Deep Sea Creature (Minor Trait): You can breathe underwater and have a Swim Spee
    langs:{speak:['Prado','Gaian'], read:['Sybus','Gaian']},
    desc:'Insectoid creatures from the deep underground of Gaia. Mature at 15, live to ~90.',
    traits:['Pridae'],
-   major:{name:'Evolved Purpose',text:'Select one of the following traits: Hardened Shell (max DP when wearing armor increased by 5), Small Wings (gain Fly Speed equal to base Speed as Quick action), or Enhanced Antennae (telepathically speak with creatures within 30 ft).'},
+   major:{name:'Evolved Purpose',text:'Choose one: Hardened Shell, Small Wings, or Enhanced Antennae. See selection below.'},
    minor:{name:'Additional Arms',text:'You have two additional smaller arms. They cannot use weapons without the Light Feature nor wield shields. You can use these arms to perform the Interact action as a Free action once per turn.'},
    features:`Evolved Purpose (Major Trait): Select one of the following traits: Hardened Shell (max DP when wearing armor increased by 5), Small Wings (gain a Fly Speed equal to your base Speed as a Quick action), or Enhanced Antennae (telepathically speak with creatures you can see within 30 ft).
 
@@ -1155,6 +1158,7 @@ let ch = {
   talentRanks: Array(9).fill(1),
   specialtyTalent: '',
   lineageBenefits: '',
+  evolvedPurpose: null,
   name: '', level: 1, height: '', weight: '', age: '', notes: '',
   weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
   gearSelections: {},
@@ -1271,6 +1275,7 @@ function validateStep(step) {
         return true;
       }
       if (!ch.lineage) { alert('Please choose a Lineage.'); return false; }
+      if (isPridae() && !ch.evolvedPurpose) { alert('Please choose your Evolved Purpose for your Pridae lineage before continuing.'); return false; }
       if (ch.lineage === 'Dryvorn' && !ch.dryvornBloodline) {
         alert('Please choose a Dragon Bloodline for your Dryvorn character.');
         return false;
@@ -1313,18 +1318,33 @@ function validateStep(step) {
       if (!ch.specialty) { alert('Please choose a Specialty.'); return false; }
       return true;
     case 7: {
-      // If a lifepath background grants extra languages, all pick slots must be filled
+      // Prompt if no extra language background chosen (soft warning, not a hard block)
+      if (EXTRA_LANGUAGE_OPTIONS.length > 0 && !ch.extraLanguage) {
+        if (!confirm("You haven't selected an Extra Languages background. Continue without choosing one?")) {
+          return false;
+        }
+      }
+      // Hard block: all pick slots must be filled if a background was chosen
       if (ch.extraLanguage) {
         const langOpt = EXTRA_LANGUAGE_OPTIONS.find(o => o.name === ch.extraLanguage);
         if (langOpt?.picks) {
           const totalPicks = (langOpt.picks.speak || 0) + (langOpt.picks.speak2 || 0);
           for (let i = 0; i < totalPicks; i++) {
             if (!ch.extraLanguagePicks[i]) {
-              alert('Please choose all your extra languages before continuing.');
+              alert('Please choose all your extra language picks before continuing.');
               return false;
             }
           }
         }
+      }
+      return true;
+    }
+    case 9: {
+      // Must have selected at least one talent
+      const hasTalent = (ch.talents||[]).some(t => t);
+      if (!hasTalent) {
+        alert('Please select at least one Talent before continuing.');
+        return false;
       }
       return true;
     }
@@ -1813,6 +1833,60 @@ const DRYVORN_BLOODLINES = [
   {name:'Thundron',color:'Blue',   damage:'Electric'},
 ];
 
+
+const PRIDAE_PURPOSES = [
+  {
+    key: 'Hardened Shell',
+    desc: 'Your carapace has hardened beyond that of your kin. Your max DP when wearing armor is increased by 5.',
+  },
+  {
+    key: 'Small Wings',
+    desc: 'You have grown a small set of wings on your back. As a Quick action you can gain a Fly Speed equal to your base Speed until the end of your turn.',
+  },
+  {
+    key: 'Enhanced Antennae',
+    desc: 'Your antennae have grown acutely sensitive. You can telepathically speak with any creature within 30 feet of you.',
+  },
+];
+
+function isPridae() {
+  // True if Pridae major trait applies: direct lineage, mixed with Pridae as major, or undead repurposed from Pridae
+  if (ch.lineage === 'Pridae') return true;
+  if (ch.mixedLineage && ch.mixedAssignment?.major === 'Pridae') return true;
+  if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Pridae') return true;
+  return false;
+}
+
+function setPrideaPurpose(key) {
+  ch.evolvedPurpose = ch.evolvedPurpose === key ? null : key;
+  renderLineageDetail();
+  updateLineageBenefits();
+  renderStatusPoints && renderStatusPoints();
+}
+
+function renderPrideaPurposePicker() {
+  const sel = ch.evolvedPurpose;
+  let html = '<div style="margin-top:16px;background:var(--card-bg);border:1px solid var(--border-gold);border-radius:var(--r);padding:16px">';
+  html += '<div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--gold);margin-bottom:6px">Evolved Purpose — Choose One</div>';
+  html += '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Select one of the following traits for your Pridae lineage.</p>';
+  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  PRIDAE_PURPOSES.forEach(p => {
+    const isSel = sel === p.key;
+    html += '<button onclick="setPrideaPurpose(\'' + p.key + '\')" style="text-align:left;padding:10px 14px;border-radius:6px;cursor:pointer;'
+      + 'border:1px solid ' + (isSel ? 'var(--gold)' : 'var(--border)') + ';'
+      + 'background:' + (isSel ? 'rgba(201,168,76,0.1)' : 'var(--surface)') + ';'
+      + 'color:' + (isSel ? 'var(--gold-pale)' : 'var(--text)') + '">'
+      + '<strong style="font-family:var(--font-ui);font-size:.88rem">' + p.key + (isSel ? ' ✓' : '') + '</strong>'
+      + '<div style="font-size:.82rem;color:' + (isSel ? 'var(--text)' : 'var(--text-dim)') + ';margin-top:3px;line-height:1.4">' + p.desc + '</div>'
+      + '</button>';
+  });
+  html += '</div>';
+  if (!sel) html += '<div class="warn-box" style="margin-top:10px">Choose your Evolved Purpose before continuing.</div>';
+  else html += '<div class="info-box" style="margin-top:10px">✓ ' + sel + ' selected.</div>';
+  html += '</div>';
+  return html;
+}
+
 function renderLineageDetail() {
   if (!ch.lineage) return;
   const lg = LINEAGES.find(l=>l.name===ch.lineage);
@@ -1835,6 +1909,11 @@ function renderLineageDetail() {
       </div>
       <div style="margin-top:12px">${formatTraitParagraphs(lg.name, ch.lineageTrait)}</div>
     </div>`;
+
+  // Pridae Evolved Purpose picker — only for direct Pridae (not mixed/undead, those handled below)
+  if (ch.lineage === 'Pridae' && !ch.mixedLineage) {
+    html += renderPrideaPurposePicker();
+  }
 
   // Sub-trait chooser for Abysian and Sylvanik
   if (hasSubTraits) {
@@ -2003,6 +2082,11 @@ function renderLineageDetail() {
       </div>`;
   }
 
+  // For Undead: Pridae evolved purpose picker
+  if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Pridae') {
+    html += renderPrideaPurposePicker();
+  }
+
   // For Undead: if repurposed from Human/Ozonian, also offer size choice
   if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage === 'Dryvorn') {
     html += renderDryvornBloodlineHtml('Dryvorn Repurposed');
@@ -2115,6 +2199,10 @@ function renderLineageDetail() {
         + '</div>';
     } else {
       html += '<div class="warn-box" style="margin-top:20px">Complete all sub-group and bloodline selections above before assigning traits.</div>';
+    }
+    // Show Pridae purpose picker in mixed mode when Pridae is the major source
+    if (ch.mixedAssignment?.major === 'Pridae') {
+      html += renderPrideaPurposePicker();
     }
   }
 
@@ -2231,6 +2319,16 @@ function updateLineageBenefits() {
     if (traits?.major) text += traits.major.name + ' (Major Trait): ' + traits.major.text;
     if (traits?.minor) text += '\n\n' + traits.minor.name + ' (Minor Trait): ' + traits.minor.text;
     ch.lineageBenefits = text;
+  }
+  // Append evolved purpose if Pridae
+  if (isPridae() && ch.evolvedPurpose) {
+    const pp = PRIDAE_PURPOSES.find(p => p.key === ch.evolvedPurpose);
+    if (pp) {
+      const purposeText = 'Evolved Purpose — ' + pp.key + ': ' + pp.desc;
+      ch.lineageBenefits = ch.lineageBenefits
+        ? ch.lineageBenefits + '\n\n' + purposeText
+        : purposeText;
+    }
   }
 }
 
@@ -2576,9 +2674,12 @@ function renderStatusPoints() {
     const gearVals = Object.values(ch.gearSelections || {});
     const ARMOR_NAMES_CHECK = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
     const armor = gearVals.find(v => ARMOR_NAMES_CHECK.some(a => v.toLowerCase().includes(a)));
+    const shell = isPrideaHardenedShell();
+    const shellNote = shell ? ' + 5 (Hardened Carapace)' : '';
     if (!armor) return ch.specialty ? 'Choose armor in Step 6' : 'Set by armor';
-    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${ch.attrs.AGI||0})×3`;
-    return armor + ' = ' + dpVal + ' DP';
+    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${ch.attrs.AGI||0})×3${shellNote}`;
+    const baseDP = shell ? (dpVal - 5) : dpVal;
+    return armor + ' = ' + baseDP + ' DP' + shellNote;
   })();
 
   document.getElementById('status-grid').innerHTML = `
@@ -2665,6 +2766,9 @@ function renderTalentStep() {
       ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong> (choose from the list below)' : ''}
       <br>All at <strong>Rank 1</strong>. Click any talent name to see its full rank details.
     </div>`;
+  if (isSorcery) {
+    autoEl.innerHTML += '<div class="info-box" style="margin-top:8px">Want to know the details of spells in each Study of Sorcery? <a href="https://spellbook.realmsoflegacy.com/" target="_blank" rel="noopener" style="color:var(--cyan);font-weight:700;text-decoration:underline">View the Spellbook here</a>.</div>';
+  }
 
   // Count how many of each type already chosen
   const pickedMartial = (ch.talents||[]).filter(t => MARTIAL_TALENTS.includes(t)).length;
@@ -2681,7 +2785,7 @@ function renderTalentStep() {
     return `<div style="margin-bottom:24px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <h3 style="font-family:var(--font-ui);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">${sec.label}</h3>
-        <span style="font-family:var(--font-ui);font-size:.8rem;font-weight:700;color:${sec.picked>=sec.max?'var(--safe)':'var(--accent-dk)'};background:${sec.picked>=sec.max?'#d1fae5':'var(--accent-lt)'};padding:2px 8px;border-radius:12px">${sec.picked}/${sec.max}</span>
+        <span style="font-family:var(--font-ui);font-size:.8rem;font-weight:700;color:${sec.picked>=sec.max?'var(--void)':'var(--cyan)'};background:${sec.picked>=sec.max?'var(--safe)':'rgba(79,195,247,0.18)'};border:1px solid ${sec.picked>=sec.max?'transparent':'rgba(79,195,247,0.4)'};padding:2px 8px;border-radius:12px">${sec.picked}/${sec.max}</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:7px">
         ${sec.list.map(t => {
@@ -3572,13 +3676,23 @@ function getArmorDP() {
 function extractNumericDP() {
   if (!ch.gearSelections) return;
   const vals = Object.values(ch.gearSelections);
+  let hasArmor = false;
   for (const v of vals) {
     if (ARMOR_DP_MAP[v] !== undefined) {
       ch.dp = (ARMOR_DP_MAP[v] === null) ? ((ch.attrs.AGI||0) * 3) : ARMOR_DP_MAP[v];
-      return;
+      hasArmor = true;
+      break;
     }
   }
-  ch.dp = 0;
+  if (!hasArmor) ch.dp = 0;
+  // Hardened Shell (Pridae Evolved Purpose) adds +5 max DP when wearing armor
+  if (isPrideaHardenedShell() && hasArmor) {
+    ch.dp += 5;
+  }
+}
+
+function isPrideaHardenedShell() {
+  return isPridae() && ch.evolvedPurpose === 'Hardened Shell';
 }
 
 

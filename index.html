@@ -2744,12 +2744,12 @@ function renderStatusPoints() {
   `;
 
   const checkEl = document.getElementById('status-check');
-  if (totalCheck === 20) {
+  if (totalCheck === 24) {
     checkEl.className = 'info-box';
     checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} - Correct!`;
   } else {
     checkEl.className = 'warn-box';
-    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 20. Check your Attribute assignments.`;
+    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 24. Check your Attribute assignments.`;
   }
 }
 

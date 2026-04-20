@@ -2980,8 +2980,8 @@ function renderSummary() {
   // Validation
   const checks = [];
   const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
-  checks.push({ok: attrSum === 6, msg: `Attribute sum = ${attrSum} (should be 6)`});
-  checks.push({ok: calcHP()+calcMP() === 20, msg: `HP+MP = ${calcHP()+calcMP()} (should be 20 at level 1)`});
+  checks.push({ok: attrSum === 8, msg: `Attribute sum = ${attrSum} (should be 8)`});
+  checks.push({ok: calcHP()+calcMP() === 24, msg: `HP+MP = ${calcHP()+calcMP()} (should be 24 at level 1)`});
   checks.push({ok: !!ch.name, msg: 'Character name is set'});
   checks.push({ok: !!ch.lineage, msg: 'Lineage is chosen'});
   checks.push({ok: !!ch.cls, msg: 'Class is chosen'});

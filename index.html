@@ -1355,11 +1355,12 @@ function validateStep(step) {
           alert('Please choose a Dragon Bloodline for Dryvorn.');
           return false;
         }
-        if ((ch.mixedAssignment.features === 'Humans' || ch.mixedAssignment.features === 'Ozonian') && !ch.sizeChoice) {
-          alert('Please choose a size (Small or Medium) for your ' + ch.mixedAssignment.features + ' Features lineage.');
+        if (!ch.mixedAssignment.features) { alert('Please choose which lineage provides your Features.'); return false; }
+        applyMixedSizeRules();
+        if (hasVariableSizeMixedLineage() && !ch.sizeChoice) {
+          alert('Please choose a size (Small or Medium) for your mixed lineage.');
           return false;
         }
-        if (!ch.mixedAssignment.features) { alert('Please choose which lineage provides your Features.'); return false; }
         if (!ch.mixedAssignment.major)    { alert('Please choose which lineage provides your Major Trait.'); return false; }
         if (!ch.mixedAssignment.minor)    { alert('Please choose which lineage provides your Minor Trait.'); return false; }
         // Check sub-traits resolved
@@ -1759,11 +1760,47 @@ function setMixedSubTrait(lgName, traitKey) {
   renderMixedPanel();
 }
 
+function getFixedLineageSize(lgName) {
+  const lg = LINEAGES.find(l => l.name === lgName);
+  if (!lg || !lg.size) return null;
+  if (lg.size === 'Small') return 'Small';
+  if (lg.size === 'Medium') return 'Medium';
+  return null;
+}
+
+function hasVariableSizeMixedLineage() {
+  return ch.mixedLineage && (ch.mixedLineages.includes('Humans') || ch.mixedLineages.includes('Ozonian'));
+}
+
+function isVariableSizeLineage(lgName) {
+  return lgName === 'Humans' || lgName === 'Ozonian';
+}
+
+function applyMixedSizeRules() {
+  if (!ch.mixedLineage) return;
+
+  // Fueglin's Small and Nimble major trait overrides the feature lineage's size.
+  if (ch.mixedForcedSmall) {
+    ch.sizeChoice = 'Small';
+    return;
+  }
+
+  const featuresLineage = ch.mixedAssignment?.features;
+  if (!featuresLineage) return;
+
+  const fixedFeatureSize = getFixedLineageSize(featuresLineage);
+  if (hasVariableSizeMixedLineage() && fixedFeatureSize && !isVariableSizeLineage(featuresLineage)) {
+    ch.sizeChoice = fixedFeatureSize;
+  }
+}
+
 function setMixedAssignment(field, lgName) {
   ch.mixedAssignment[field] = lgName;
-  // Reset size choice when Features lineage changes to/from Human or Ozonian
+
   if (field === 'features') {
-    ch.sizeChoice = null;
+    // If Human/Ozonian provide the Features, the player chooses Small or Medium.
+    // If a fixed-size lineage provides the Features, that lineage controls size.
+    ch.sizeChoice = isVariableSizeLineage(lgName) ? null : ch.sizeChoice;
     // Don't reset dryvornBloodline — it persists as long as Dryvorn is in the selected lineages
   }
 
@@ -1773,6 +1810,7 @@ function setMixedAssignment(field, lgName) {
     const traits = getLineageTraits(lgName, sub);
     if (traits?.major?.name === 'Small and Nimble') {
       ch.mixedForcedSmall = true;
+      ch.sizeChoice = 'Small';
       // Show alert informing the player
       setTimeout(() => {
         alert('Small and Nimble (Fueglin Major Trait): When taken in a Mixed Lineage, your creature size becomes Small. Your character size has been set to Small.');
@@ -1782,6 +1820,7 @@ function setMixedAssignment(field, lgName) {
     }
   }
 
+  applyMixedSizeRules();
   renderMixedPanel();
   updateMixedLineageBenefits();
 }
@@ -2047,14 +2086,22 @@ function renderLineageDetail() {
        || ch.mixedLineages.some(l => l === 'Humans' || l === 'Ozonian'))
     : (ch.lineage === 'Humans' || ch.lineage === 'Ozonian');
   if (needsSizeChoice) {
+    const variableSizeName = ch.mixedLineage
+      ? (ch.mixedLineages.includes('Humans') ? 'Humans' : 'Ozonians')
+      : ch.lineage;
+    const featureSizeLock = ch.mixedLineage && ch.mixedAssignment?.features && !isVariableSizeLineage(ch.mixedAssignment.features)
+      ? getFixedLineageSize(ch.mixedAssignment.features)
+      : null;
+    const sizeHelpText = featureSizeLock
+      ? `${ch.mixedAssignment.features} Features set your size to ${featureSizeLock}. Choosing the other size will clear that Features choice.`
+      : `${variableSizeName} can range from 3-6 feet tall and may be classified as Small or Medium.`;
     html += `
       <div style="margin-top:16px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:16px">
         <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
           Choose Your Size
         </div>
         <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
-          ${ch.lineage === 'Humans' ? 'Humans can range from 3-6 feet tall and may be classified as Small or Medium.'
-            : 'Ozonians can range from 3-6 feet tall and may be classified as Small or Medium.'}
+          ${sizeHelpText}
         </p>
         <div style="display:flex;gap:12px">
           <div class="option-card ${ch.sizeChoice==='Small'?'selected':''}"
@@ -2304,7 +2351,31 @@ function setDryvornBloodline(name) {
 }
 
 function setSizeChoice(size) {
+  if (ch.mixedLineage && ch.mixedForcedSmall && size !== 'Small') {
+    alert('Your size is forced to Small by the Fueglin Small and Nimble Major Trait.');
+    ch.sizeChoice = 'Small';
+    renderMixedPanel();
+    return;
+  }
+
   ch.sizeChoice = size;
+
+  if (ch.mixedLineage && hasVariableSizeMixedLineage()) {
+    const featuresLineage = ch.mixedAssignment?.features;
+    const fixedFeatureSize = getFixedLineageSize(featuresLineage);
+
+    // A manual Human/Ozonian Small/Medium choice cannot coexist with a fixed-size
+    // non-Human/Ozonian Features source of the opposite size. Clear Features so the
+    // player can intentionally pick Human/Ozonian Features or a compatible fixed-size lineage.
+    if (featuresLineage && fixedFeatureSize && fixedFeatureSize !== size && !isVariableSizeLineage(featuresLineage)) {
+      ch.mixedAssignment.features = null;
+      updateMixedLineageBenefits();
+    }
+
+    renderMixedPanel();
+    return;
+  }
+
   renderLineageDetail();
 }
 

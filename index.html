@@ -3284,6 +3284,19 @@ const STUDY_SPELLS = {
 };
 
 
+
+function compactLineageBenefitsForPdf(text) {
+  let out = String(text || '');
+  // Save space in the PDF field without changing the actual rule text.
+  // Remove source/type labels such as "(Major Trait from Humans)" and "(Minor Trait)".
+  out = out.replace(/^\s*[^:\n]+ Lineage:\s*\n?/i, '');
+  out = out.replace(/\s*\((?:Major|Minor) Trait(?: from [^)]+)?\)/gi, '');
+  out = out.replace(/\s*\(from [^)]+\)/gi, '');
+  out = out.replace(/\n{2,}/g, '\n');
+  out = out.replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n');
+  return out.trim();
+}
+
 async function exportPDF() {
   const btn = document.getElementById('export-btn');
   btn.disabled = true;
@@ -3567,7 +3580,7 @@ async function exportPDF() {
     setSmall('Back and kit features', 'Backpack', 14);
     setSmall('carry Cur', '8', 14);
 
-    setSmall('LINEAGE BENEFITS',  ch.lineageBenefits||'', 11);
+    setSmall('LINEAGE BENEFITS', compactLineageBenefitsForPdf(ch.lineageBenefits||''), 8);
 
     // Sync notes from textarea and fill CHARACTER NOTES field
     const notesEl = document.getElementById('char-notes');

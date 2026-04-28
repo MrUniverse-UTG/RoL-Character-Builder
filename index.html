@@ -2580,7 +2580,7 @@ function renderLifepath() {
         <tbody>
           ${sec.data.map(row => `
             <tr data-lifepath-row="${sec.key}" class="${selectedOption===row.name && !customText.trim()?'lp-selected':''}"
-                onclick="selectLifepath('${sec.key}','${row.name.replace(/'/g,"\\'")}')">
+                onmousedown="event.preventDefault(); selectLifepath('${sec.key}','${row.name.replace(/'/g,"\\'")}')">
               <td class="roll">${row.roll}</td>
               <td class="opt-name" style="${sec.hasDesc?'':' width:100%'}">${esc(row.name)}</td>
               ${sec.hasDesc?`<td>${esc(row.desc||'')}</td>`:''}
@@ -2592,7 +2592,6 @@ function renderLifepath() {
         <label class="field-label">Custom / Notes for ${sec.label}</label>
         <input type="text" value="${esc(customText)}" 
                oninput="setLifepathCustom('${sec.key}', this.value)"
-               onchange="setLifepathCustom('${sec.key}', this.value, true)"
                placeholder="Enter custom answer or notes...">
       </div>
     </div>`;

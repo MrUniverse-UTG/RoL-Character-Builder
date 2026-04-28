@@ -1128,42 +1128,137 @@ const STARTING_GEAR = {
 };
 
 // -- Character State ----------------------------------------------------
-let ch = {
-  array: null,
-  attrs: {STR:0, AGI:0, WIT:0, EMP:0},
-  skills: {},
-  lineage: null,
-  lineageTrait: null,
-  mixedLineage: false,
-  mixedLineages: [],      // up to 2 traditional lineages
-  mixedSubTraits: {},     // subTrait per lineage if needed
-  mixedAssignment: {features: null, major: null, minor: null},
-  undeadRepurposedLineage: null,
-  sizeChoice: null,             // 'Small' or 'Medium' for Human/Ozonian
-  dryvornBloodline: null,       // chosen Dragon Bloodline for Dryvorn
-  mixedForcedSmall: false,
-  cls: null,
-  clsSkillChoices: {},
-  specialty: null,
-  lifepath: {upbringing:null, culture:null, personality:null, value:null,
-             upset:null, decisions:null, viewOfOthers:null},
-  lifepathCustom: {},
-  extraLanguage: null,       // selected Extra Languages background
-  extraLanguagePicks: [],    // chosen language names (speak)
-  extraLanguageReads: [],    // chosen language names (read)
-  equip: Array(6).fill(''),
-  currency: {silver:0, gold:0, pluther:0},
-  notable: Array(10).fill(''),
-  talents: Array(9).fill(''),
-  talentRanks: Array(9).fill(1),
-  specialtyTalent: '',
-  lineageBenefits: '',
-  evolvedPurpose: null,
-  name: '', level: 1, height: '', weight: '', age: '', notes: '',
-  weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
-  gearSelections: {},
-  _viewingTalent: null,
-};
+function createDefaultCharacter() {
+  return {
+    array: null,
+    attrs: {STR:0, AGI:0, WIT:0, EMP:0},
+    skills: {},
+    lineage: null,
+    lineageTrait: null,
+    mixedLineage: false,
+    mixedLineages: [],      // up to 2 traditional lineages
+    mixedSubTraits: {},     // subTrait per lineage if needed
+    mixedAssignment: {features: null, major: null, minor: null},
+    undeadRepurposedLineage: null,
+    sizeChoice: null,             // 'Small' or 'Medium' for Human/Ozonian
+    dryvornBloodline: null,       // chosen Dragon Bloodline for Dryvorn
+    mixedForcedSmall: false,
+    cls: null,
+    clsSkillChoices: {},
+    specialty: null,
+    lifepath: {upbringing:null, culture:null, personality:null, value:null,
+               upset:null, decisions:null, viewOfOthers:null},
+    lifepathCustom: {},
+    extraLanguage: null,       // selected Extra Languages background
+    extraLanguagePicks: [],    // chosen language names (speak)
+    extraLanguageReads: [],    // chosen language names (read)
+    equip: Array(6).fill(''),
+    currency: {silver:0, gold:0, pluther:0},
+    notable: Array(10).fill(''),
+    talents: Array(9).fill(''),
+    talentRanks: Array(9).fill(1),
+    specialtyTalent: '',
+    lineageBenefits: '',
+    evolvedPurpose: null,
+    name: '', level: 1, height: '', weight: '', age: '', notes: '',
+    weapons: Array(5).fill(null).map(()=>({name:'',range:'',mod:'',damage:'',pool:'',features:''})),
+    gearSelections: {},
+    _viewingTalent: null,
+  };
+}
+
+function mergeCharacterState(saved) {
+  const base = createDefaultCharacter();
+  const incoming = saved || {};
+  const merged = {
+    ...base,
+    ...incoming,
+    attrs: {...base.attrs, ...(incoming.attrs || {})},
+    skills: {...base.skills, ...(incoming.skills || {})},
+    lifepath: {...base.lifepath, ...(incoming.lifepath || {})},
+    lifepathCustom: {...base.lifepathCustom, ...(incoming.lifepathCustom || {})},
+    currency: {...base.currency, ...(incoming.currency || {})},
+    mixedAssignment: {...base.mixedAssignment, ...(incoming.mixedAssignment || {})},
+    mixedSubTraits: {...base.mixedSubTraits, ...(incoming.mixedSubTraits || {})},
+    gearSelections: {...base.gearSelections, ...(incoming.gearSelections || {})},
+    equip: Array.isArray(incoming.equip) ? incoming.equip : base.equip,
+    notable: Array.isArray(incoming.notable) ? incoming.notable : base.notable,
+    talents: Array.isArray(incoming.talents) ? incoming.talents : base.talents,
+    talentRanks: Array.isArray(incoming.talentRanks) ? incoming.talentRanks : base.talentRanks,
+    weapons: Array.isArray(incoming.weapons) ? incoming.weapons : base.weapons,
+    extraLanguagePicks: Array.isArray(incoming.extraLanguagePicks) ? incoming.extraLanguagePicks : base.extraLanguagePicks,
+    extraLanguageReads: Array.isArray(incoming.extraLanguageReads) ? incoming.extraLanguageReads : base.extraLanguageReads,
+    mixedLineages: Array.isArray(incoming.mixedLineages) ? incoming.mixedLineages : base.mixedLineages,
+  };
+  const prev = ch;
+  ch = merged;
+  normalizeBaseChoices();
+  const normalized = ch;
+  ch = prev;
+  return normalized;
+}
+
+let ch = createDefaultCharacter();
+
+// -- Base vs. bonus ranks -----------------------------------------------
+// ch.attrs and ch.skills store only the player's Step 1 / Step 2 choices.
+// Class bonuses are calculated dynamically so returning to earlier steps
+// does not make those bonuses consume point-buy points or starting-skill slots.
+function getClassData() {
+  return ch.cls ? CLASSES.find(c => c.name === ch.cls) : null;
+}
+
+function getClassAttrBonus(key) {
+  const cls = getClassData();
+  return cls?.attrBonus?.[key] || 0;
+}
+
+function getEffectiveAttr(key) {
+  return (ch.attrs[key] || 0) + getClassAttrBonus(key);
+}
+
+function getEffectiveAttrSum() {
+  return ATTRIBUTES.reduce((sum, a) => sum + getEffectiveAttr(a.key), 0);
+}
+
+function getClassSkillBonus(key) {
+  const cls = getClassData();
+  if (!cls) return 0;
+  let bonus = 0;
+  if (cls.skillBonus?.includes(key)) bonus += 1;
+  if (ch.clsSkillChoices?.[key]) bonus += 1;
+  return bonus;
+}
+
+function getSkillRank(key) {
+  return (ch.skills[key] || 0) + getClassSkillBonus(key);
+}
+
+function getStartingSkillCount() {
+  return Object.keys(ch.skills).filter(k => (ch.skills[k] || 0) > 0).length;
+}
+
+function normalizeBaseChoices() {
+  // Convert older saves from the previous implementation, where class bonuses
+  // were directly added into ch.attrs/ch.skills, back into base choices only.
+  if (ch.cls) {
+    const cls = CLASSES.find(c => c.name === ch.cls);
+    if (cls) {
+      const attrSum = Object.values(ch.attrs).reduce((a, b) => a + (b || 0), 0);
+      if (attrSum > POINT_BUY_TOTAL) {
+        Object.keys(cls.attrBonus || {}).forEach(k => {
+          ch.attrs[k] = Math.max(0, (ch.attrs[k] || 0) - (cls.attrBonus[k] || 0));
+        });
+      }
+    }
+  }
+  Object.keys(ch.attrs).forEach(k => {
+    ch.attrs[k] = Math.max(0, Math.min(POINT_BUY_MAX, Number(ch.attrs[k]) || 0));
+  });
+  Object.keys(ch.skills).forEach(k => {
+    ch.skills[k] = (Number(ch.skills[k]) || 0) > 0 ? 1 : 0;
+  });
+}
 
 let currentStep = 1;
 const TOTAL_STEPS = 11;
@@ -1178,7 +1273,7 @@ function goToStep(n) {
   updateProgress();
   updateNavBtns();
   window.scrollTo({top:0, behavior:'smooth'});
-  if (n===1)  { renderArrayPicker(); if (ch.array !== null) renderAttrAssign(); }
+  if (n===1)  renderArrayPicker();
   if (n===2)  renderSkillList();
   if (n===3)  {
     renderLineageGrid();
@@ -1250,7 +1345,7 @@ function validateStep(step) {
       return true;
     }
     case 2:
-      const skillCount = Object.keys(ch.skills).filter(k=>ch.skills[k]>0).length;
+      const skillCount = getStartingSkillCount();
       if (skillCount < 5) { alert('Please select exactly 5 starting skills.'); return false; }
       return true;
     case 3: {
@@ -1399,9 +1494,11 @@ function renderPointBuy() {
 
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">';
   ATTRIBUTES.forEach(function(attr) {
-    const val = ch.attrs[attr.key] || 0;
-    const canInc = remaining > 0 && val < POINT_BUY_MAX;
-    const canDec = val > 0;
+    const baseVal = ch.attrs[attr.key] || 0;
+    const bonusVal = getClassAttrBonus(attr.key);
+    const val = baseVal + bonusVal;
+    const canInc = remaining > 0 && baseVal < POINT_BUY_MAX;
+    const canDec = baseVal > 0;
     const bs = 'width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);font-size:1.1rem;color:var(--text);cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;';
     html += '<div class="attr-slot">'
       + '<div class="attr-name">' + attr.name + '</div>'
@@ -1409,6 +1506,7 @@ function renderPointBuy() {
       + '<div style="display:flex;align-items:center;gap:12px;margin-top:8px">'
       + '<button onclick="adjustAttr(\'' + attr.key + '\',-1)" style="' + bs + (canDec ? '' : 'opacity:.3;cursor:not-allowed') + '"' + (canDec ? '' : ' disabled') + '>\u2212</button>'
       + '<span style="font-family:var(--font-ui);font-size:1.6rem;font-weight:700;color:var(--accent-dk);min-width:20px;text-align:center">' + val + '</span>'
+      + (bonusVal ? '<span style="font-family:var(--font-ui);font-size:.75rem;color:var(--safe)">base ' + baseVal + ' + class ' + bonusVal + '</span>' : '')
       + '<button onclick="adjustAttr(\'' + attr.key + '\',1)" style="' + bs + (canInc ? '' : 'opacity:.3;cursor:not-allowed') + '"' + (canInc ? '' : ' disabled') + '>+</button>'
       + '</div></div>';
   });
@@ -1429,61 +1527,6 @@ function adjustAttr(key, delta) {
 // selectArray no longer used (point buy system)
 
 
-function renderAttrAssign() {
-  const nums = [...ARRAYS[ch.array].nums];
-  const container = document.getElementById('attr-assign');
-  // Track which values have been assigned to other attrs
-  const usedByOthers = {};
-  ATTRIBUTES.forEach(a => {
-    const v = ch.attrs[a.key];
-    if (v !== null && v !== undefined && v !== '') {
-      usedByOthers[a.key] = v;
-    }
-  });
-
-  container.innerHTML = `
-    <div class="info-box" style="grid-column:1/-1">Assign each number to one Attribute. Each number can only be used once.</div>
-    ${ATTRIBUTES.map(attr => {
-      const currentVal = ch.attrs[attr.key];
-      const isAssigned = currentVal !== null && currentVal !== undefined && currentVal !== '';
-      return `
-      <div class="attr-slot">
-        <div class="attr-name">${attr.name}</div>
-        <div class="attr-desc">${attr.desc}</div>
-        <select class="rank-select" onchange="assignAttr('${attr.key}', this.value)">
-          <option value="">- assign rank -</option>
-          ${[...new Set(nums)].sort((a,b)=>b-a).map(n=>`<option value="${n}" ${isAssigned && currentVal===n?'selected':''}>${n}</option>`).join('')}
-        </select>
-        <div style="margin-top:8px;font-family:var(--font-ui);font-size:.82rem;color:var(--muted)">
-          Current: <strong>${isAssigned ? currentVal : '-'}</strong>
-        </div>
-      </div>`;
-    }).join('')}
-  `;
-}
-
-function assignAttr(key, val) {
-  // val comes from this.value (always a string); convert properly
-  if (val === '' || val === null || val === undefined) {
-    ch.attrs[key] = null;
-    renderAttrAssign();
-    return;
-  }
-  const numVal = parseInt(val, 10);
-  const nums = ARRAYS[ch.array].nums;
-  // Check if this value is already used by another attribute
-  const otherUsed = ATTRIBUTES.filter(a=>a.key!==key).map(a=>ch.attrs[a.key]);
-  const usedCount = otherUsed.filter(v=>v===numVal).length;
-  const totalCount = nums.filter(n=>n===numVal).length;
-  if (usedCount >= totalCount) {
-    alert(`The value ${numVal} is already assigned to another Attribute.`);
-    renderAttrAssign();
-    return;
-  }
-  ch.attrs[key] = numVal;
-  renderAttrAssign();
-  updateSkillPips();
-}
 
 // ═══════════════════════════════════════════════════════════════
 // STEP 2 - SKILLS
@@ -1497,9 +1540,9 @@ function renderSkillList() {
       <h3>${attr.name} Skills</h3>
       <div class="skill-grid">
         ${skills.map(skill => {
-          const rank = ch.skills[skill.key] || 0;
+          const rank = getSkillRank(skill.key);
           const isSelected = rank >= 1;
-          const isClassBonus = rank >= 2;
+          const isClassBonus = getClassSkillBonus(skill.key) > 0;
           return `
             <div class="skill-chip-wrap" style="display:flex;flex-direction:column;gap:2px">
               <div class="skill-chip ${isSelected?'selected':''} ${isClassBonus?'class-bonus':''}"
@@ -1518,10 +1561,8 @@ function renderSkillList() {
 }
 
 function toggleSkill(key) {
-  const isClassBonus = isClassBonusSkill(key);
-  if (isClassBonus) return; // Can't toggle class bonus skills
   const currentRank = ch.skills[key] || 0;
-  const selectedCount = Object.keys(ch.skills).filter(k => (ch.skills[k]||0) >= 1 && !isClassBonusSkill(k)).length;
+  const selectedCount = getStartingSkillCount();
   if (currentRank >= 1) {
     ch.skills[key] = 0;
   } else {
@@ -1539,7 +1580,7 @@ function isClassBonusSkill(key) {
 }
 
 function updateSkillCounter() {
-  const selectedCount = Object.keys(ch.skills).filter(k => (ch.skills[k]||0) >= 1 && !isClassBonusSkill(k)).length;
+  const selectedCount = getStartingSkillCount();
   const el = document.getElementById('skill-counter');
   el.className = 'selection-counter' + (selectedCount===5?' done':selectedCount>5?' over':'');
   el.innerHTML = `Selected: <strong>${selectedCount} / 5</strong>`;
@@ -1909,8 +1950,10 @@ function renderPrideaPurposePicker() {
 }
 
 function renderLineageDetail() {
-  if (!ch.lineage) return;
-  const lg = LINEAGES.find(l=>l.name===ch.lineage);
+  if (!ch.lineage && !ch.mixedLineage) return;
+  const effectiveLineageName = getEffectiveLineageName();
+  const lg = LINEAGES.find(l=>l.name===effectiveLineageName);
+  if (!lg) return;
   const detail = document.getElementById('lineage-detail');
   detail.style.display = 'block';
 
@@ -2309,7 +2352,8 @@ function updateLineageBenefits() {
     return;
   }
   if (!ch.lineage) return;
-  const lg = LINEAGES.find(l=>l.name===ch.lineage);
+  const effectiveLineageName = getEffectiveLineageName();
+  const lg = LINEAGES.find(l=>l.name===effectiveLineageName);
   if (!lg) return;
   if (lg.otherworldlyTraits) {
     // Undead: replace Repurposed trait text with the actual chosen lineage's major trait
@@ -2385,30 +2429,16 @@ function renderClassGrid() {
 }
 
 function selectClass(name) {
-  // Remove old class bonuses
-  if (ch.cls) {
-    const old = CLASSES.find(c=>c.name===ch.cls);
-    old.skillBonus.forEach(s => { if ((ch.skills[s]||0) >= 2) ch.skills[s] -= 1; else delete ch.skills[s]; });
-    old.attrBonus && Object.keys(old.attrBonus).forEach(k => { ch.attrs[k] = Math.max(0, (ch.attrs[k]||0) - old.attrBonus[k]); });
-    Object.keys(ch.clsSkillChoices).forEach(k => {
-      if (ch.clsSkillChoices[k]) { if ((ch.skills[k]||0) >= 2) ch.skills[k] -= 1; else delete ch.skills[k]; }
-    });
-    ch.clsSkillChoices = {};
-  }
-
+  const changingClass = ch.cls !== name;
   ch.cls = name;
   ch.specialty = null;
-  const cls = CLASSES.find(c=>c.name===name);
-
-  // Apply attr bonus
-  Object.keys(cls.attrBonus).forEach(k => { ch.attrs[k] = (ch.attrs[k]||0) + cls.attrBonus[k]; });
-  // Apply fixed skill bonuses
-  cls.skillBonus.forEach(s => { ch.skills[s] = (ch.skills[s]||0) + 1; });
-
+  if (changingClass) ch.clsSkillChoices = {};
+  normalizeBaseChoices();
   renderClassGrid();
   renderClassSkillChoices();
+  renderPointBuy();
+  updateSkillPips();
 }
-
 function renderClassSkillChoices() {
   if (!ch.cls) return;
   const cls = CLASSES.find(c=>c.name===ch.cls);
@@ -2444,19 +2474,13 @@ function pickClassSkill(choiceIdx, skillKey) {
   const cls = CLASSES.find(c=>c.name===ch.cls);
   const choice = cls.skillChoice[choiceIdx];
 
-  // Deselect any previously selected skill from this choice group
-  choice.from.forEach(sk => {
-    if (ch.clsSkillChoices[sk]) {
-      ch.clsSkillChoices[sk] = false;
-      if ((ch.skills[sk]||0) >= 2) ch.skills[sk] -= 1;
-      else delete ch.skills[sk];
-    }
-  });
+  // Deselect any previously selected skill from this choice group.
+  // The actual rank bonus is calculated dynamically by getClassSkillBonus().
+  choice.from.forEach(sk => { ch.clsSkillChoices[sk] = false; });
 
-  // Select new one
   ch.clsSkillChoices[skillKey] = true;
-  ch.skills[skillKey] = (ch.skills[skillKey]||0) + 1;
   renderClassSkillChoices();
+  updateSkillPips();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2687,8 +2711,8 @@ function selectLifepath(key, value) {
 // ═══════════════════════════════════════════════════════════════
 // STEP 7 - STATUS POINTS
 // ═══════════════════════════════════════════════════════════════
-function calcHP()  { return (((ch.attrs.STR||0) + (ch.attrs.AGI||0)) * 2) + 4; }
-function calcMP()  { return (((ch.attrs.WIT||0) + (ch.attrs.EMP||0)) * 2) + 4; }
+function calcHP()  { return ((getEffectiveAttr('STR') + getEffectiveAttr('AGI')) * 2) + 4; }
+function calcMP()  { return ((getEffectiveAttr('WIT') + getEffectiveAttr('EMP')) * 2) + 4; }
 function calcDP()  { return 0; } // Set by armor
 function calcSP()  { return calcMP(); } // Sorce Points = max MP
 
@@ -2696,8 +2720,8 @@ function renderStatusPoints() {
   const hp = calcHP(), mp = calcMP(), sp = calcSP();
   const totalCheck = hp + mp;
   document.getElementById('hp-formula').innerHTML =
-    `<strong>HP</strong> = (STR ${ch.attrs.STR||0} + AGI ${ch.attrs.AGI||0}) × 2 + 4 = <strong>${hp}</strong> &nbsp;|&nbsp; ` +
-    `<strong>MP</strong> = (WIT ${ch.attrs.WIT||0} + EMP ${ch.attrs.EMP||0}) × 2 + 4 = <strong>${mp}</strong> &nbsp;|&nbsp; ` +
+    `<strong>HP</strong> = (STR ${getEffectiveAttr('STR')} + AGI ${getEffectiveAttr('AGI')}) × 2 + 4 = <strong>${hp}</strong> &nbsp;|&nbsp; ` +
+    `<strong>MP</strong> = (WIT ${getEffectiveAttr('WIT')} + EMP ${getEffectiveAttr('EMP')}) × 2 + 4 = <strong>${mp}</strong> &nbsp;|&nbsp; ` +
     `<strong>Sorce Points</strong> = max MP = <strong>${sp}</strong>`;
 
   // Compute DP from armor selected in Step 6
@@ -2710,7 +2734,7 @@ function renderStatusPoints() {
     const shell = isPrideaHardenedShell();
     const shellNote = shell ? ' + 5 (Hardened Carapace)' : '';
     if (!armor) return ch.specialty ? 'Choose armor in Step 6' : 'Set by armor';
-    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${ch.attrs.AGI||0})×3${shellNote}`;
+    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${getEffectiveAttr('AGI')})×3${shellNote}`;
     const baseDP = shell ? (dpVal - 5) : dpVal;
     return armor + ' = ' + baseDP + ' DP' + shellNote;
   })();
@@ -2914,30 +2938,49 @@ function renderDetailsStep() {
 }
 
 
+function getEffectiveLineageName() {
+  return ch.mixedLineage
+    ? (ch.mixedAssignment.features || ch.mixedLineages[0] || null)
+    : ch.lineage;
+}
+
+function getDisplayLineageName() {
+  return ch.mixedLineage && ch.mixedLineages.length === 2
+    ? ch.mixedLineages.join(' / ')
+    : (ch.lineage || '-');
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 // ═══════════════════════════════════════════════════════════════
 // STEP 10 - SUMMARY
 // ═══════════════════════════════════════════════════════════════
 function renderSummary() {
   const allSkills = {};
-  for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
-  const lg = LINEAGES.find(l=>l.name===ch.lineage);
+  for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = getSkillRank(s.key); });
+  const effectiveLineageName = getEffectiveLineageName();
+  const lg = LINEAGES.find(l=>l.name===effectiveLineageName);
 
   const grid = document.getElementById('summary-grid');
   grid.innerHTML = `
     <div class="summary-block">
       <h3>Identity</h3>
-      <div class="summary-row"><span class="s-label">Name</span><span class="s-val">${ch.name||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Name</span><span class="s-val">${esc(ch.name||'-')}</span></div>
       <div class="summary-row"><span class="s-label">Level</span><span class="s-val">${ch.level||1}</span></div>
-      <div class="summary-row"><span class="s-label">Class</span><span class="s-val">${ch.cls||'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${ch.specialty||'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${ch.lineage||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Class</span><span class="s-val">${esc(ch.cls||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${esc(ch.specialty||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${esc(getDisplayLineageName())}</span></div>
       <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'-'}</span></div>
       <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?lg.speed+' ft':'-'}</span></div>
     </div>
     <div class="summary-block">
       <h3>Attributes</h3>
       ${ATTRIBUTES.map(a=>`
-        <div class="summary-row"><span class="s-label">${a.name}</span><span class="s-val">${ch.attrs[a.key]||0}</span></div>
+        <div class="summary-row"><span class="s-label">${a.name}</span><span class="s-val">${getEffectiveAttr(a.key)}</span></div>
       `).join('')}
     </div>
     <div class="summary-block">
@@ -2949,10 +2992,10 @@ function renderSummary() {
     </div>
     <div class="summary-block">
       <h3>Lifepath</h3>
-      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${ch.lifepath.culture||ch.lifepathCustom.culture||'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${ch.lifepath.personality||ch.lifepathCustom.personality||'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${ch.lifepath.value||ch.lifepathCustom.value||'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${esc(ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${esc(ch.lifepath.culture||ch.lifepathCustom.culture||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${esc(ch.lifepath.personality||ch.lifepathCustom.personality||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${esc(ch.lifepath.value||ch.lifepathCustom.value||'-')}</span></div>
     </div>
     <div class="summary-block" style="grid-column:1/-1">
       <h3>Skills</h3>
@@ -2979,11 +3022,11 @@ function renderSummary() {
 
   // Validation
   const checks = [];
-  const attrSum = Object.values(ch.attrs).reduce((a,b)=>a+b,0);
+  const attrSum = getEffectiveAttrSum();
   checks.push({ok: attrSum === 8, msg: `Attribute sum = ${attrSum} (should be 8)`});
   checks.push({ok: calcHP()+calcMP() === 24, msg: `HP+MP = ${calcHP()+calcMP()} (should be 24 at level 1)`});
   checks.push({ok: !!ch.name, msg: 'Character name is set'});
-  checks.push({ok: !!ch.lineage, msg: 'Lineage is chosen'});
+  checks.push({ok: ch.mixedLineage ? ch.mixedLineages.length === 2 : !!ch.lineage, msg: 'Lineage is chosen'});
   checks.push({ok: !!ch.cls, msg: 'Class is chosen'});
   checks.push({ok: !!ch.specialty, msg: 'Specialty is chosen'});
 
@@ -3020,14 +3063,14 @@ const WEAPON_DATA = {
 function buildDicePool(attrKey, skillKey, modStr) {
   let attrVal = 0;
   if (attrKey === 'STR_AGI_HIGH') {
-    const s = ch.attrs.STR || 0, a = ch.attrs.AGI || 0;
+    const s = getEffectiveAttr('STR'), a = getEffectiveAttr('AGI');
     attrVal = (s >= a) ? s : a;
   } else if (attrKey === 'STR') {
-    attrVal = ch.attrs.STR || 0;
+    attrVal = getEffectiveAttr('STR');
   } else if (attrKey === 'AGI') {
-    attrVal = ch.attrs.AGI || 0;
+    attrVal = getEffectiveAttr('AGI');
   }
-  const skillVal = ch.skills[skillKey] || 0;
+  const skillVal = getSkillRank(skillKey);
 
   let d8s = 0, d6s = 0;
   if (attrVal === 0 && skillVal === 0) {
@@ -3191,16 +3234,20 @@ async function exportPDF() {
     // Refresh lineage benefits before export to ensure bloodline/purpose text is current
     updateLineageBenefits();
     // Fetch the PDF template
-    const pdfBytes = await fetch('Character_Sheet_Form_Fill.pdf').then(r => r.arrayBuffer());
+    const response = await fetch('./Character_Sheet_Form_Fill.pdf');
+    if (!response.ok) {
+      throw new Error(`Could not load Character_Sheet_Form_Fill.pdf (${response.status}). Check the filename, case, and repo path.`);
+    }
+    const pdfBytes = await response.arrayBuffer();
     const { PDFDocument } = PDFLib;
     const pdf = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
     const form = pdf.getForm();
 
     // For mixed lineage, pull stats from the Features lineage
-    const featuresLineageName = ch.mixedLineage ? (ch.mixedAssignment.features || ch.mixedLineages[0]) : ch.lineage;
+    const featuresLineageName = getEffectiveLineageName();
     const lg = LINEAGES.find(l=>l.name===featuresLineageName) || {};
     const allSkills = {};
-    for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = ch.skills[s.key]||0; });
+    for (const skills of Object.values(SKILLS)) skills.forEach(s => { allSkills[s.key] = getSkillRank(s.key); });
 
     // Helper — sanitize to WinAnsi-safe ASCII
     const winansi = s => String(s||'').replace(/[\u0080-\uffff]/g, c => {
@@ -3271,10 +3318,10 @@ async function exportPDF() {
     set('SPEED', lg.speed ? lg.speed+' ft' : '30 ft');
 
     // Attributes
-    set('STRENGTH',  ch.attrs.STR||0);
-    set('AGILITY',   ch.attrs.AGI||0);
-    set('WITS',      ch.attrs.WIT||0);
-    set('EMPATHY',   ch.attrs.EMP||0);
+    set('STRENGTH',  getEffectiveAttr('STR'));
+    set('AGILITY',   getEffectiveAttr('AGI'));
+    set('WITS',      getEffectiveAttr('WIT'));
+    set('EMPATHY',   getEffectiveAttr('EMP'));
 
     // Skills
     set('Brawl',      allSkills.Brawl||0);
@@ -3440,7 +3487,7 @@ async function exportPDF() {
     const setSmall = (fieldName, val, size) => {
       try {
         const field = form.getTextField(fieldName);
-        const cleanVal = stripHtml(val);
+        const cleanVal = winansi(stripHtml(val));
         // For multiline fields setFontSize may fail - try both approaches
         try {
           field.setFontSize(size || 7);
@@ -3507,10 +3554,12 @@ async function exportPDF() {
         setSmall(talentFields[i], t, 11);
       }
     });
-    // Also set small font on talent rank fields in the main table
+    // Also set small font on talent rank fields in the main table.
+    // Keep this in sync with the earlier page 1 talent fill, including Specialty Talent.
     for (let ti = 1; ti <= 10; ti++) {
-      setSmall('MP Talent name ' + ti, (ch.talents[ti-1]||''), 11);
-      setSmall('MP Talent rank ' + ti, ch.talents[ti-1] ? '1' : '', 9);
+      const talent = allTalents[ti - 1] || '';
+      setSmall('MP Talent name ' + ti, talent, 11);
+      setSmall('MP Talent rank ' + ti, talent ? '1' : '', 9);
     }
 
     const filledBytes = await pdf.save();
@@ -3555,8 +3604,8 @@ function loadJSON(event) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      // Restore ch state
-      Object.keys(data.ch).forEach(k => { ch[k] = data.ch[k]; });
+      // Restore into a fresh default state so old/partial saves cannot leave stale values behind.
+      ch = mergeCharacterState(data.ch || {});
       // Go to the saved step
       const targetStep = data.currentStep || 1;
       initAllSteps();
@@ -3666,7 +3715,7 @@ function updateGearSlot(idx, value) {
   // Check armor restrictions
   const isArmor = ['Layered Plate Armor','Layered Plate armor'].includes(value);
   if (isArmor) {
-    const str = ch.attrs.STR || 0;
+    const str = getEffectiveAttr('STR');
     if (str < 2) {
       alert('Layered Plate Armor requires at least Strength Rank 2. Your current Strength is Rank ' + str + '. Please assign Strength to 2 or higher before selecting this armor.');
       // Revert to previous or first option
@@ -3695,7 +3744,7 @@ function getArmorDP() {
     if (ARMOR_DP_MAP[v] !== undefined) {
       if (ARMOR_DP_MAP[v] === null) {
         // Light Leather = Agility × 3
-        const agi = ch.attrs.AGI || 0;
+        const agi = getEffectiveAttr('AGI');
         const dp  = agi * 3;
         ch.dp = dp;
         return `Light Leather Armor: DP = Agility (${agi}) × 3 = ${dp}`;
@@ -3714,7 +3763,7 @@ function extractNumericDP() {
   let hasArmor = false;
   for (const v of vals) {
     if (ARMOR_DP_MAP[v] !== undefined) {
-      ch.dp = (ARMOR_DP_MAP[v] === null) ? ((ch.attrs.AGI||0) * 3) : ARMOR_DP_MAP[v];
+      ch.dp = (ARMOR_DP_MAP[v] === null) ? (getEffectiveAttr('AGI') * 3) : ARMOR_DP_MAP[v];
       hasArmor = true;
       break;
     }

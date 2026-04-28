@@ -2561,34 +2561,42 @@ function renderLifepath() {
     {key:'viewOfOthers', label:'How You View Others', data:LIFEPATH.viewOfOthers,   hasDesc:true},
   ];
 
-  container.innerHTML = sections.map(sec => `
-    <div style="margin-bottom:28px">
+  container.innerHTML = sections.map(sec => {
+    const selectedOption = ch.lifepath[sec.key] || '';
+    const customText = ch.lifepathCustom[sec.key] || '';
+    const badge = customText.trim()
+      ? `<span class="lp-selected-badge" data-lifepath-badge="${sec.key}">✓ Custom</span>`
+      : (selectedOption ? `<span class="lp-selected-badge" data-lifepath-badge="${sec.key}">✓ ${esc(selectedOption)}</span>` : `<span data-lifepath-badge="${sec.key}"></span>`);
+
+    return `
+    <div style="margin-bottom:28px" data-lifepath-section="${sec.key}">
       <h3 style="font-family:var(--font-ui);font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--accent-dk)">${sec.label}</h3>
       <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:10px">
-        Click a row to select it, or type a custom answer below.
-        ${ch.lifepath[sec.key] ? `<span class="lp-selected-badge">✓ ${ch.lifepath[sec.key]}</span>` : ''}
+        Click a row to select it, or type a custom answer below. Typing a custom answer clears the table selection.
+        ${badge}
       </p>
       <table class="lp-table">
         <thead><tr><th>${sec.data.length <= 3 ? '1d6' : '1d8'}</th><th>Option</th>${sec.hasDesc?'<th>Description</th>':''}</tr></thead>
         <tbody>
           ${sec.data.map(row => `
-            <tr class="${ch.lifepath[sec.key]===row.name?'lp-selected':''}"
+            <tr data-lifepath-row="${sec.key}" class="${selectedOption===row.name && !customText.trim()?'lp-selected':''}"
                 onclick="selectLifepath('${sec.key}','${row.name.replace(/'/g,"\\'")}')">
               <td class="roll">${row.roll}</td>
-              <td class="opt-name" style="${sec.hasDesc?'':' width:100%'}">${row.name}</td>
-              ${sec.hasDesc?`<td>${row.desc||''}</td>`:''}
+              <td class="opt-name" style="${sec.hasDesc?'':' width:100%'}">${esc(row.name)}</td>
+              ${sec.hasDesc?`<td>${esc(row.desc||'')}</td>`:''}
             </tr>
           `).join('')}
         </tbody>
       </table>
       <div>
         <label class="field-label">Custom / Notes for ${sec.label}</label>
-        <input type="text" value="${ch.lifepathCustom[sec.key]||''}" 
-               onchange="ch.lifepathCustom['${sec.key}']=this.value"
+        <input type="text" value="${esc(customText)}" 
+               oninput="setLifepathCustom('${sec.key}', this.value)"
+               onchange="setLifepathCustom('${sec.key}', this.value, true)"
                placeholder="Enter custom answer or notes...">
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   // Append Extra Languages section
   const extraLangHtml = renderExtraLanguagesHtml();
@@ -2702,9 +2710,37 @@ function setExtraLanguagePick(idx, lang, pool) {
 }
 
 
+function setLifepathCustom(key, value, rerender = false) {
+  const text = String(value || '');
+  const hasCustom = text.trim().length > 0;
+  ch.lifepathCustom[key] = hasCustom ? text : '';
+
+  if (hasCustom) {
+    ch.lifepath[key] = null;
+    document.querySelectorAll(`[data-lifepath-row="${key}"]`).forEach(row => row.classList.remove('lp-selected'));
+    const badge = document.querySelector(`[data-lifepath-badge="${key}"]`);
+    if (badge) {
+      badge.className = 'lp-selected-badge';
+      badge.textContent = '✓ Custom';
+    }
+  } else {
+    const badge = document.querySelector(`[data-lifepath-badge="${key}"]`);
+    if (badge) {
+      badge.className = ch.lifepath[key] ? 'lp-selected-badge' : '';
+      badge.textContent = ch.lifepath[key] ? `✓ ${ch.lifepath[key]}` : '';
+    }
+  }
+
+  saveLocal();
+  if (rerender) renderLifepath();
+}
+
 function selectLifepath(key, value) {
-  // Toggle: clicking selected row deselects it
-  ch.lifepath[key] = (ch.lifepath[key] === value) ? null : value;
+  // Table choices and custom answers are mutually exclusive.
+  const wasSelected = ch.lifepath[key] === value && !(ch.lifepathCustom[key] || '').trim();
+  ch.lifepathCustom[key] = '';
+  ch.lifepath[key] = wasSelected ? null : value;
+  saveLocal();
   renderLifepath();
 }
 
@@ -2950,6 +2986,11 @@ function getDisplayLineageName() {
     : (ch.lineage || '-');
 }
 
+function getLifepathAnswer(key) {
+  const custom = (ch.lifepathCustom?.[key] || '').trim();
+  return custom || ch.lifepath?.[key] || '';
+}
+
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -2992,10 +3033,10 @@ function renderSummary() {
     </div>
     <div class="summary-block">
       <h3>Lifepath</h3>
-      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${esc(ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'-')}</span></div>
-      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${esc(ch.lifepath.culture||ch.lifepathCustom.culture||'-')}</span></div>
-      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${esc(ch.lifepath.personality||ch.lifepathCustom.personality||'-')}</span></div>
-      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${esc(ch.lifepath.value||ch.lifepathCustom.value||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Upbringing</span><span class="s-val">${esc(getLifepathAnswer('upbringing')||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Culture</span><span class="s-val">${esc(getLifepathAnswer('culture')||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Personality</span><span class="s-val">${esc(getLifepathAnswer('personality')||'-')}</span></div>
+      <div class="summary-row"><span class="s-label">Values</span><span class="s-val">${esc(getLifepathAnswer('value')||'-')}</span></div>
     </div>
     <div class="summary-block" style="grid-column:1/-1">
       <h3>Skills</h3>
@@ -3465,13 +3506,13 @@ async function exportPDF() {
     backpackItems.slice(0, 16).forEach((item, i) => set('Gear Name ' + (i+1), item));
 
     // Page 2 - Lifepath
-    set('Upbringing',               ch.lifepath.upbringing||ch.lifepathCustom.upbringing||'');
-    set('Culture',                  ch.lifepath.culture||ch.lifepathCustom.culture||'');
-    set('Personality',              ch.lifepath.personality||ch.lifepathCustom.personality||'');
-    set('Value Most',               ch.lifepath.value||ch.lifepathCustom.value||'');
-    set('What Upsets You',          ch.lifepath.upset||ch.lifepathCustom.upset||'');
-    set('How you approach Decisions', ch.lifepath.decisions||ch.lifepathCustom.decisions||'');
-    set('How you view others',      ch.lifepath.viewOfOthers||ch.lifepathCustom.viewOfOthers||'');
+    set('Upbringing',               getLifepathAnswer('upbringing'));
+    set('Culture',                  getLifepathAnswer('culture'));
+    set('Personality',              getLifepathAnswer('personality'));
+    set('Value Most',               getLifepathAnswer('value'));
+    set('What Upsets You',          getLifepathAnswer('upset'));
+    set('How you approach Decisions', getLifepathAnswer('decisions'));
+    set('How you view others',      getLifepathAnswer('viewOfOthers'));
 
     // Notable characters
     ch.notable.slice(0,10).forEach((n,i)=> set(`Notable Char ${i+1}`, n));

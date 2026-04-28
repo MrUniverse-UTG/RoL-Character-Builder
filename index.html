@@ -2579,8 +2579,10 @@ function renderLifepath() {
         <thead><tr><th>${sec.data.length <= 3 ? '1d6' : '1d8'}</th><th>Option</th>${sec.hasDesc?'<th>Description</th>':''}</tr></thead>
         <tbody>
           ${sec.data.map(row => `
-            <tr data-lifepath-row="${sec.key}" class="${selectedOption===row.name && !customText.trim()?'lp-selected':''}"
-                onmousedown="event.preventDefault(); selectLifepath('${sec.key}','${row.name.replace(/'/g,"\\'")}')">
+            <tr data-lifepath-row="${esc(sec.key)}"
+                data-lifepath-value="${esc(row.name)}"
+                class="${selectedOption===row.name && !customText.trim()?'lp-selected':''}"
+                role="button" tabindex="0">
               <td class="roll">${row.roll}</td>
               <td class="opt-name" style="${sec.hasDesc?'':' width:100%'}">${esc(row.name)}</td>
               ${sec.hasDesc?`<td>${esc(row.desc||'')}</td>`:''}
@@ -2600,6 +2602,22 @@ function renderLifepath() {
   // Append Extra Languages section
   const extraLangHtml = renderExtraLanguagesHtml();
   container.innerHTML += extraLangHtml;
+  bindLifepathEvents();
+}
+
+function bindLifepathEvents() {
+  document.querySelectorAll('#lifepath-content [data-lifepath-row][data-lifepath-value]').forEach(row => {
+    const handler = () => {
+      selectLifepath(row.dataset.lifepathRow, row.dataset.lifepathValue);
+    };
+    row.addEventListener('click', handler);
+    row.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handler();
+      }
+    });
+  });
 }
 
 function renderExtraLanguagesHtml() {
@@ -2730,7 +2748,7 @@ function setLifepathCustom(key, value, rerender = false) {
     }
   }
 
-  saveLocal();
+  if (typeof saveLocal === 'function') saveLocal();
   if (rerender) renderLifepath();
 }
 
@@ -2739,7 +2757,7 @@ function selectLifepath(key, value) {
   const wasSelected = ch.lifepath[key] === value && !(ch.lifepathCustom[key] || '').trim();
   ch.lifepathCustom[key] = '';
   ch.lifepath[key] = wasSelected ? null : value;
-  saveLocal();
+  if (typeof saveLocal === 'function') saveLocal();
   renderLifepath();
 }
 
@@ -3969,7 +3987,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (s === 3) renderLineageGrid();
         if (s === 4) { renderClassGrid(); renderClassSkillChoices(); }
         if (s === 5) renderSpecialtyGrid();
-        if (s === 6) renderLifepath();
+        if (s === 7) renderLifepath();
         if (s === 8) renderTalentStep();
         if (s === 9) renderDetailsStep();
       }

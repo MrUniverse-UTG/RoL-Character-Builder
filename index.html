@@ -3164,7 +3164,7 @@ function renderSummary() {
       <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${esc(ch.specialty||'-')}</span></div>
       <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${esc(getDisplayLineageName())}</span></div>
       <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?(lg.speed+(ch.specialty==='Elemancer'?5:0))+' ft':'-'}${ch.specialty==='Elemancer'?' (includes +5 Elemancer)':''}</span></div>
+      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?(() => { const s = lg.speed+(ch.specialty==='Elemancer'?5:0); const dk = ch.lineage==='Darkaen'||(ch.mixedLineage&&ch.mixedLineages.includes('Darkaen')); return s + (dk ? '; Fly '+Math.floor(s/2) : ''); })():'-'}${ch.specialty==='Elemancer'?' (includes +5 Elemancer)':''}</span></div>
     </div>
     <div class="summary-block">
       <h3>Attributes</h3>

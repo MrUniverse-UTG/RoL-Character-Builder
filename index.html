@@ -2600,6 +2600,10 @@ const SPECIALTY_TALENT_TEXT = {
   Warlock: "Patron's Gift: The Study of Sorcery you choose becomes your Patron's Gift, bestowing access to it. Spells from your Patron's Gift cost 1 less Sorce to cast (minimum cost of 1 Sorce).",
   Witch: 'Summon Familiar: During an Intermission, you can summon a loyal servant. You can telepathically speak with your Familiar within 60 ft and cast Spells through it.',
   Oracle: 'Sorce Sense: You can see if a creature or object is emitting magic and make an Analyze check to discern the nature of the magic. You also gain a +1 modifier on Initiative checks.',
+  Shapeshifter: 'Animal Form: As a Standard action, you can create and activate an Animal Form for 24 hours.',
+  Summoner: 'Spirit Companion: You gain the ability to Summon the Scout Stage 1 Form during an Intermission.',
+  Sonneteer: 'Rally: You can spend a Quick Action to give another creature that can hear you a +1 modifier on their next Skill Check. This Bonus will go away after 1 minute has passed if not used.',
+  Cleric: 'Blessed Recovery: During an Intermission or Light Rest each Recovery die that you and any number of creatures of your choice sharing that Intermission or Light Rest expend can\'t roll lower than 3.',
 };
 
 const SPECIALTY_FEATURES = {
@@ -2615,6 +2619,10 @@ const SPECIALTY_FEATURES = {
   Warlock: {name:"Patron's Gift", text:"When you get Rank 1 in this Specialty, you select one Study of Sorcery and learn Rank 1 in it. By making a pact with a greater Patron, <strong>the Study of Sorcery you choose becomes your Patron's Gift</strong>, bestowing access to it and certain effects for that Study. Whenever you cast a spell from your Patron's Gift, it costs 1 less Sorce to cast. This can't bring the Sorce cost to 0."},
   Witch: {name:'Summon Familiar', text:"During an Intermission, you can summon a loyal servant. Choose between the Avian, Mammal/Reptile, or Aquatic Familiar. The Familiar's physiology can look like any Beast as long as it follows the template you choose. You can change the Familiar's template and physiology over the course of an Intermission. You can telepathically speak with your Familiar if it is within 60 feet of you. You can also cast Spells from your Familiar as if you were in its position, but you must have sight of the direction or target of the Spell. If a Familiar is killed, it will need to be resummoned during an Intermission."},
   Oracle: {name:'Sorce Sense', text:'You can see if a creature or object is emitting magic and make an Analyze check to discern the nature of the magic. The GM may impose a Difficulty for these checks. You also gain a +1 modifier on Initiative checks.'},
+  Shapeshifter: {name:'Animal Form', text:'As a Standard action, you can create and activate an Animal Form for 24 hours. You can only choose a Size Small until you gain Rank 2 in this specialty. For extended rules on Animal Form, refer to Shapeshifter in the Core Rulebook.'},
+  Summoner: {name:'Spirit Companion', text:'You gain the ability to Summon the Scout Stage 1 Form during an Intermission. Refer to the Core Rulebook for the extended rules on Spirit Companion.'},
+  Sonneteer: {name:'Rally', text:'You can spend a Quick Action to give another creature that can hear you a +1 modifier on their next Skill Check. This Bonus will go away after 1 minute has passed if not used.'},
+  Cleric: {name:'Blessed Recovery', text:"During an Intermission or Light Rest each Recovery die that you and any number of creatures of your choice sharing that Intermission or Light Rest expend can't roll lower than 3."},
 };
 
 const WARLOCK_STUDIES = ['Study of Blood', 'Study of Aeromancy', 'Study of Cryomancy', 'Study of Geomancy', 'Study of Divinity', 'Study of Death', 'Study of Pyromancy', 'Study of Contagion', 'Study of Shadows', 'Study of Illusion', 'Study of Recovery', 'Study of Displacement'];
@@ -3750,6 +3758,8 @@ async function exportPDF() {
     // Use condensed PDF text for certain specialties
     const pdfSpecialtyTalent = (() => {
       if (ch.specialty === 'Witch') return "Summon Familiar: During an Intermission you can summon your Familiar. You can telepathically speak with it and cast spells through it as long as it is within 60 ft. of you and you can see it and the target of the spell.";
+      if (ch.specialty === 'Shapeshifter') return "Animal Form: As a Standard action, you can create and activate a Small Animal Form for 24 hours. The Small Animal Form has a Speed of 40, Strength Rank of 2, Agility Rank of 5, and Base Damage of 6. You may swap between your Beast Shape and Hybrid Shape as a Quick Action.";
+      if (ch.specialty === 'Summoner') return "Spirit Companion: During an Intermission you can summon or fully heal your Spirit Companion's Stage 1 Scout Form.";
       return ch.specialtyTalent || '';
     })();
     setSmall('SPECIALTY TALENT', pdfSpecialtyTalent, 11);

@@ -2592,6 +2592,10 @@ const SPECIALTY_TALENT_TEXT = {
   Berserker: 'Thicker Skin: Your max HP is increased by 8.',
   Engineer: 'Tinkerer: You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.',
   Pugilist: 'Pugilist Form: As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.',
+  Sharpshooter: 'Eagle Eye: Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 10 feet.',
+  Elemancer: 'Swift: Your base Speed is increased by 5.',
+  Alchemist: 'Mobile Apothecary: You are always considered having an Alchemist Kit equipped without having to wear one. You can still equip and benefit from another Kit.',
+  Reaver: 'Soulwell: When a creature dies within 60 feet of you, you can regain up to 3 Sorce.',
 };
 
 const SPECIALTY_FEATURES = {
@@ -2599,6 +2603,10 @@ const SPECIALTY_FEATURES = {
   Berserker: {name:'Thicker Skin',  text:'Your max HP is increased by 8.'},
   Engineer:  {name:'Tinkerer',      text:'You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.'},
   Pugilist:  {name:'Pugilist Form', text:'As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.'},
+  Sharpshooter: {name:'Eagle Eye', text:'Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 10 feet.'},
+  Elemancer: {name:'Swift', text:'Your base Speed is increased by 5.'},
+  Alchemist: {name:'Mobile Apothecary', text:'You are always considered having an Alchemist Kit equipped without having to wear one. You can still equip and benefit from another Kit.'},
+  Reaver: {name:'Soulwell', text:'When a creature dies within 60 feet of you, you can regain up to 3 Sorce.'},
 };
 
 const WARLOCK_STUDIES = ['Study of Blood', 'Study of Aeromancy', 'Study of Cryomancy', 'Study of Geomancy', 'Study of Divinity', 'Study of Death', 'Study of Pyromancy', 'Study of Contagion', 'Study of Shadows', 'Study of Illusion', 'Study of Recovery', 'Study of Displacement'];
@@ -3136,7 +3144,7 @@ function renderSummary() {
       <div class="summary-row"><span class="s-label">Specialty</span><span class="s-val">${esc(ch.specialty||'-')}</span></div>
       <div class="summary-row"><span class="s-label">Lineage</span><span class="s-val">${esc(getDisplayLineageName())}</span></div>
       <div class="summary-row"><span class="s-label">Size</span><span class="s-val">${lg?lg.size:'-'}</span></div>
-      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?lg.speed+' ft':'-'}</span></div>
+      <div class="summary-row"><span class="s-label">Speed</span><span class="s-val">${lg?(lg.speed+(ch.specialty==='Elemancer'?5:0))+' ft':'-'}${ch.specialty==='Elemancer'?' (includes +5 Elemancer)':''}</span></div>
     </div>
     <div class="summary-block">
       <h3>Attributes</h3>
@@ -3490,7 +3498,8 @@ async function exportPDF() {
     const allRead    = [...new Set([...baseReadLangs,  ...extraRead])];
     set('LANGUAGES',      allSpeak.join(', '));
     set('LANGUAGES read', allRead.join(', '));
-    set('SPEED', lg.speed ? lg.speed+' ft' : '30 ft');
+    const elemancerSpeed = ch.specialty === 'Elemancer' ? 5 : 0;
+    set('SPEED', lg.speed ? (lg.speed + elemancerSpeed)+' ft' : (30 + elemancerSpeed)+' ft');
 
     // Attributes
     set('STRENGTH',  getEffectiveAttr('STR'));
@@ -3544,11 +3553,22 @@ async function exportPDF() {
       if (w) {
         const entryName = w.name || item;
         // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
+        if (w) {
+        const entryName = w.name || item;
+        // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
         if (seenWeaponNames.has(entryName.toLowerCase())) return;
         seenWeaponNames.add(entryName.toLowerCase());
+        // Sharpshooter Eagle Eye: +10 ft to ranged weapon max range
+        let weaponRange = w.range;
+        if (ch.specialty === 'Sharpshooter' && w.skill === 'Shoot') {
+          const rangeMatch = weaponRange.match(/^(\d+)/);
+          if (rangeMatch) {
+            weaponRange = (parseInt(rangeMatch[1]) + 10) + weaponRange.slice(rangeMatch[1].length);
+          }
+        }
         weaponEntries.push({
           name:     entryName,
-          range:    w.range,
+          range:    weaponRange,
           mod:      w.mod,
           damage:   w.damage,
           pool:     buildDicePool(w.attr, w.skill, w.mod),

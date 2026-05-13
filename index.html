@@ -3550,9 +3550,6 @@ async function exportPDF() {
       const wTitle = WEAPON_DATA[item.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')];
       const wLower = Object.keys(WEAPON_DATA).find(k => k.toLowerCase() === item.toLowerCase());
       const w = wExact || wTitle || (wLower ? WEAPON_DATA[wLower] : null);
-      if (w) {
-        const entryName = w.name || item;
-        // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
         if (w) {
         const entryName = w.name || item;
         // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)

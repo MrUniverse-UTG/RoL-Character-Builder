@@ -611,7 +611,7 @@ Creatures of Logic: You gain resistance to Fear damage but have a -4 modifier on
    desc:'Demons created from the souls of Gaians. Mature at 18, live to ~666 years.',
    traits:['Darkaen'],
    otherworldlyTraits:[
-     {name:'Night Flight', text:'You have two large bat wings on your back that grant you a Fly Speed equal to half your base Speed. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.'},
+     {name:'Night Flight', text:'You have two large bat wings on your back that grant you 5 Fly Speed for every 10 base Speed you have. When not using them, you can have them wrapped around you, being indistinguishable from a cloak.'},
      {name:'Shadow Eyes', text:'You gain Gloom Vision.'},
      {name:'Unholy', text:'Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.'},
    ],
@@ -3519,7 +3519,10 @@ async function exportPDF() {
     set('LANGUAGES',      allSpeak.join(', '));
     set('LANGUAGES read', allRead.join(', '));
     const elemancerSpeed = ch.specialty === 'Elemancer' ? 5 : 0;
-    set('SPEED', lg.speed ? (lg.speed + elemancerSpeed)+' ft' : (30 + elemancerSpeed)+' ft');
+    const baseSpeed = (lg.speed || 30) + elemancerSpeed;
+    const isDarkaen = ch.lineage === 'Darkaen' || (ch.mixedLineage && ch.mixedLineages.includes('Darkaen'));
+    const flySpeed = isDarkaen ? '; Fly ' + Math.floor(15) : '';
+    set('SPEED', baseSpeed + flySpeed);
 
     // Attributes
     set('STRENGTH',  getEffectiveAttr('STR'));

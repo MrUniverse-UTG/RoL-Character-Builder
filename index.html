@@ -3517,7 +3517,7 @@ async function exportPDF() {
     set('Tame',       allSkills.Tame||0);
 
     // Talents (page 1 table)
-    const allTalents = [ch.specialtyTalent, ...ch.talents.filter(t=>t)];
+    const allTalents = [ch.specialty, ...ch.talents.filter(t=>t)];
     allTalents.slice(0,10).forEach((t,i)=>{ set(`MP Talent name ${i+1}`, t); set(`MP Talent rank ${i+1}`, '1'); });
 
     // Status points

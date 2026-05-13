@@ -4042,7 +4042,7 @@ function addTalentFromView(name) {
   }
   // Warlock: chosen Study becomes Patron's Gift in specialty talent
   if (isSorcery && ch.specialty === 'Warlock') {
-    ch.specialtyTalent = "Patron's Gift: Spells from " + name + " cost 1 less Sorce to cast (minimum cost of 1 Sorce).";
+    ch.specialtyTalent = "Patron's Gift: " + name + " is your Patron's Gift. Spells from your Patron's Gift cost 1 less Sorce to cast (minimum cost of 1 Sorce).";
   }
   if (isGeneral) {
     alert('General Talents are not selected during character creation. Only 1 Martial or Sorcery Talent is chosen at Level 1.'); return;

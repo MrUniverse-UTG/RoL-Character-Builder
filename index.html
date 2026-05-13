@@ -2966,7 +2966,11 @@ function getAvailableTalents() {
 function renderTalentStep() {
   // Always update ch state even if DOM elements aren't present
   if (ch.specialty) {
-    ch.specialtyTalent = SPECIALTY_TALENT_TEXT[ch.specialty] || (ch.specialty + ' Specialty Talent');
+    // Don't overwrite Warlock's dynamic Patron's Gift text if a Study was already chosen
+    const hasWarlockStudy = ch.specialty === 'Warlock' && (ch.talents||[]).some(t => WARLOCK_STUDIES.includes(t));
+    if (!hasWarlockStudy) {
+      ch.specialtyTalent = SPECIALTY_TALENT_TEXT[ch.specialty] || (ch.specialty + ' Specialty Talent');
+    }
   }
   if (ch.lineage) {
     updateLineageBenefits();

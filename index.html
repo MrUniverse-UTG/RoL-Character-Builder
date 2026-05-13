@@ -343,6 +343,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
     <p>Your Specialty is your playstyle within your Class. You cannot change it later.</p>
   </div>
   <div class="option-grid cols2" id="specialty-grid"></div>
+  <div id="specialty-feature-display" style="display:none;margin-top:16px"></div>
 </div>
 
 <!-- ═══════════ STEP 6: GEAR ═══════════ -->
@@ -2553,7 +2554,8 @@ function pickClassSkill(choiceIdx, skillKey) {
 // ═══════════════════════════════════════════════════════════════
 function renderSpecialtyGrid() {
   const container = document.getElementById('specialty-grid');
-  if (!ch.cls) { container.innerHTML = '<p style="color:var(--muted);font-family:var(--font-ui)">Please choose a Class first.</p>'; return; }
+  const featureEl = document.getElementById('specialty-feature-display');
+  if (!ch.cls) { container.innerHTML = '<p style="color:var(--muted);font-family:var(--font-ui)">Please choose a Class first.</p>'; if(featureEl)featureEl.style.display='none'; return; }
   const cls = CLASSES.find(c=>c.name===ch.cls);
   container.innerHTML = cls.specialties.map(specName => {
     const spec = SPECIALTIES[specName];
@@ -2565,10 +2567,38 @@ function renderSpecialtyGrid() {
       </div>
     `;
   }).join('');
+  // Show specialty feature if selected and one exists
+  if (featureEl) {
+    const feat = ch.specialty ? SPECIALTY_FEATURES[ch.specialty] : null;
+    if (feat) {
+      featureEl.style.display = 'block';
+      featureEl.innerHTML = `
+        <div style="background:var(--card-bg);border:1px solid var(--border-gold);border-radius:var(--r);padding:16px">
+          <div style="font-family:var(--font-ui);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:8px">
+            ${ch.specialty} Specialty Feature (Level 1)
+          </div>
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:.95rem;color:var(--gold-pale);margin-bottom:4px">${feat.name}</div>
+          <div style="font-size:.9rem;color:var(--text);line-height:1.5">${feat.text}</div>
+        </div>`;
+    } else {
+      featureEl.style.display = 'none';
+      featureEl.innerHTML = '';
+    }
+  }
 }
 
 const SPECIALTY_TALENT_TEXT = {
+  Guardian: 'Armored: Any armor set you wear has its max DP increased by 5.',
+  Berserker: 'Thicker Skin: Your max HP is increased by 8.',
+  Engineer: 'Tinkerer: You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.',
   Pugilist: 'Pugilist Form: As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.',
+};
+
+const SPECIALTY_FEATURES = {
+  Guardian:  {name:'Armored',       text:'Any armor set you wear has its max DP increased by 5.'},
+  Berserker: {name:'Thicker Skin',  text:'Your max HP is increased by 8.'},
+  Engineer:  {name:'Tinkerer',      text:'You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.'},
+  Pugilist:  {name:'Pugilist Form', text:'As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.'},
 };
 
 const WARLOCK_STUDIES = ['Study of Blood', 'Study of Aeromancy', 'Study of Cryomancy', 'Study of Geomancy', 'Study of Divinity', 'Study of Death', 'Study of Pyromancy', 'Study of Contagion', 'Study of Shadows', 'Study of Illusion', 'Study of Recovery', 'Study of Displacement'];
@@ -2829,7 +2859,7 @@ function selectLifepath(key, value) {
 // ═══════════════════════════════════════════════════════════════
 // STEP 7 - STATUS POINTS
 // ═══════════════════════════════════════════════════════════════
-function calcHP()  { return ((getEffectiveAttr('STR') + getEffectiveAttr('AGI')) * 2) + 4; }
+function calcHP()  { let hp = ((getEffectiveAttr('STR') + getEffectiveAttr('AGI')) * 2) + 4; if (ch.specialty === 'Berserker') hp += 8; return hp; }
 function calcMP()  { return ((getEffectiveAttr('WIT') + getEffectiveAttr('EMP')) * 2) + 4; }
 function calcDP()  { return 0; } // Set by armor
 function calcSP()  { return calcMP(); } // Sorce Points = max MP
@@ -2837,8 +2867,10 @@ function calcSP()  { return calcMP(); } // Sorce Points = max MP
 function renderStatusPoints() {
   const hp = calcHP(), mp = calcMP(), sp = calcSP();
   const totalCheck = hp + mp;
+  const berserkerHP = ch.specialty === 'Berserker' ? 8 : 0;
+  const hpFormulaExtra = berserkerHP ? ` + ${berserkerHP} (Berserker)` : '';
   document.getElementById('hp-formula').innerHTML =
-    `<strong>HP</strong> = (STR ${getEffectiveAttr('STR')} + AGI ${getEffectiveAttr('AGI')}) × 2 + 4 = <strong>${hp}</strong> &nbsp;|&nbsp; ` +
+    `<strong>HP</strong> = (STR ${getEffectiveAttr('STR')} + AGI ${getEffectiveAttr('AGI')}) × 2 + 4${hpFormulaExtra} = <strong>${hp}</strong> &nbsp;|&nbsp; ` +
     `<strong>MP</strong> = (WIT ${getEffectiveAttr('WIT')} + EMP ${getEffectiveAttr('EMP')}) × 2 + 4 = <strong>${mp}</strong> &nbsp;|&nbsp; ` +
     `<strong>Sorce Points</strong> = max MP = <strong>${sp}</strong>`;
 
@@ -2850,18 +2882,22 @@ function renderStatusPoints() {
     const ARMOR_NAMES_CHECK = ['quilted vest','layered plate','light leather','reinforced tunic','brigandine'];
     const armor = gearVals.find(v => ARMOR_NAMES_CHECK.some(a => v.toLowerCase().includes(a)));
     const shell = isPrideaHardenedShell();
+    const guardian = ch.specialty === 'Guardian';
     const shellNote = shell ? ' + 5 (Hardened Carapace)' : '';
+    const guardianNote = guardian ? ' + 5 (Guardian)' : '';
+    const bonusNote = shellNote + guardianNote;
     if (!armor) return ch.specialty ? 'Choose armor in Step 6' : 'Set by armor';
-    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${getEffectiveAttr('AGI')})×3${shellNote}`;
-    const baseDP = shell ? (dpVal - 5) : dpVal;
-    return armor + ' = ' + baseDP + ' DP' + shellNote;
+    if (armor.toLowerCase().includes('light leather')) return `Light Leather = AGI(${getEffectiveAttr('AGI')})×3${bonusNote}`;
+    const bonusTotal = (shell ? 5 : 0) + (guardian ? 5 : 0);
+    const baseDP = dpVal - bonusTotal;
+    return armor + ' = ' + baseDP + ' DP' + bonusNote;
   })();
 
   document.getElementById('status-grid').innerHTML = `
     <div class="status-card hp">
       <div class="status-name">Max HP</div>
       <div class="status-val">${hp}</div>
-      <div class="status-formula">(STR+AGI)×2+4</div>
+      <div class="status-formula">(STR+AGI)×2+4${ch.specialty==='Berserker'?'+8 (Berserker)':''}</div>
     </div>
     <div class="status-card mp">
       <div class="status-name">Max MP</div>
@@ -2886,12 +2922,14 @@ function renderStatusPoints() {
   `;
 
   const checkEl = document.getElementById('status-check');
-  if (totalCheck === 24) {
+  const expectedTotal = ch.specialty === 'Berserker' ? 32 : 24;
+  const berserkerCheckNote = ch.specialty === 'Berserker' ? ' (includes +8 from Berserker Thicker Skin)' : '';
+  if (totalCheck === expectedTotal) {
     checkEl.className = 'info-box';
-    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} - Correct!`;
+    checkEl.textContent = `✓ HP (${hp}) + MP (${mp}) = ${totalCheck} - Correct!${berserkerCheckNote}`;
   } else {
     checkEl.className = 'warn-box';
-    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal 24. Check your Attribute assignments.`;
+    checkEl.textContent = `⚠ HP (${hp}) + MP (${mp}) = ${totalCheck}. At Level 1 this should equal ${expectedTotal}${berserkerCheckNote}. Check your Attribute assignments.`;
   }
 }
 
@@ -3147,7 +3185,8 @@ function renderSummary() {
   const checks = [];
   const attrSum = getEffectiveAttrSum();
   checks.push({ok: attrSum === 8, msg: `Attribute sum = ${attrSum} (should be 8)`});
-  checks.push({ok: calcHP()+calcMP() === 24, msg: `HP+MP = ${calcHP()+calcMP()} (should be 24 at level 1)`});
+  const expectedSumCheck = ch.specialty === 'Berserker' ? 32 : 24;
+  checks.push({ok: calcHP()+calcMP() === expectedSumCheck, msg: `HP+MP = ${calcHP()+calcMP()} (should be ${expectedSumCheck} at level 1${ch.specialty === 'Berserker' ? ', includes +8 Berserker' : ''})`});
   checks.push({ok: !!ch.name, msg: 'Character name is set'});
   checks.push({ok: ch.mixedLineage ? ch.mixedLineages.length === 2 : !!ch.lineage, msg: 'Lineage is chosen'});
   checks.push({ok: !!ch.cls, msg: 'Class is chosen'});
@@ -3907,6 +3946,9 @@ function extractNumericDP() {
   if (!hasArmor) ch.dp = 0;
   // Hardened Shell (Pridae Evolved Purpose) adds +5 max DP when wearing armor
   if (isPrideaHardenedShell() && hasArmor) {
+    ch.dp += 5;
+  }
+  if (ch.specialty === 'Guardian' && hasArmor) {
     ch.dp += 5;
   }
 }

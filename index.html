@@ -535,7 +535,7 @@ Taste of the Past (Minor Trait): You gain a +2 modifier on Endure checks against
    langs:{speak:['Godun','Gaian'], read:['Eldar','Gaian']},
    desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia. Mature at 20, live to ~120.',
    traits:['Guodon'],
-   major:{name:'Titan Blood',text:'When calculating the weight you can push, pull, and lift, double the amount after doing the normal calculation. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.'},
+   major:{name:'Titan Blood',text:'When calculating the weight you can push, pull, and lift, double the amount. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.'},
    minor:{name:'Thick Build',text:'You can wield heavy weapons and shields in one hand but cannot wield more than one at once.'},
    features:`Titan Blood (Major Trait): When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.
 
@@ -3888,6 +3888,13 @@ const GEAR_OPTIONS = {"Guardian": [["Short sword", "Hand axe", "Hammer"], ["Smal
 
 const ARMOR_DP_MAP = {"Quilted Vest": 10, "Quilted Vest armor": 10, "Layered Plate Armor": 20, "Layered Plate armor": 20, "Light Leather armor": null, "Reinforced Tunic": 12, "Brigandine armor set": 16};
 
+// Sharpshooter: ammo container must match the chosen weapon
+const SHARPSHOOTER_AMMO_MATCH = {
+  'Short bow':        'Arrow quiver',
+  'Flintlock pistol': 'Bullet pouch',
+  'Crossbow':         'Bolt pouch'
+};
+
 function renderGearStep() {
   const el = document.getElementById('gear-step-content');
   if (!el) return;
@@ -3919,6 +3926,16 @@ function renderGearStep() {
       ch.equip[i] = options[0];
     }
   });
+  // Sharpshooter: force ammo slot (1) to match weapon slot (0).
+  // Runs on every render so loaded saves with mismatched picks get corrected too.
+  if (ch.specialty === 'Sharpshooter') {
+    const matchedAmmo = SHARPSHOOTER_AMMO_MATCH[ch.gearSelections[0]];
+    if (matchedAmmo) {
+      ch.gearSelections[1] = matchedAmmo;
+      ch.equip[1] = matchedAmmo;
+    }
+  }
+
   // After init, extract DP
   extractNumericDP();
 
@@ -3933,10 +3950,14 @@ function renderGearStep() {
         const armor = isArmorSlot(options);
         const weapon = !armor && isWeaponSlot(options, i);
         const label = armor ? 'Armor' : weapon ? `Weapon${i>0?' / Ammo':''}` : 'Other Gear';
-        if (options.length === 1) {
+        // Sharpshooter ammo slot is derived from the weapon choice — show it locked
+        const lockedAmmo = ch.specialty === 'Sharpshooter' && i === 1;
+        if (options.length === 1 || lockedAmmo) {
+          const shown = lockedAmmo ? (ch.gearSelections[i] || options[0]) : options[0];
+          const note = lockedAmmo ? ' <span style="color:var(--muted);font-size:.78rem">(matches your weapon)</span>' : '';
           return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${label}</label>
-            <div style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-family:var(--font-ui);font-size:.88rem">${options[0]}</div>
+            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${lockedAmmo ? 'Ammo' : label}</label>
+            <div style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-family:var(--font-ui);font-size:.88rem">${shown}${note}</div>
           </div>`;
         }
         return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
@@ -3981,6 +4002,13 @@ function updateGearSlot(idx, value) {
   }
   ch.gearSelections[idx] = value;
   ch.equip[idx] = value;
+  // Sharpshooter: picking a weapon swaps in the matching ammo container
+  if (ch.specialty === 'Sharpshooter' && idx === 0 && SHARPSHOOTER_AMMO_MATCH[value]) {
+    ch.gearSelections[1] = SHARPSHOOTER_AMMO_MATCH[value];
+    ch.equip[1] = SHARPSHOOTER_AMMO_MATCH[value];
+    renderGearStep(); // redraw so the locked ammo row updates
+    return;
+  }
   // Auto-calculate DP if armor changed
   const dpText = getArmorDP();
   const dpEl = document.getElementById('dp-display');

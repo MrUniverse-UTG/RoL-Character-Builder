@@ -535,7 +535,7 @@ Taste of the Past (Minor Trait): You gain a +2 modifier on Endure checks against
    langs:{speak:['Godun','Gaian'], read:['Eldar','Gaian']},
    desc:'Sturdy Humanoids whose bloodline was blessed by the Titans of Gaia. Mature at 20, live to ~120.',
    traits:['Guodon'],
-   major:{name:'Titan Blood',text:'When calculating the weight you can push, pull, and lift, double the amount. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.'},
+   major:{name:'Titan Blood',text:'When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.'},
    minor:{name:'Thick Build',text:'You can wield heavy weapons and shields in one hand but cannot wield more than one at once.'},
    features:`Titan Blood (Major Trait): When calculating the weight you can push, pull, and lift, add 50 pounds. When Grappling or Shoving another creature, you can treat yourself as one size bigger. You cannot use this trait to Grapple or Shove Gargantuan or larger creatures.
 
@@ -2628,10 +2628,33 @@ const SPECIALTY_FEATURES = {
 const WARLOCK_STUDIES = ['Study of Blood', 'Study of Aeromancy', 'Study of Cryomancy', 'Study of Geomancy', 'Study of Divinity', 'Study of Death', 'Study of Pyromancy', 'Study of Contagion', 'Study of Shadows', 'Study of Illusion', 'Study of Recovery', 'Study of Displacement'];
 
 function selectSpecialty(name) {
+  const changed = ch.specialty !== name;
   ch.specialty = name;
   ch.specialtyTalent = SPECIALTY_TALENT_TEXT[name] || (name + ' Specialty Talent');
   ch.warlockStudy = null; // reset warlock study on specialty change
+  if (changed) resetGearForSpecialty(); // old specialty's gear is invalid for the new one
   renderSpecialtyGrid();
+}
+
+// Wipe gear picks and repopulate defaults for the current specialty.
+// Without this, gearSelections keeps the OLD specialty's items keyed by slot
+// index — the PDF then exports stale gear and the attack table can't match
+// weapons. Populating defaults immediately also means the PDF is correct even
+// if the user downloads without revisiting the gear step.
+function resetGearForSpecialty() {
+  ch.gearSelections = {};
+  for (let i = 0; i < 6; i++) ch.equip[i] = '';
+  const slots = GEAR_OPTIONS[ch.specialty] || [];
+  slots.forEach((options, i) => {
+    ch.gearSelections[i] = options[0];
+    ch.equip[i] = options[0];
+  });
+  // Sharpshooter: ammo slot must match the default weapon
+  if (ch.specialty === 'Sharpshooter') {
+    const ammo = SHARPSHOOTER_AMMO_MATCH[ch.gearSelections[0]];
+    if (ammo) { ch.gearSelections[1] = ammo; ch.equip[1] = ammo; }
+  }
+  extractNumericDP();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3572,7 +3595,12 @@ async function exportPDF() {
       const wExact = WEAPON_DATA[item];
       const wTitle = WEAPON_DATA[item.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')];
       const wLower = Object.keys(WEAPON_DATA).find(k => k.toLowerCase() === item.toLowerCase());
-      const w = wExact || wTitle || (wLower ? WEAPON_DATA[wLower] : null);
+      // Final fallback: ignore spaces too, so gear strings like 'Short bow'
+      // match the WEAPON_DATA key 'Shortbow'. Without this, Sharpshooter's
+      // default weapon produced no attack row in the PDF.
+      const norm = s => s.toLowerCase().replace(/\s+/g,'');
+      const wNoSpace = Object.keys(WEAPON_DATA).find(k => norm(k) === norm(item));
+      const w = wExact || wTitle || (wLower ? WEAPON_DATA[wLower] : null) || (wNoSpace ? WEAPON_DATA[wNoSpace] : null);
         if (w) {
         const entryName = w.name || item;
         // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
@@ -3914,16 +3942,21 @@ function renderGearStep() {
   const isWeaponSlot = (opts, i) => i === 0 || (!isArmorSlot(opts) && opts.some(o =>
     ['sword','bow','axe','mace','dagger','pistol','wand','staff','crossbow','instrument','hammer'].some(w => o.toLowerCase().includes(w))));
 
-  // Auto-initialize all single-option slots
+  // Initialize/repair every slot: a selection must be one of THIS specialty's
+  // options for that slot. Stale values from a previous specialty (or an old
+  // save file) render as an unselected dropdown while the stale value still
+  // exports to the PDF — so replace anything invalid with the first option.
   slots.forEach((options, i) => {
-    if (options.length === 1 && !ch.gearSelections[i]) {
+    if (!ch.gearSelections[i] || !options.includes(ch.gearSelections[i])) {
       ch.gearSelections[i] = options[0];
       ch.equip[i] = options[0];
     }
-    // Also init multi-option slots to first option if not yet set
-    if (!ch.gearSelections[i]) {
-      ch.gearSelections[i] = options[0];
-      ch.equip[i] = options[0];
+  });
+  // Drop selections for slots this specialty doesn't have
+  Object.keys(ch.gearSelections).forEach(k => {
+    if (Number(k) >= slots.length) {
+      delete ch.gearSelections[k];
+      if (Number(k) < 6) ch.equip[Number(k)] = '';
     }
   });
   // Sharpshooter: force ammo slot (1) to match weapon slot (0).

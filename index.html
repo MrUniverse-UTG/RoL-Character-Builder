@@ -3731,6 +3731,36 @@ async function exportPDF() {
     if (notesEl && notesEl.value) ch.notes = notesEl.value;
     setSmall('CHARACTER NOTES', ch.notes||'', 9);
 
+    // Fix oversized default font on blank player-fill fields
+    // (Additional Notes, Curses and Diseases, Loot and Artifacts).
+    // These are left empty, so text typed into the downloaded PDF uses the
+    // field's default appearance, which is huge/auto-sized. Patch the /DA
+    // to 9pt Helvetica so typed text matches Character Notes on page 1.
+    const fixBlankFieldFontSize = (nameFragments, size) => {
+      form.getFields().forEach(f => {
+        const nm = (f.getName() || '').toLowerCase();
+        if (!nameFragments.some(frag => nm.includes(frag))) return;
+        try {
+          const field = form.getTextField(f.getName());
+          try { field.setFontSize(size); } catch(fe) {}
+          // Always patch the default appearance directly as well — covers
+          // multiline fields and auto-size (0 Tf) defaults that setFontSize misses.
+          try {
+            const daStr = '/Helvetica ' + size + ' Tf 0 g';
+            field.acroField.getWidgets().forEach(w => w.setDefaultAppearance(daStr));
+            field.acroField.setDefaultAppearance(daStr);
+          } catch(da) {}
+          // If the field already has text, re-set it so the visible
+          // appearance stream regenerates at the new size.
+          try { const cur = field.getText(); if (cur) field.setText(cur); } catch(te) {}
+        } catch(e) {} // not a text field or missing — skip
+      });
+    };
+    fixBlankFieldFontSize(
+      ['additional notes', 'curses', 'diseases', 'loot', 'artifacts'],
+      9
+    );
+
     // Spells — fill page 4 if a Study of Sorcery talent was selected
     const studyTalent = (ch.talents||[]).find(t => t && t.startsWith('Study of'));
     if (studyTalent && STUDY_SPELLS[studyTalent]) {

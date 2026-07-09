@@ -1340,6 +1340,122 @@ const SPECIALTY_RANK_DATA = {
 const RELIABLE_ATTRIBUTE_TEXT = "Reliable Attribute: Whenever you make a Skill or Spell Check with this Attribute, you may choose to add 1 success after you see the result of the roll. You can’t use this on a Pushed check, can’t use it more than once on a single check, and can’t use it again until you finish a Light or Full Rest unless you pay 20 Sorce.";
 const LEVEL19_RECOVERY_TEXT = "All Recovery Dice are now d8s instead of d6s.";
 
+// -- Condensed Specialty summaries for the PDF (per rank; long lists point to the book) --
+const SPECIALTY_PDF_SUMMARY = {
+  Guardian: [
+    "Learn 1 Martial Talent. Armored: armor sets you wear gain +5 max DP.",
+    "Stamina Points. Hardened: reduce physical dmg taken by 2x Rank while you have Stamina. Iron Reflex: 1 SP to Block/Parry as a Free Action.",
+    "Defensive Stance: 2 SP when taking physical dmg - halve physical dmg until your next turn (no harmful Reactions).",
+    "Intercept: 3 SP Free Action - run to a hit ally within half your Speed and halve the physical dmg they take.",
+    "Bulwark: Quick action, 1 min - Stamina refreshes each turn & abilities are empowered (see book). 1/Rest."
+  ],
+  Berserker: [
+    "Learn 1 Martial Talent. Thicker Skin: +8 max HP.",
+    "Stamina Points. Rage: while you have SP, gain Temp HP (2x Rank) each turn & +Rank base dmg on STR melee. Bolster: 1 SP for +2 on a STR check.",
+    "Rampage: 2 SP when your HP takes dmg - resist Slash/Pierce/Blunt until end of your next turn.",
+    "Overwhelm: 3 SP after a STR melee attack - reroll failed dice & +4 base dmg. Not on Pushed checks.",
+    "Frenzy: Quick action, 1 min - Stamina refreshes each turn & abilities are empowered (see book). 1/Rest."
+  ],
+  Engineer: [
+    "Learn 1 Martial Talent. Tinkerer: always count as having a Tool Kit equipped.",
+    "Energy Points. Inventions: deploy Battle Constructs (max 2, 1 min, detonate for Fire dmg). Quick Repair. Swinger & Barricade Constructs (see book).",
+    "Unlocks the Medic & Thumper Constructs (see book).",
+    "Unlocks the Sniper & Trapper Constructs (see book).",
+    "Unlocks the Project Guardian Construct (see book)."
+  ],
+  Pugilist: [
+    "Learn 1 Martial Talent. Pugilist Form: Unarmed Strikes deal 6 Blunt & count as 1h melee weapons.",
+    "Stamina Points & Stances: enter Lightning or Mountain Stance when refilling SP - unlocks Lightning Strikes, Sting, Grounded Defense, Float (see book).",
+    "Unlocks Wallop (2 SP: +2 unarmed base dmg for a turn) and Brace (see book).",
+    "Unlocks Haymaker (3 SP: +8 base dmg on a Wind-Up strike) and Bob and Weave (3 SP: reroll failed defense dice).",
+    "Iron Tempest: Quick action, 1 min - SP refresh each turn & access to all abilities of both stances. 1/Rest."
+  ],
+  Sharpshooter: [
+    "Learn 1 Martial Talent. Eagle Eye: Ranged Weapon Attacks gain +20 ft range.",
+    "Focus Points. Snipe Shot: 1 FP - next ranged attack gains +30 ft range & +2x Rank base dmg.",
+    "Buck Shot: 1 FP - ignore point-blank penalties, +2x Rank base dmg, target can't Opportunity Strike you.",
+    "Homing Shot: 1 FP - ignore Cover & Prone penalties, +2x Rank base dmg.",
+    "Deadeye Shot: after a successful ranged attack - refill all FP & the attack gains 2 successes. 1/Intermission."
+  ],
+  Elemancer: [
+    "Learn 1 Martial Talent. Swift: +5 Speed.",
+    "Focus Points. Gale Force: 1 FP - choose Push (+3x Rank Force dmg, push 10 ft) or Launch (leap 15 ft, +3x Rank Force dmg).",
+    "Raging Whirlpool: 1 FP - next melee attack deals +3x Rank Frost dmg with an area effect (see book).",
+    "Unlocks the Lightning Strike technique (see book).",
+    "Unlocks the Blazing Sun technique (see book)."
+  ],
+  Alchemist: [
+    "Learn 1 Martial Talent. Mobile Apothecary: always count as having an Alchemist Kit equipped.",
+    "Energy Points & Alchemy: craft with +Rank modifier, rarity auto-successes by rank, Emergency items, Rank 2 Signature Effects (see book).",
+    "Unlocks Rank 3 Signature Effects (see book).",
+    "Unlocks Rank 4 Signature Effects (see book).",
+    "Unlocks Experimental Serum (see book)."
+  ],
+  Reaver: [
+    "Learn 1 Martial Talent. Soulwell: regain 3 Sorce when a creature dies within 60 ft.",
+    "Energy Points. Reaver Mark: 1 EP - mark a creature for 7 days; +2x Rank Necrotic dmg against it & you always know its direction.",
+    "Reaver Servant: 2 EP - summon a Skeletal Squire (Archer or Fighter variant) for 8 hours.",
+    "Shroud: 3 EP - shadow form for 1 min: Invisible in darkness, resists physical dmg, immune to Necrotic, Fly Speed.",
+    "Reaver's Reap: Overcharge your Mark to siphon life from the marked creature (see book)."
+  ],
+  Spellweaver: [
+    "Learn 1 Sorcery Talent. Magic Master: +1 modifier on Spell checks.",
+    "Focus Points. Spell Charge: 1 FP - +2 modifier on a Rank 1+ Spell check (becomes a Proficiency die at Rank 4).",
+    "Regain Control: 1 FP - ignore 1s rolled when Overcharging a Spell.",
+    "Empowered Magic: 1 FP - all saves against your Spell take a -2 modifier.",
+    "Megacharge: Overcharge a Spell without Mishap & double its Power Levels; refill FP after. 1/Full Rest."
+  ],
+  Warlock: [
+    "Patron's Gift: Spells from your chosen Study of Sorcery cost 1 less Sorce to cast (min 1).",
+    "Warlock Contracts: strike deals with your Patron - up to 2 Contracts per Rest (see book).",
+    "Up to 4 Warlock Contracts per Rest.",
+    "Up to 6 Warlock Contracts per Rest.",
+    "Patron's Avatar: Quick action, 1 min - Gift Spells cost half Sorce, +2 Power Levels, +4 dmg on Rank 0s. 1/Rest."
+  ],
+  Oracle: [
+    "Learn 1 Sorcery Talent. Sorce Sense: see magic auras; +1 modifier on Initiative.",
+    "Stamina Points & Oracle States (Future/Sorce): Second-Sight Reflexes, Arcane Sight, Enhanced Defense, Enhance Magic (see book).",
+    "Unlocks Vigilance (grant allies defensive reactions) and Disrupt Arcane (see book).",
+    "Unlocks Tip the Scales and Sorcery Shield (see book).",
+    "Time and Space: Quick action, 1 min - both states at once, SP refresh each turn. 1/Rest."
+  ],
+  Witch: [
+    "Learn 1 Sorcery Talent. Summon Familiar: telepathy & cast Spells through it within 60 ft.",
+    "Energy Points. Enchanting Charm: 1 EP - charm grants Nightvision, +2 weapon dmg, +10 Speed, or water breathing (1 hour).",
+    "Unlocks Brewing (craft Elixirs with your Familiar-cauldron) and Share Senses (see book).",
+    "Unlocks Jinx and Familiar Flight (see book).",
+    "Unlocks Voodoo Doll (see book)."
+  ],
+  Shapeshifter: [
+    "Learn 1 Sorcery Talent. Animal Form: create & activate a Small Animal Form for 24h; swap Hybrid/Beast Shape.",
+    "Tiny & Medium Animal Forms. Energy Points, Shapeshifting abilities, up to 2 Beast Traits per Form (see book).",
+    "Up to 4 Beast Traits per Animal Form.",
+    "Up to 6 Beast Traits per Animal Form.",
+    "Unlocks Chimera Form (see book)."
+  ],
+  Summoner: [
+    "Learn 1 Sorcery Talent. Spirit Companion: summon the Scout Stage 1 Form during an Intermission.",
+    "Stamina Points. Command-Dodge: 1 SP - oppose attacks on your companion with Tame. Companion unlocks Hunter & Warden Stage 1 Forms.",
+    "Command-Resist: 2 SP - substitute your companion's save with your Tame. Forms evolve to Stage 2.",
+    "Command-Push Limits: 3 SP - redo your companion's failed check with a Tame check. Forms evolve to Stage 3.",
+    "Unity Apex: Quick action - Apex Form + Packbound Stance for 1 min, SP refresh each turn. 1/Rest."
+  ],
+  Sonneteer: [
+    "Learn 1 Sorcery Talent. Rally: Quick action - a creature gains +1 on its next Skill check.",
+    "Focus Points. Inspire: 1 FP - grant a Proficiency die on a nearby creature's check. Guiding Words: Assist using Perform.",
+    "Insult: 1 FP Reaction - inflict -2 on a check. Motivating Melody: Recovery dice spent during shared Rests restore +2 Status Points.",
+    "Distract: 1 FP - Perform vs Insight to cancel a Reaction. Echoing Voice: ability ranges increase to 30 ft.",
+    "Unlocks Maestro's Gambit (see book)."
+  ],
+  Cleric: [
+    "Learn 1 Sorcery Talent. Blessed Recovery: Recovery dice spent during shared Rests can't roll below 3.",
+    "Energy Points. Blessed Restoration: 1 EP Quick action - restore HP or MP equal to 3x Rank within 30 ft.",
+    "Purification: 2 EP - cleanse Enraged, Blinded, Dazed, or Shocked.",
+    "Aegis Intervention: 3 EP - remove up to 2 dice from an ally's Wound/Trauma roll.",
+    "Divine Intervention: Reaction - a save within 120 ft gains 3 successes. 1/Rest per creature."
+  ],
+};
+
 // -- Talent Lists -------------------------------------------------------
 const MARTIAL_TALENTS = ['Boar Style', 'Brawler', 'Calvary Fighter', 'Crane Style', 'Defender', 'Dragon Style', 'Duelist', 'Ignore Pain', 'Mantis Style', 'Master of Defense', 'Opportunist', 'Porcupine Style', 'Primal Style', 'Rabbit Style', 'Rubber Style', 'Sniper Style', 'Tiger Style', 'Tortoise Style', 'Viper Style', 'Wolf Style'];
 // Full sorcery talent list (used for leveling — kept for future use)
@@ -4111,14 +4227,22 @@ async function exportPDF() {
         if (sp.focus) { try { form.getCheckBox('rk1f' + n).check(); } catch(e) {} }
       });
     }
-    // Use condensed PDF text for certain specialties
-    const pdfSpecialtyTalent = (() => {
-      if (ch.specialty === 'Witch') return "Summon Familiar: During an Intermission you can summon your Familiar. You can telepathically speak with it and cast spells through it as long as it is within 60 ft. of you and you can see it and the target of the spell.";
-      if (ch.specialty === 'Shapeshifter') return "Animal Form: As a Standard action, you can create and activate a Small Animal Form for 24 hours. The Small Animal Form has a Speed of 40, Strength Rank of 2, Agility Rank of 5, and Base Damage of 6. You may swap between your Beast Shape and Hybrid Shape as a Quick Action.";
-      if (ch.specialty === 'Summoner') return "Spirit Companion: During an Intermission you can summon or fully heal your Spirit Companion's Stage 1 Scout Form.";
-      return ch.specialtyTalent || '';
-    })();
-    setSmall('SPECIALTY TALENT', '(Rank ' + specialtyRankAtLevel(getLevel()) + ') ' + pdfSpecialtyTalent, 11);
+    // Specialty Talent: condensed summary of every unlocked rank
+    const specRankPdf = specialtyRankAtLevel(getLevel());
+    const specSummary = SPECIALTY_PDF_SUMMARY[ch.specialty];
+    let pdfSpecialtyTalent;
+    if (specSummary) {
+      pdfSpecialtyTalent = ch.specialty + ' - Rank ' + specRankPdf + '\n'
+        + specSummary.slice(0, specRankPdf).map((s, i) => 'R' + (i + 1) + ': ' + s).join('\n')
+        + '\nFull details: Classes & Specialties chapter, Core Rulebook.';
+      if (ch.specialty === 'Warlock') {
+        const warlockStudy = (ch.talents || []).find(t => WARLOCK_STUDIES.includes(t));
+        if (warlockStudy) pdfSpecialtyTalent = pdfSpecialtyTalent.replace('your chosen Study of Sorcery', warlockStudy);
+      }
+    } else {
+      pdfSpecialtyTalent = '(Rank ' + specRankPdf + ') ' + (ch.specialtyTalent || '');
+    }
+    setSmall('SPECIALTY TALENT', pdfSpecialtyTalent, specRankPdf >= 4 ? 7 : specRankPdf >= 2 ? 8 : 10);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     [...talentRankMap.keys()].slice(0,9).forEach((t,i) => {
       const r = rankOf(t);
@@ -4739,6 +4863,16 @@ function luTalentTypeLabel(name) {
   return 'Talent';
 }
 
+// Bold "Ability Name:" prefixes and short standalone headers in specialty text
+function formatSpecialtyAbilities(text) {
+  return esc(text).split('\n').map(l => {
+    const m = l.match(/^([A-Z][^:]{0,60}?)(\s*\([^)]*\))?:\s*(.*)$/);
+    if (m) return '<strong style="color:var(--gold-pale)">' + m[1] + (m[2] || '') + ':</strong> ' + m[3];
+    if (/^[A-Z][A-Za-z\u2019' -]{2,30}$/.test(l.trim())) return '<strong style="color:var(--gold-pale)">' + l.trim() + '</strong>';
+    return l;
+  }).join('\n');
+}
+
 function renderLevelUp() {
   const el = document.getElementById('levelup-content');
   if (!el) return;
@@ -4841,7 +4975,7 @@ function renderLevelUp() {
 
     if (pendingLU._showSpecialty && SPECIALTY_RANK_DATA[ch.specialty]) {
       const sd = SPECIALTY_RANK_DATA[ch.specialty];
-      html += `<div style="background:rgba(8,13,28,0.6);border:1px solid var(--card-border);border-radius:var(--r);padding:14px;margin-bottom:16px;font-family:var(--font-ui);font-size:.84rem;line-height:1.55;white-space:pre-wrap;color:var(--text)"><div style="font-family:var(--font-heading);font-weight:700;color:var(--gold-pale);margin-bottom:8px">${esc(ch.specialty)} Specialty Talent</div>${esc(sd.ranks.map((r, i) => 'Rank ' + (i + 1) + ': ' + r).join('\n'))}\n\n${esc(sd.abilities)}</div>`;
+      html += `<div style="background:rgba(8,13,28,0.6);border:1px solid var(--card-border);border-radius:var(--r);padding:14px;margin-bottom:16px;font-family:var(--font-ui);font-size:.84rem;line-height:1.55;white-space:pre-wrap;color:var(--text)"><div style="font-family:var(--font-heading);font-weight:700;color:var(--gold-pale);margin-bottom:8px">${esc(ch.specialty)} Specialty Talent</div>${sd.ranks.map((r, i) => '<strong style="color:var(--gold)">Rank ' + (i + 1) + ':</strong> ' + formatSpecialtyAbilities(r)).join('\n')}\n\n${formatSpecialtyAbilities(sd.abilities)}</div>`;
     }
 
     if (target === 20) {

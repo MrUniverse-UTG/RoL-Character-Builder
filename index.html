@@ -4948,6 +4948,13 @@ function renderLevelUp() {
     </div>`;
   }
 
+  // Export / save row — shown above the next-level editor
+  html += `<div style="margin-bottom:20px;text-align:center;border-bottom:1px solid var(--border);padding-bottom:20px">
+      <button class="btn btn-export" onclick="exportPDF()">⬇ Download Character Sheet PDF — Level ${lvl}</button>
+      <button class="btn btn-secondary" style="margin-left:12px" onclick="saveJSON()">💾 Save Progress (JSON)</button>
+      ${lvl < 20 ? `<p style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);margin-top:10px">The PDF contains your last confirmed level (${lvl}). Choices for Level ${lvl + 1} below are only included after you confirm them.</p>` : ''}
+    </div>`;
+
   if (lvl >= 20) {
     html += '<div class="info-box">★ Maximum level reached — Level 20. Your Specialty Talent has its <strong>Reliable</strong> additional feature (see the Core Rulebook).</div>';
   } else {
@@ -5133,12 +5140,6 @@ function renderLevelUp() {
       <button class="btn btn-export" onclick="confirmLevelUp()">⇧ Confirm Level ${target}</button>
     </div>`;
   }
-
-  html += `<div style="margin-top:20px;text-align:center;border-top:1px solid var(--border);padding-top:20px">
-      <button class="btn btn-export" onclick="exportPDF()">⬇ Download Character Sheet PDF — Level ${lvl}</button>
-      <button class="btn btn-secondary" style="margin-left:12px" onclick="saveJSON()">💾 Save Progress (JSON)</button>
-      ${lvl < 20 ? `<p style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);margin-top:10px">The PDF contains your last confirmed level (${lvl}). Choices for Level ${lvl + 1} above are only included after you confirm them.</p>` : ''}
-    </div>`;
 
   el.innerHTML = html;
 }

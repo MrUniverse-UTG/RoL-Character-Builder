@@ -4244,15 +4244,31 @@ async function exportPDF() {
     }
     setSmall('SPECIALTY TALENT', pdfSpecialtyTalent, specRankPdf >= 4 ? 7 : specRankPdf >= 2 ? 8 : 10);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
-    [...talentRankMap.keys()].slice(0,9).forEach((t,i) => {
-      const r = rankOf(t);
-      if (i === 0 && TALENT_DATA[t] && TALENT_DATA[t][r-1]) {
-        // First talent box: show name + current-rank description (strip HTML tags)
-        const rankText = TALENT_DATA[t][r-1].replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
-        setSmall(talentFields[i], t + ' (Rank ' + r + ')\nRank ' + r + ': ' + rankText, 9);
+    const stripTags = s => s.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+    // Full talent text for every unlocked rank (ranks stack, so include all up to current)
+    const rankTexts = (t, r) => TALENT_DATA[t]
+      ? TALENT_DATA[t].slice(0, r).map((txt, ri) => (r > 1 ? 'Rank ' + (ri + 1) + ': ' : '') + stripTags(txt)).join('\n')
+      : '';
+    // Caster Initiate: fold its granted Sorcery Talent into the same box
+    const ciEntry = (ch.levelUps || []).find(l => l.talent && l.talent.kind === 'new' && l.talent.name === 'Caster Initiate');
+    const ciBonus = ciEntry ? ciEntry.bonusTalent : null;
+    const boxTalents = [...talentRankMap.keys()].filter(t => !(ciBonus && t === ciBonus));
+    boxTalents.slice(0,9).forEach((t,i) => {
+      let text, ranksShown;
+      if (t === 'Caster Initiate' && ciBonus) {
+        const attrName = ch.casterAttr === 'WIT' ? 'Wits' : ch.casterAttr === 'EMP' ? 'Empathy' : null;
+        const br = rankOf(ciBonus);
+        const header = 'Caster Initiate' + (attrName ? ' (' + attrName + ')' : '') + ': ' + ciBonus + (br > 1 ? ' (Rank ' + br + ')' : '');
+        const body = rankTexts(ciBonus, br);
+        text = body ? header + ': ' + body : header;
+        ranksShown = br;
       } else {
-        setSmall(talentFields[i], r > 1 ? (t + ' (Rank ' + r + ')') : t, 11);
+        const r = rankOf(t);
+        const body = rankTexts(t, r);
+        text = t + ' (Rank ' + r + ')' + (body ? '\n' + body : '');
+        ranksShown = r;
       }
+      setSmall(talentFields[i], text, ranksShown >= 3 ? 6 : ranksShown === 2 ? 7 : 8);
     });
     // Also set small font on talent rank fields in the main table.
     // Keep this in sync with the earlier page 1 talent fill, including Specialty Talent.
@@ -4920,6 +4936,23 @@ function renderLevelUp() {
           <div style="font-family:var(--font-heading);font-size:1.7rem;font-weight:700;color:${color}">${val}</div>
         </div>`).join('')}
     </div>` + loadRow;
+
+  // Current character state — specialty + talent ranks (mirrors the Step 11 review)
+  const talMap = getCharacterTalents();
+  const attrNameOf = k => k === 'WIT' ? 'Wits' : k === 'EMP' ? 'Empathy' : k;
+  const nextSpecLvl = SPECIALTY_RANK_LEVELS.find(m => m > lvl);
+  html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:20px">
+    <div class="summary-block">
+      <h3>Specialty — ${esc(ch.specialty || '-')}</h3>
+      <div class="summary-row"><span class="s-label">Current Rank</span><span class="s-val" style="color:var(--safe)">Rank ${specialtyRankAtLevel(lvl)}</span></div>
+      <div class="summary-row"><span class="s-label">Next Rank Up</span><span class="s-val">${nextSpecLvl ? 'Level ' + nextSpecLvl : '—'}</span></div>
+      ${ch.specialtyTalent ? `<div style="font-family:var(--font-ui);font-size:.8rem;color:var(--text-dim);line-height:1.5;margin-top:10px">${esc(ch.specialtyTalent)}</div>` : ''}
+    </div>
+    <div class="summary-block">
+      <h3>Talents — Current Ranks</h3>
+      ${[...talMap.entries()].map(([tn, tr]) => `<div class="summary-row"><span class="s-label">${esc(tn)}${tn === 'Caster Initiate' && ch.casterAttr ? ' (' + attrNameOf(ch.casterAttr) + ')' : ''}</span><span class="s-val">Rank ${tr}</span></div>`).join('') || '<div style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted)">No talents recorded.</div>'}
+    </div>
+  </div>`;
 
   // History of confirmed level-ups
   const hist = ch.levelUps || [];

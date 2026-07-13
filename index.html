@@ -390,7 +390,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
   <div class="form-row">
     <div>
       <label class="field-label">Specialty Talent (auto-filled)</label>
-      <input type="text" id="talent-specialty" readonly style="background:var(--mid);color:var(--text-dim);cursor:default">
+      <textarea id="talent-specialty" rows="2" readonly style="background:var(--mid);color:var(--text-dim);cursor:default;resize:none;overflow:hidden"></textarea>
       <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--text-dim);margin-top:5px;line-height:1.4">
         At Level 1 your Specialty Talent also grants you either a Martial Talent or Sorcery Talent.
       </div>
@@ -399,7 +399,7 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
   <div class="form-row">
     <div>
       <label class="field-label">Lineage Benefit / Traits (auto-filled)</label>
-      <textarea id="talent-lineage" rows="3" readonly style="background:var(--mid);color:var(--text-dim);cursor:default"></textarea>
+      <textarea id="talent-lineage" rows="3" readonly style="background:var(--mid);color:var(--text-dim);cursor:default;resize:none;overflow:hidden"></textarea>
     </div>
   </div>
   <div id="talent-browser" style="margin-bottom:20px"></div>
@@ -441,14 +441,12 @@ label.field-label{display:block;font-family:var(--font-heading);font-size:.72rem
       <button class="btn btn-export" id="export-btn" onclick="exportPDF()">⬇ Download Character Sheet PDF</button>
       <button class="btn btn-secondary" onclick="saveJSON()">💾 Save Progress (JSON)</button>
       <button class="btn btn-export" style="padding:11px 24px" onclick="goToStep(12)">⇧ Level Up</button>
+      <button class="btn btn-secondary" onclick="startOver()">Start Over</button>
     </div>
     <p style="font-family:var(--font-ui);font-size:.8rem;color:var(--muted);margin-top:10px">The PDF opens filled and ready to print or share.</p>
   </div>
   <div id="summary-grid"></div>
   <div id="export-validation" style="margin-top:16px"></div>
-  <div style="margin-top:24px;text-align:center">
-    <button class="btn btn-secondary" onclick="startOver()">Start Over</button>
-  </div>
 </div>
 
 <!-- ═══════════ STEP 12: LEVEL UP ═══════════ -->
@@ -3185,6 +3183,12 @@ function renderLifepath() {
   bindLifepathEvents();
 }
 
+function autoGrowTA(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 4) + 'px';
+}
+
 function bindLifepathEvents() {
   document.querySelectorAll('#lifepath-content [data-lifepath-row][data-lifepath-value]').forEach(row => {
     const handler = () => {
@@ -3489,8 +3493,8 @@ function renderTalentStep() {
   const browserEl = document.getElementById('talent-browser');
   // Guard: if key DOM elements aren't present, ch state is still updated above
   if (!specEl || !autoEl || !browserEl) return;
-  if (specEl) specEl.value = ch.specialtyTalent + ' (Rank 1)';
-  if (lgEl)   lgEl.value = ch.lineageBenefits || '';
+  if (specEl) { specEl.value = ch.specialtyTalent + ' (Rank 1)'; autoGrowTA(specEl); }
+  if (lgEl)   { lgEl.value = ch.lineageBenefits || ''; autoGrowTA(lgEl); }
 
   const cls = CLASSES.find(c=>c.name===ch.cls);
   const isMartial  = cls && (cls.name==='Fighter'||cls.name==='Vagabond');
@@ -3503,9 +3507,8 @@ function renderTalentStep() {
     </div>
     <div class="info-box" style="margin-top:8px">
       At Level 1 you may select:
-      ${isMartial ? '<br>• <strong>1 Martial Talent</strong> (choose from the list below)' : ''}
-      ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong> (choose from the list below)' : ''}
-      <br>All at <strong>Rank 1</strong>. Click any talent name to see its full rank details.
+      ${isMartial ? '<br>• <strong>1 Martial Talent</strong> (choose from the list below) at <strong>Rank 1</strong>.' : ''}
+      ${isSorcery ? '<br>• <strong>1 Sorcery Talent</strong> (choose from the list below) at <strong>Rank 1</strong>.' : ''}
     </div>`;
   if (isSorcery) {
     autoEl.innerHTML += '<div class="info-box" style="margin-top:8px">Want to know the details of spells in each Study of Sorcery? <a href="https://spellbook.realmsoflegacy.com/" target="_blank" rel="noopener" style="color:var(--cyan);font-weight:700;text-decoration:underline">View the Spellbook here</a>.</div>';
@@ -3531,10 +3534,9 @@ function renderTalentStep() {
       <div style="display:flex;flex-wrap:wrap;gap:7px">
         ${sec.list.map(t => {
           const picked = (ch.talents||[]).includes(t);
-          const atMaxNotPicked = !picked && atMax;
           const isViewing = ch._viewingTalent === t;
           return `<button onclick="toggleTalentView('${t.replace(/'/g, "\\'")}')"
-            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:20px;transition:all .12s;border:1px solid ${picked?'rgba(74,222,128,0.5)':isViewing?'rgba(79,195,247,0.5)':'var(--border)'};background:${picked?'rgba(74,222,128,0.12)':isViewing?'rgba(79,195,247,0.12)':'var(--surface)'};color:${picked?'var(--safe)':isViewing?'var(--cyan)':'var(--text)'};opacity:${atMaxNotPicked?'0.4':'1'}">
+            style="padding:5px 12px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:20px;transition:all .12s;border:1px solid ${picked?'rgba(74,222,128,0.5)':isViewing?'rgba(79,195,247,0.5)':'var(--border)'};background:${picked?'rgba(74,222,128,0.12)':isViewing?'rgba(79,195,247,0.12)':'var(--surface)'};color:${picked?'var(--safe)':isViewing?'var(--cyan)':'var(--text)'}">
             ${t}${picked?' ✓':''}
           </button>`;
         }).join('')}
@@ -3545,12 +3547,6 @@ function renderTalentStep() {
             <div>
               <div style="font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--gold-pale)">${ch._viewingTalent}</div>
               <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted)">${MARTIAL_TALENTS.includes(ch._viewingTalent)?'Martial Talent':SORCERY_TALENTS.includes(ch._viewingTalent)?'Sorcery Talent':'General Talent'}</div>
-            </div>
-            <div style="display:flex;gap:8px">
-              <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);padding:4px 8px">
-                ${(ch.talents||[]).includes(ch._viewingTalent) ? '✓ Selected — click the talent chip again to deselect' : 'Click the talent chip to select'}
-              </div>
-              <button onclick="ch._viewingTalent=null;renderTalentStep()" style="padding:6px 10px;background:#f0f0f0;border:1px solid var(--rule);border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-size:.82rem">✕</button>
             </div>
           </div>
           <div style="font-family:var(--font-ui);font-size:.85rem;color:#333;line-height:1.5">${getTalentDescription(ch._viewingTalent||'')}</div>
@@ -3718,10 +3714,6 @@ function renderSummary() {
   checks.push({ok: attrSum === expectedAttrSum, msg: `Attribute sum = ${attrSum} (should be ${expectedAttrSum})`});
   const expectedSumCheck = (ch.specialty === 'Berserker' ? 32 : 24) + luSum('hp') + luSum('mp') + 2 * totalLuAttrPoints() + generalHPBonus() + generalMPBonus();
   checks.push({ok: calcHP()+calcMP() === expectedSumCheck, msg: `HP+MP = ${calcHP()+calcMP()} (should be ${expectedSumCheck} at level ${getLevel()}${ch.specialty === 'Berserker' ? ', includes +8 Berserker' : ''})`});
-  checks.push({ok: !!ch.name, msg: 'Character name is set'});
-  checks.push({ok: ch.mixedLineage ? ch.mixedLineages.length === 2 : !!ch.lineage, msg: 'Lineage is chosen'});
-  checks.push({ok: !!ch.cls, msg: 'Class is chosen'});
-  checks.push({ok: !!ch.specialty, msg: 'Specialty is chosen'});
 
   document.getElementById('export-validation').innerHTML = checks.map(c => `
     <div class="${c.ok?'validation-msg ok':'validation-msg error'}">${c.ok?'✓':'✗'} ${c.msg}</div>
@@ -4637,6 +4629,7 @@ function autoFillGear() {
 
 
 function toggleTalentView(name) {
+  const scrollY = window.scrollY;
   const alreadyPicked = (ch.talents||[]).includes(name);
   const isMartial  = MARTIAL_TALENTS.includes(name);
   const isSorcery  = SORCERY_TALENTS.includes(name);
@@ -4662,6 +4655,7 @@ function toggleTalentView(name) {
     ch._viewingTalent = name;
   }
   renderTalentStep();
+  window.scrollTo({top: scrollY, behavior: 'instant'});
 }
 
 function addTalentFromView(name) {
@@ -5136,13 +5130,15 @@ function renderLevelUp() {
     html += `<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:16px;margin-bottom:16px;backdrop-filter:blur(4px)">
       <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:4px">1 · Status Points</h3>
       <div class="${remaining === 0 ? 'info-box' : 'warn-box'}" style="margin:8px 0 14px"><strong>${remaining}</strong> of 7 points remaining. Points added to MP also raise your max Sorce.</div>
-      <div style="display:flex;gap:28px;flex-wrap:wrap">
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
         ${[['hp', 'Max HP', 'var(--danger)', calcHP()], ['mp', 'Max MP', 'var(--cyan)', calcMP()]].map(([k, label, color, cur]) => `
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-family:var(--font-heading);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${color};min-width:66px">${label}</span>
-            <button style="${btnS}" onclick="luAdjustStatus('${k}',-1)">−</button>
-            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--gold-pale);min-width:70px;text-align:center">${cur}<span style="color:var(--safe);font-size:1rem"> +${pendingLU[k] || 0}</span></span>
-            <button style="${btnS}" onclick="luAdjustStatus('${k}',1)">+</button>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--surface);border:1px solid ${color};border-radius:var(--r);padding:12px 22px;min-width:150px">
+            <span style="font-family:var(--font-heading);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${color}">${label}</span>
+            <span style="font-family:var(--font-heading);font-size:1.5rem;font-weight:700;color:var(--gold-pale)">${cur}<span style="color:var(--safe);font-size:1.05rem"> +${pendingLU[k] || 0}</span></span>
+            <span style="display:flex;gap:10px">
+              <button style="${btnS}" onclick="luAdjustStatus('${k}',-1)">−</button>
+              <button style="${btnS}" onclick="luAdjustStatus('${k}',1)">+</button>
+            </span>
           </div>`).join('')}
       </div>
     </div>`;
@@ -5157,14 +5153,16 @@ function renderLevelUp() {
       ${Object.entries(SKILLS).map(([attrKey, skills]) => `
         <div class="skill-section">
           <h3>${ATTRIBUTES.find(a => a.key === attrKey).name} Skills</h3>
-          <div class="skill-grid">
+          <div class="skill-grid" style="grid-template-columns:repeat(auto-fill,minmax(215px,1fr))">
             ${skills.map(s => {
               const base = getSkillRank(s.key);
               const add = pendingLU.skills[s.key] || 0;
               const canAdd = base + add < cap && spent < budget;
-              return `<div class="skill-chip ${add > 0 ? 'selected' : ''}" style="justify-content:space-between;cursor:default">
-                <span style="display:flex;align-items:center;gap:8px"><span class="rank-pip">${base + add}</span>${s.name}${add > 0 ? ` <span style="color:var(--safe);font-weight:700">+${add}</span>` : ''}</span>
-                <span style="display:flex;gap:4px">
+              return `<div class="skill-chip ${add > 0 ? 'selected' : ''}" style="cursor:default;padding:7px 8px 7px 10px">
+                <span class="rank-pip" style="flex-shrink:0">${base + add}</span>
+                <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</span>
+                <span style="color:var(--safe);font-weight:700;font-size:.82rem;min-width:22px;text-align:right;flex-shrink:0">${add > 0 ? '+' + add : ''}</span>
+                <span style="display:flex;gap:3px;flex-shrink:0">
                   <button onclick="luAdjustSkill('${s.key}',-1)" style="width:24px;height:24px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;opacity:${add > 0 ? 1 : .3}">−</button>
                   <button onclick="luAdjustSkill('${s.key}',1)" style="width:24px;height:24px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;opacity:${canAdd ? 1 : .3}">+</button>
                 </span>
@@ -5216,6 +5214,7 @@ function renderLevelUp() {
       const ownedNow = getCharacterTalents();
       const hasStudyNow = [...ownedNow.keys()].some(n => n.startsWith('Study of'));
       html += `<div class="info-box" style="margin-top:4px">Caster Initiate: choose the <strong>Sorcery Talent</strong> you learn (Rank 1).</div>
+        ${!hasStudyNow ? '<div class="warn-box" style="margin-top:8px">Some options are not selectable because they require you to already have a Study of Sorcery.</div>' : ''}
         <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px">
           ${SORCERY_TALENTS_ALL.filter(n => !ownedNow.has(n)).map(n => {
             const locked = (ADVANCED_SORCERY_PREREQ.includes(n) && !hasStudyNow && n !== pendingLU.bonusTalent) ? 'Requires a Study of Sorcery talent' : null;

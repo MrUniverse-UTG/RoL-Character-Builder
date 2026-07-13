@@ -4989,32 +4989,44 @@ function renderLevelUp() {
     return;
   }
 
-  const stripCards = [
-    ['STR', getEffectiveAttr('STR'), 'var(--gold-pale)'],
-    ['AGI', getEffectiveAttr('AGI'), 'var(--gold-pale)'],
-    ['WIT', getEffectiveAttr('WIT'), 'var(--gold-pale)'],
-    ['EMP', getEffectiveAttr('EMP'), 'var(--gold-pale)'],
-    ['Max HP', calcHP(), 'var(--danger)'],
-    ['Max MP', calcMP(), 'var(--cyan)'],
-    ['Sorce', calcSP(), '#c084fc'],
-    ['Recovery', lvl >= 19 ? lvl + 'd8' : lvl, 'var(--gold-pale)'],
-    ['Specialty Rank', specialtyRankAtLevel(lvl), 'var(--safe)'],
-    ['Skill Cap', skillCapAtLevel(lvl), 'var(--text)'],
-    ['Talent Cap', talentCapAtLevel(lvl), 'var(--text)'],
+  const stripGroups = [
+    ['Attributes', [
+      ['STR', getEffectiveAttr('STR'), 'var(--gold-pale)'],
+      ['AGI', getEffectiveAttr('AGI'), 'var(--gold-pale)'],
+      ['WIT', getEffectiveAttr('WIT'), 'var(--gold-pale)'],
+      ['EMP', getEffectiveAttr('EMP'), 'var(--gold-pale)'],
+    ]],
+    ['Status Points', [
+      ['Max HP', calcHP(), 'var(--danger)'],
+      ['Max MP', calcMP(), 'var(--cyan)'],
+      ['Sorce', calcSP(), '#c084fc'],
+      ['Recovery', lvl >= 19 ? lvl + 'd8' : lvl, 'var(--gold-pale)'],
+    ]],
+    ['Progression', [
+      ['Specialty Rank', specialtyRankAtLevel(lvl), 'var(--safe)'],
+      ['Skill Cap', skillCapAtLevel(lvl), 'var(--text)'],
+      ['Talent Cap', talentCapAtLevel(lvl), 'var(--text)'],
+      ...(spellLimit !== null ? [['Prepared Spells', spellLimit, 'var(--cyan)']] : []),
+    ]],
   ];
-  if (spellLimit !== null) stripCards.push(['Prepared Spells', spellLimit, 'var(--cyan)']);
 
   let html = `
-    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin-bottom:20px">
-      <div style="background:rgba(201,168,76,0.1);border:1px solid var(--border-gold);border-radius:var(--r);padding:14px 22px;text-align:center;min-width:110px">
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;margin-bottom:20px">
+      <div style="background:rgba(201,168,76,0.1);border:1px solid var(--border-gold);border-radius:var(--r);padding:14px 22px;text-align:center;min-width:110px;display:flex;flex-direction:column;justify-content:center">
         <div style="font-family:var(--font-heading);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Level</div>
         <div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-pale);line-height:1.1">${lvl}</div>
         <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--text-dim)">${esc(ch.name || 'Unnamed')} · ${esc(ch.cls)} ${esc(ch.specialty)}</div>
       </div>
-      ${stripCards.map(([label, val, color]) => `
-        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:14px 18px;text-align:center;min-width:88px;backdrop-filter:blur(4px)">
-          <div style="font-family:var(--font-heading);font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)">${label}</div>
-          <div style="font-family:var(--font-heading);font-size:1.7rem;font-weight:700;color:${color}">${val}</div>
+      ${stripGroups.map(([groupLabel, cards]) => `
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:10px 14px 12px;backdrop-filter:blur(4px)">
+          <div style="font-family:var(--font-heading);font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--card-border)">${groupLabel}</div>
+          <div style="display:flex;gap:14px">
+            ${cards.map(([label, val, color]) => `
+              <div style="text-align:center;min-width:60px">
+                <div style="font-family:var(--font-heading);font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)">${label}</div>
+                <div style="font-family:var(--font-heading);font-size:1.7rem;font-weight:700;color:${color}">${val}</div>
+              </div>`).join('')}
+          </div>
         </div>`).join('')}
     </div>` + loadRow;
 

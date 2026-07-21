@@ -1345,115 +1345,115 @@ const LEVEL19_RECOVERY_TEXT = "All Recovery Dice are now d8s instead of d6s.";
 const SPECIALTY_PDF_SUMMARY = {
   Guardian: [
     "Learn 1 Martial Talent. Armored: armor sets you wear gain +5 max DP.",
-    "Stamina: As a Guardian, you can gain and expend Stamina Points to use Guardian Abilities.\nHardened: While you have Stamina, you reduce all physical damage you receive by an amount equal to double your rank in this specialty talent.\nIron Reflex: When you are targeted by a Melee or Ranged Attack, you can spend 1 Stamina Point to Block or Parry the attack as a Free Action.",
-    "Defensive Stance: When you take physical Damage you can spend 2 Stamina Points as a Free action to enter a Defensive Stance until the start of your next turn. While in Defensive Stance, you halve all physical damage taken but can't perform Opportunity strikes or other harmful Reactions.",
-    "Intercept: When an ally within half your speed in distance from you is hit by a melee or ranged attack, you can spend 3 Stamina Points as a Free action to run within 5 feet of the ally and reduce the physical damage they take from the attack by half.",
-    "Bulwark: You can use a Quick action to enter this state for 1 minute. When Bulwark is active your Stamina Points refresh at the start of your turn, Iron Reflex grants a +2 modifier, Defensive Stance works against all damage types, and Allies you use Intercept on benefit from Hardened. You cannot use this again until you finish a Light or Full Rest."
+    "Stamina: Gain and expend Stamina Points to use Guardian Abilities.\nHardened: While you have Stamina, reduce all physical damage you take by {rank2}.\nIron Reflex: Spend 1 Stamina Point to Block or Parry a Melee or Ranged Attack as a Free Action.",
+    "Defensive Stance: When you take physical damage, spend 2 Stamina Points (Free action) to halve all physical damage taken until the start of your next turn. You can't make Opportunity Strikes or other harmful Reactions while in it.",
+    "Intercept: When an ally within half your Speed is hit by a melee or ranged attack, spend 3 Stamina Points (Free action) to move within 5 feet of them and halve the physical damage they take.",
+    "Bulwark: Quick action; lasts 1 minute. Your Stamina refreshes at the start of your turn, Iron Reflex grants a +2 modifier, Defensive Stance works against all damage types, and allies you Intercept benefit from Hardened. Once per Light or Full Rest."
   ],
   Berserker: [
     "Learn 1 Martial Talent. Thicker Skin: +8 max HP.",
-    "Stamina: As a Berserker, you can gain and expend Stamina Points to use Berserker Abilities.\nRage: While you have Stamina Points, you gain Temp HP at the start of your turn equal to {rank2}, and the Base damage on Melee Attacks made with Strength increases equal to {rank}.\nBolster: When you make a Skill check that uses Strength, you can spend 1 Stamina Point as a Free action to give it a +2 modifier.",
-    "Rampage: When your HP takes damage, you can spend 2 Stamina Points as a Free action to enter a Rampage until the end of your next turn. While in Rampage, your HP gains resistance to Slash, Pierce, and Blunt damage, applying to the triggering damage.",
-    "Overwhelm: After you attack with a Melee Weapon Attack using Strength, you can spend 3 Stamina Points as a Free action to reroll all the dice that did not roll a success. The base damage of the weapon used is increased by 4 for the attack. Can't be used on a Pushed check or more than once on the same check.",
-    "Frenzy: You can use a Quick action to enter a Frenzy for 1 minute. While in a Frenzy, your Stamina Points refresh at the start of your turn, Bolster's bonus dice are d8s, Rampage gives your HP resistance to all damage, and Overwhelm increases the base damage by 8 instead. You cannot use this again until you finish a Light or Full Rest."
+    "Stamina: Gain and expend Stamina Points to use Berserker Abilities.\nRage: While you have Stamina, gain {rank2} Temp HP at the start of your turn, and Strength Melee Attacks deal +{rank} base damage.\nBolster: Spend 1 Stamina Point (Free action) for a +2 modifier on a Strength Skill check.",
+    "Rampage: When your HP takes damage, spend 2 Stamina Points (Free action) to gain resistance to Slash, Pierce, and Blunt damage (including the triggering damage) until the end of your next turn.",
+    "Overwhelm: After a Strength Melee Weapon Attack, spend 3 Stamina Points (Free action) to reroll all dice that didn't succeed; the weapon's base damage is +4 for the attack. Not on Pushed checks or more than once per check.",
+    "Frenzy: Quick action; lasts 1 minute. Your Stamina refreshes at the start of your turn, Bolster's bonus dice become d8s, Rampage resists all damage, and Overwhelm gives +8 base damage instead. Once per Light or Full Rest."
   ],
   Engineer: [
     "Learn 1 Martial Talent. Tinkerer: always count as having a Tool Kit equipped.",
-    "Energy: As an Engineer, you can gain and expend Energy Points to use Engineer abilities.\nInventions: You gain the ability to create and deploy Battle Constructs you've unlocked. Refer to the rules (page 69) for details on how to use your Energy and Inventions. You unlock the Swinger and Barricade Constructs.",
-    "You unlock the Medic and Thumper Constructs.",
-    "You unlock the Sniper and Trapper Constructs.",
-    "You unlock Project Guardian Construct."
+    "Energy: Gain and expend Energy Points to use Engineer abilities.\nInventions: Create and deploy Battle Constructs you've unlocked (see page 69 for Energy and Inventions). Unlock the Swinger and Barricade Constructs.",
+    "Unlock the Medic and Thumper Constructs.",
+    "Unlock the Sniper and Trapper Constructs.",
+    "Unlock the Project Guardian Construct."
   ],
   Pugilist: [
     "Learn 1 Martial Talent. Pugilist Form: Unarmed Strikes deal 6 Blunt & count as 1h melee weapons.",
-    "Stamina: As a Pugilist, you can gain and expend Stamina Points to use Pugilist Abilities.\nStances: You unlock the ability to enter either Lightning Stance or Mountain Stance when you refill your Stamina.\nLightning Strikes (Lightning Stance): Your unarmed attacks gain a +1 modifier and the Penetrate Feature.\nSting (Lightning Stance): When you hit with a melee attack, you can spend 1 Stamina Point to deal 6 additional damage (same as base damage type).\nGrounded Defense (Mountain Stance): You reduce Slash/Pierce/Blunt damage taken by 4 and gain a +1 modifier to Dodges and Parries.\nFloat (Mountain Stance): You can spend 1 Stamina to Parry as a Free Action instead of a Reaction.",
-    "Wallop (Lightning Stance): You can spend 2 Stamina Points as a Free action to increase your Unarmed Strike's base damage by 2 until the start of your next turn.\nBrace (Mountain Stance): When you take Slash/Pierce/Blunt damage, you can spend 2 Stamina Points as a Free Action to grant your HP and DP resistance to those until the start of your next turn.",
-    "Haymaker (Lightning Stance): When your Unarmed Strike is benefiting from Wind-Up, you can spend 3 Stamina Points as a Free action to increase the Unarmed Strike's Base Damage by 8.\nBob and Weave (Mountain Stance): When you Parry, Dodge, or make a Move save, you can spend 3 Stamina Points as a Free action to reroll all the dice that did not come up as a success. This cannot be used on a Pushed check or more than once on the same check.",
-    "Iron Tempest: You can use a Quick action to enter Iron Tempest for 1 minute. While in Iron Tempest, your Stamina Points refresh at the start of your turn and you have access to all abilities in both Lightning Stance and Mountain Stance. You cannot use this again until you finish a Light or Full Rest."
+    "Stamina: Gain and expend Stamina Points to use Pugilist Abilities.\nStances: When you refill Stamina, enter Lightning Stance or Mountain Stance.\nLightning Strikes (Lightning Stance): Unarmed attacks gain a +1 modifier and Penetrate.\nSting (Lightning Stance): On a melee hit, spend 1 Stamina Point to deal 6 extra damage of the same type.\nGrounded Defense (Mountain Stance): Reduce Slash/Pierce/Blunt damage taken by 4; +1 modifier to Dodges and Parries.\nFloat (Mountain Stance): Spend 1 Stamina to Parry as a Free Action instead of a Reaction.",
+    "Wallop (Lightning Stance): Spend 2 Stamina Points (Free action) to increase your Unarmed Strike's base damage by 2 until the start of your next turn.\nBrace (Mountain Stance): When you take Slash/Pierce/Blunt damage, spend 2 Stamina Points (Free action) to grant your HP and DP resistance to those until the start of your next turn.",
+    "Haymaker (Lightning Stance): When your Unarmed Strike has Wind-Up, spend 3 Stamina Points (Free action) for +8 base damage.\nBob and Weave (Mountain Stance): When you Parry, Dodge, or make a Move save, spend 3 Stamina Points (Free action) to reroll all dice that didn't succeed. Not on Pushed checks or more than once per check.",
+    "Iron Tempest: Quick action; lasts 1 minute. Your Stamina refreshes at the start of your turn and you can use all abilities of both Lightning Stance and Mountain Stance. Once per Light or Full Rest."
   ],
   Sharpshooter: [
-    "Learn 1 Martial Talent. Eagle Eye: Ranged Weapon Attacks gain +20 ft range.",
-    "Focus Points. Snipe Shot: 1 FP - next ranged attack gains +30 ft range & +2x Rank base dmg.",
-    "Buck Shot: 1 FP - ignore point-blank penalties, +2x Rank base dmg, target can't Opportunity Strike you.",
-    "Homing Shot: 1 FP - ignore Cover & Prone penalties, +2x Rank base dmg.",
-    "Deadeye Shot: after a successful ranged attack - refill all FP & the attack gains 2 successes. 1/Intermission."
+    "Learn 1 Martial Talent. Eagle Eye: Your Ranged Weapon Attacks gain 20 feet of range.",
+    "Focus: Gain and use Focus Points for Sharpshooter techniques. Only one Technique at a time; it fades after a Ranged Weapon Attack or at the end of your turn.\nSnipe Shot: Spend 1 Focus Point (Free action). Your next Ranged Weapon Attack gains +30 feet range and +{rank2} base damage.",
+    "Buck Shot: Spend 1 Focus Point (Free action). You ignore within-5-feet penalties on Ranged Weapon Attacks, your next target can't Opportunity Strike you until the start of your next turn, and your next Ranged Weapon Attack gains +{rank2} base damage.",
+    "Homing Shot: Spend 1 Focus Point (Free action). You ignore penalties from a target's Cover or being Prone, and your next Ranged Weapon Attack gains +{rank2} base damage.",
+    "Deadeye Shot: After a successful Ranged Weapon Attack (Free action), replenish all missing Focus Points and the attack gains 2 additional successes; usable alongside another technique. Once per Intermission."
   ],
   Elemancer: [
     "Learn 1 Martial Talent. Swift: +5 Speed.",
-    "Focus Points. Gale Force: 1 FP - choose Push (+3x Rank Force dmg, push 10 ft) or Launch (leap 15 ft, +3x Rank Force dmg).",
-    "Raging Whirlpool: 1 FP - next melee attack deals +3x Rank Frost dmg with an area effect (see book).",
-    "Unlocks the Lightning Strike technique (see book).",
-    "Unlocks the Blazing Sun technique (see book)."
+    "Focus: Gain and use Focus Points for Elemancer techniques. Only one Technique at a time; it fades after a melee attack or at the end of your turn.\nGale Force: Spend 1 Focus Point (Free action); choose Push or Launch.\nPush: Your next Melee Weapon Attack deals +{rank3} Force damage and pushes the target 10 feet. Hitting a wall knocks them Prone; hitting a creature deals the Force damage to it too. If the target is 2+ sizes larger, you push yourself back 15 feet instead. This movement doesn't provoke Opportunity Strikes.\nLaunch: Leap up to 15 feet off a wall, ground, or structure (Free action, once per turn); your next Melee Weapon Attack during or after deals +{rank3} Force damage. Any other action or movement cancels it. The leap doesn't provoke Opportunity Strikes.",
+    "Raging Whirlpool: Spend 1 Focus Point (Free action). Your next Melee Weapon Attack deals +{rank3} Frost damage; all other creatures in your weapon's reach take {rank3} Frost damage; each creature damaged has its Speed reduced by 10 feet until the end of its next turn.",
+    "Lightning Strike: Spend 1 Focus Point (Free action). Your Speeds increase by 30 feet (move in one chosen direction until it ends), you move through hostile creatures' spaces without provoking Opportunity Strikes, your next Melee Weapon Attack deals +{rank3} Electric damage, and creatures you passed through (except your target) take {rank2} Electric damage.",
+    "Blazing Sun: After a successful Melee Weapon Attack (Free action), replenish all missing Focus Points; each creature within 10 feet of your target (except you) takes 24 Fire damage. Once per Intermission."
   ],
   Alchemist: [
     "Learn 1 Martial Talent. Mobile Apothecary: always count as having an Alchemist Kit equipped.",
-    "Energy Points & Alchemy: craft with +Rank modifier, rarity auto-successes by rank, Emergency items, Rank 2 Signature Effects (see book).",
-    "Unlocks Rank 3 Signature Effects (see book).",
-    "Unlocks Rank 4 Signature Effects (see book).",
-    "Unlocks Experimental Serum (see book)."
+    "Energy: Gain and expend Energy Points to use Alchemy.\nAlchemy: Always succeed at crafting Common Alchemy items, and gain a +{rank} modifier when crafting Alchemy items (see page 76).\nSignature Effects: Spend 1 Energy when using an Alchemy item for a Rank 2 Signature Effect.\nEmergency Alchemy: Spend 2 Energy to craft any Common Alchemy item you know.",
+    "Always succeed at crafting Uncommon Alchemy items.\nSignature Effects: Spend 2 Energy for a Rank 3 Signature Effect.\nEmergency Alchemy: Spend 3 Energy to craft any Uncommon item you know.",
+    "Always succeed at crafting Rare Alchemy items.\nSignature Effects: Spend 3 Energy for a Rank 4 Signature Effect.\nEmergency Alchemy: Spend 4 Energy to craft any Rare item you know.",
+    "During an Intermission, roll 1d6: on 1–3 craft an Elixir of Ironhide (page 119); on 4–6 craft Liquid Adamantine (page 121). No Energy cost; once per Light or Full Rest. The crafted item expires after 8 hours of no use."
   ],
   Reaver: [
     "Learn 1 Martial Talent. Soulwell: regain 3 Sorce when a creature dies within 60 ft.",
-    "Energy Points. Reaver Mark: 1 EP - mark a creature for 7 days; +2x Rank Necrotic dmg against it & you always know its direction.",
-    "Reaver Servant: 2 EP - summon a Skeletal Squire (Archer or Fighter variant) for 8 hours.",
-    "Shroud: 3 EP - shadow form for 1 min: Invisible in darkness, resists physical dmg, immune to Necrotic, Fly Speed.",
-    "Reaver's Reap: Overcharge your Mark to siphon life from the marked creature (see book)."
+    "Energy: Gain and expend Energy Points to use Reaver abilities.\nReaver Mark: Spend 1 Energy Point (Free action) to mark a creature for 7 days. You deal +{rank2} Necrotic damage to it, always know its general direction, and it can't hide from you. One Mark at a time.",
+    "Reaver Servant: Spend 2 Energy Points (Quick action) to summon a Skeletal Squire (Fighter or Archer), treated as a Summoned Companion; or spend 1 Energy Point to raise one from a corpse within 15 feet. Lasts 8 hours; one at a time. (Stat blocks: page 79.)",
+    "Shroud: Spend 3 Energy Points (Free action) to become a dark, incorporeal form for 1 minute: fit through 1-inch gaps, Invisible in darkness, HP and DP resist Slash/Pierce/Blunt and are immune to Necrotic, Fly Speed equal to your base Speed, and immune to Prone, Grappled, and Restrained. Your next Weapon Attack gains a +2 modifier and deals +12 Necrotic damage. Shroud ends after you make a Melee or Ranged Weapon Attack or cast a Spell.",
+    "Reaver's Reap: When you damage a creature with your Reaver's Mark, activate (Free action) to double the Mark's extra damage and regain 6 Energy Points — or all missing Energy Points if the creature ends Bloodied. Once per Light or Full Rest."
   ],
   Spellweaver: [
     "Learn 1 Sorcery Talent. Magic Master: +1 modifier on Spell checks.",
-    "Focus Points. Spell Charge: 1 FP - +2 modifier on a Rank 1+ Spell check (becomes a Proficiency die at Rank 4).",
-    "Regain Control: 1 FP - ignore 1s rolled when Overcharging a Spell.",
-    "Empowered Magic: 1 FP - all saves against your Spell take a -2 modifier.",
-    "Megacharge: Overcharge a Spell without Mishap & double its Power Levels; refill FP after. 1/Full Rest."
+    "Focus: Gain and use Focus Points for Spellweaver abilities. You may use several per spell, and may choose to use them after rolling a Spell check.\nSpell Charge: When casting a Rank 1+ Spell with a Spell check, spend 1 Focus Point for a +2 modifier.",
+    "Regain Control: When you Overcharge a Spell and roll any 1s, spend 1 Focus Point to ignore them.",
+    "Spell Charge: Its bonus dice become d8s.\nEmpowered Magics: When your Spell forces a Skill save, spend 1 Focus Point to give all Skill Saves against it a -2 modifier.",
+    "Megacharge: When casting a Spell of Rank 5 or lower, Overcharge it with no Arcane Mishap and double its Power Levels. No other Spellweaver abilities this action; regain all missing Focus Points after. Once per Light or Full Rest."
   ],
   Warlock: [
     "Patron's Gift: Spells from your chosen Study of Sorcery cost 1 less Sorce to cast (min 1).",
-    "Warlock Contracts: strike deals with your Patron - up to 2 Contracts per Rest (see book).",
-    "Up to 4 Warlock Contracts per Rest.",
-    "Up to 6 Warlock Contracts per Rest.",
-    "Patron's Avatar: Quick action, 1 min - Gift Spells cost half Sorce, +2 Power Levels, +4 dmg on Rank 0s. 1/Rest."
+    "Unlock Warlock Contracts (page 82); hold up to 2 Contracts between Light or Full Rests.",
+    "Hold up to 4 Warlock Contracts between rests; unlock new contracts.",
+    "Hold up to 6 Warlock Contracts between rests; unlock new contracts.",
+    "Patron's Avatar: Quick action; become your Patron's Avatar for 1 minute. Patron's Gift spells cost half Sorce; those of Rank 1+ gain 2 Power Levels; Rank 0 damaging ones deal +4 damage (+2 if Mental). Once per Light or Full Rest."
   ],
   Oracle: [
     "Learn 1 Sorcery Talent. Sorce Sense: see magic auras; +1 modifier on Initiative.",
-    "Stamina Points & Oracle States (Future/Sorce): Second-Sight Reflexes, Arcane Sight, Enhanced Defense, Enhance Magic (see book).",
-    "Unlocks Vigilance (grant allies defensive reactions) and Disrupt Arcane (see book).",
-    "Unlocks Tip the Scales and Sorcery Shield (see book).",
-    "Time and Space: Quick action, 1 min - both states at once, SP refresh each turn. 1/Rest."
+    "Stamina: Gain and expend Stamina Points to use Oracle abilities; a Quick action regains all lost Stamina.\nOracle States: When you gain Stamina, enter Sorce State or Future State.\nArcane Sight (Sorce State): See whether a creature or object is Cursed and the Curse's nature; +{rank} modifier to see through magical illusions; see creatures made invisible by magic.\nEnhance Magic (Sorce State): When you or a willing creature within 30 feet makes a Spell check, spend 1 Stamina Point to reroll one die (not on Overcharged checks; once per check). Free action on yourself, Reaction on others.\nSecond-Sight Reflexes (Future State): +1 modifier to Blocks, Parries, Dodges, and Skill saves, and one extra Reaction each round.\nEnhanced Defense (Future State): When you Dodge, Block, or Parry, spend 1 Stamina Point (Free action) to reroll one die (not on Pushed checks; once per check).",
+    "Disrupt Arcane (Sorce State): Standard action, 2 Stamina Points, to disrupt a Spell or magical effect. Roll a check using Wits and your specialty rank (counts as a Skill check). Vs a Spell: -1 modifier per Rank it was cast at; success dispels it. Vs an effect: the GM sets a Difficulty (and may add a Danger); success suppresses it up to 1 minute or until you stop. On a failure, you can't retry that same effect or cast until an Intermission.\nVigilance (Future State): When you or a creature you see is attacked, spend 2 Stamina Points to let them Dodge, Parry, or Block as a Free action. Free action on yourself, Reaction on others.",
+    "Sorcery Shield (Sorce State): When you make a Skill save vs a Spell or magical effect, spend 3 Stamina Points (Reaction) to replace your save pool with 6d8 (counts as a Skill check). Success makes you immune to it until the end of your next turn. Not vs Forbidden Spells.\nTip the Scales (Future State): When you or a willing creature within 30 feet makes a Skill save, spend 3 Stamina Points to let them reroll up to two dice (once per save; not on Pushed checks). Free action on yourself, Reaction on others.",
+    "Time and Space: Quick action; heightened state for 1 minute. Your Stamina refreshes at the start of each turn and you can use both Sorce State and Future State passives and abilities. Once per Light or Full Rest."
   ],
   Witch: [
     "Learn 1 Sorcery Talent. Summon Familiar: telepathy & cast Spells through it within 60 ft.",
-    "Energy Points. Enchanting Charm: 1 EP - charm grants Nightvision, +2 weapon dmg, +10 Speed, or water breathing (1 hour).",
-    "Unlocks Brewing (craft Elixirs with your Familiar-cauldron) and Share Senses (see book).",
-    "Unlocks Jinx and Familiar Flight (see book).",
-    "Unlocks Voodoo Doll (see book)."
+    "Energy: Gain and spend Energy Points to fuel Witch abilities.\nEnchanting Charm: Spend 1 Energy Point (Quick action) to place a charm on a creature for 1 hour.\nCat Whisker: Gain Nightvision.\nWolf Fang: Your Melee or Ranged Weapon Attack base damage is +2.\nFalcon Feather: Increase your Speed by 10.\nFish Scales: Breathe in air and water, and gain a Swim Speed equal to your base Speed.",
+    "Brewing: Spend 2 Energy during an Intermission to craft a special Witch Elixir (page 87); your Familiar becomes a cauldron that acts as an Alchemy Kit, and you gain a +2 modifier to craft other Alchemy items.\nShare Senses: Quick action to enter or leave for up to 1 hour. You see, hear, and speak through your Familiar and can't cast Spells (but may keep focusing on them); your body is Unconscious.",
+    "Jinx: When a creature within 60 feet succeeds with one success or fails a Skill check, spend 3 Energy Points (Reaction) to Jinx it. On one success: it rerolls that die, changing a d8 to a d6. On a failure: it rerolls up to 3 dice, changing d6s to d8s. Not on Pushed checks.\nFamiliar Flight: While your Familiar is within 30 feet, use a Quick action to turn it into a Witch Broom (or back). As a Broom you can mount it; it has a 40 ft. Fly Speed and halves all physical damage it takes.",
+    "Voodoo Doll: Quick action; select up to 3 creatures within 120 ft. and create a doll of each, plus 3 pins to place anywhere on them. Pins buff or debuff based on their placement and whether the creature is an ally or foe (page 87). A Minor Action changes a pin's location."
   ],
   Shapeshifter: [
     "Learn 1 Sorcery Talent. Animal Form: create & activate a Small Animal Form for 24h; swap Hybrid/Beast Shape.",
-    "Tiny & Medium Animal Forms. Energy Points, Shapeshifting abilities, up to 2 Beast Traits per Form (see book).",
-    "Up to 4 Beast Traits per Animal Form.",
-    "Up to 6 Beast Traits per Animal Form.",
-    "Unlocks Chimera Form (see book)."
+    "You can now shapeshift into Tiny and Medium Animal Forms.\nEnergy: Gain and spend Energy Points to enhance Animal Forms with Beast Traits, up to 2 active per Form. Each active Beast Trait gives 5 Temp HP that replenishes during an Intermission.",
+    "Up to 4 Beast Traits active per Animal Form; unlock additional Beast Traits.",
+    "Up to 6 Beast Traits active per Animal Form; unlock additional Beast Traits.",
+    "Chimera Form: Enter this special Animal Form for 1 minute, selecting up to 8 Beast Traits without spending Energy. Once per Light or Full Rest."
   ],
   Summoner: [
     "Learn 1 Sorcery Talent. Spirit Companion: summon the Scout Stage 1 Form during an Intermission.",
-    "Stamina Points. Command-Dodge: 1 SP - oppose attacks on your companion with Tame. Companion unlocks Hunter & Warden Stage 1 Forms.",
-    "Command-Resist: 2 SP - substitute your companion's save with your Tame. Forms evolve to Stage 2.",
-    "Command-Push Limits: 3 SP - redo your companion's failed check with a Tame check. Forms evolve to Stage 3.",
-    "Unity Apex: Quick action - Apex Form + Packbound Stance for 1 min, SP refresh each turn. 1/Rest."
+    "Stamina: Gain and expend Stamina Points to use Summoner Commands.\nCommand-Dodge: When your companion is targeted by a Melee or Ranged attack, spend 1 Stamina (Free Action) to oppose it with your Tame.\nSpirit Forms: Unlock the Hunter and Warden Stage 1 forms for your Spirit Companion.",
+    "Your Spirit Companion forms evolve into Stage 2 versions.\nCommand-Resist: When your companion makes a Skill Save, spend 2 Stamina (Free Action) to substitute its Skill dice with your Tame dice pool.",
+    "Your Spirit Companion forms evolve into Stage 3 versions.\nCommand-Push Limits: When your companion fails a Skill check, spend 3 Stamina (Free Action) to make a Tame check and use your result as the new check. Once per check.",
+    "Unity Apex: Quick action; transform your spirit into its Apex Form and enter a Packbound Stance for 1 minute. Your Stamina refreshes now and at the start of each turn. Once per Light or Full Rest."
   ],
   Sonneteer: [
     "Learn 1 Sorcery Talent. Rally: Quick action - a creature gains +1 on its next Skill check.",
-    "Focus Points. Inspire: 1 FP - grant a Proficiency die on a nearby creature's check. Guiding Words: Assist using Perform.",
-    "Insult: 1 FP Reaction - inflict -2 on a check. Motivating Melody: Recovery dice spent during shared Rests restore +2 Status Points.",
-    "Distract: 1 FP - Perform vs Insight to cancel a Reaction. Echoing Voice: ability ranges increase to 30 ft.",
-    "Unlocks Maestro's Gambit (see book)."
+    "Focus: Gain and use Focus Points for Sonneteer techniques.\nInspire: When a creature within 15 feet attempts a Skill check, spend 1 Focus Point (Free action) to grant an extra Proficiency die as a special +1 modifier. Not if they've already attempted the check.\nGuiding Words: Within 15 feet of a creature that understands you, you may use Perform for the Assist action regardless of the skill they're attempting. Once per Intermission.",
+    "Insult: When a creature within 15 feet attempts a Skill check, spend 1 Focus (Reaction) to inflict a -2 modifier on it.\nMotivating Melody: During a shared Intermission or Light Rest, choose any number of the creatures present; each Recovery die a chosen creature spends restores an extra 2 Status Points.",
+    "Distract: When a creature within 30 feet attempts a Reaction, spend 1 Focus Point (Free action) to Distract them: make a Perform check opposed by their Insight; on a success their Reaction fails and is lost.\nEchoing Voice: You can Galvanize up to 30 feet, and Inspire and Insult gain 30 feet of range.",
+    "Maestro's Gambit: Quick action; enter this stance for 1 hour. Inspire, Insult, and Distract reach 60 feet; Inspire gives up to 2 Proficiency dice as a special +2 modifier, Insult inflicts -4, and Distract can't be Opposed. Once per Light or Full Rest."
   ],
   Cleric: [
     "Learn 1 Sorcery Talent. Blessed Recovery: Recovery dice spent during shared Rests can't roll below 3.",
-    "Energy Points. Blessed Restoration: 1 EP Quick action - restore HP or MP equal to 3x Rank within 30 ft.",
-    "Purification: 2 EP - cleanse Enraged, Blinded, Dazed, or Shocked.",
-    "Aegis Intervention: 3 EP - remove up to 2 dice from an ally's Wound/Trauma roll.",
-    "Divine Intervention: Reaction - a save within 120 ft gains 3 successes. 1/Rest per creature."
+    "Energy: Gain and use Energy Points to reinvigorate and bless allies.\nBlessed Restoration: Spend 1 Energy Point (Quick action) to bless a creature within 30 feet, replenishing HP or MP equal to {rank3}.",
+    "Purification: Spend 2 Energy (Quick action) to bless a creature within 30 feet and cleanse one of: Enraged, Blinded, Dazed, or Shocked.",
+    "Aegis Intervention: When a creature within 120 feet would gain a Wound or Trauma, spend 3 Energy (Free Action) to remove up to two of the dice determining it; if that leaves 0 dice, the result becomes 1. If an NPC would instead gain Doom Stacks, reduce them by 1.",
+    "Divine Intervention: When you or a creature you see within 120 ft. makes a Skill save, spend a Reaction to grant it 3 successes (usable after seeing the result). Not on the same creature again until a Light or Full Rest."
   ],
 };
 
@@ -2990,7 +2990,7 @@ const SPECIALTY_TALENT_TEXT = {
   Berserker: 'Thicker Skin: Your max HP is increased by 8.',
   Engineer: 'Tinkerer: You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.',
   Pugilist: 'Pugilist Form: As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.',
-  Sharpshooter: 'Eagle Eye: Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 10 feet.',
+  Sharpshooter: 'Eagle Eye: Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 20 feet.',
   Elemancer: 'Swift: Your base Speed is increased by 5.',
   Alchemist: 'Mobile Apothecary: You are always considered having an Alchemist Kit equipped without having to wear one. You can still equip and benefit from another Kit.',
   Reaver: 'Soulwell: When a creature dies within 60 feet of you, you can regain up to 3 Sorce.',
@@ -3009,7 +3009,7 @@ const SPECIALTY_FEATURES = {
   Berserker: {name:'Thicker Skin',  text:'Your max HP is increased by 8.'},
   Engineer:  {name:'Tinkerer',      text:'You are always considered having a Tool Kit equipped without having to wear one. You can still equip and benefit from another Kit.'},
   Pugilist:  {name:'Pugilist Form', text:'As a Pugilist, your Unarmed Strikes have a base damage of 6 Blunt. Your hands in Unarmed Strikes count as 1h melee weapons for the sake of Parries, Off-Hand Attacks, and Martial Talents.'},
-  Sharpshooter: {name:'Eagle Eye', text:'Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 10 feet.'},
+  Sharpshooter: {name:'Eagle Eye', text:'Your Ranged Weapon Attacks and throwing distance for Explosives have their max range increased by 20 feet.'},
   Elemancer: {name:'Swift', text:'Your base Speed is increased by 5.'},
   Alchemist: {name:'Mobile Apothecary', text:'You are always considered having an Alchemist Kit equipped without having to wear one. You can still equip and benefit from another Kit.'},
   Reaver: {name:'Soulwell', text:'When a creature dies within 60 feet of you, you can regain up to 3 Sorce.'},
@@ -3316,7 +3316,7 @@ function renderExtraLanguagesHtml() {
             <tr><td class="opt-name">Demoid</td><td>Demons, Virophage</td><td>Nether</td></tr>
             <tr><td class="opt-name">Eldar</td><td>Elementals, Constructs</td><td>Eldar</td></tr>
             <tr><td class="opt-name">Etunu</td><td>Voidspawn</td><td>Etunu</td></tr>
-            <tr><td class="opt-name">Necrosis</td><td>Reapers, Undead</td><td>Nether</td></tr>
+            <tr><td class="opt-name">Necrosis</td><td>Undead</td><td>Nether</td></tr>
             <tr><td class="opt-name">Solari</td><td>Celestials</td><td>Eldar</td></tr>
           </tbody>
         </table>
@@ -4081,12 +4081,12 @@ async function exportPDF() {
         // Deduplicate: skip if already added (e.g. two Daggers from Sonneteer)
         if (seenWeaponNames.has(entryName.toLowerCase())) return;
         seenWeaponNames.add(entryName.toLowerCase());
-        // Sharpshooter Eagle Eye: +10 ft to ranged weapon max range
+        // Sharpshooter Eagle Eye: +20 ft to ranged weapon max range
         let weaponRange = w.range;
         if (ch.specialty === 'Sharpshooter' && w.skill === 'Shoot') {
           const rangeMatch = weaponRange.match(/^(\d+)/);
           if (rangeMatch) {
-            weaponRange = (parseInt(rangeMatch[1]) + 10) + weaponRange.slice(rangeMatch[1].length);
+            weaponRange = (parseInt(rangeMatch[1]) + 20) + weaponRange.slice(rangeMatch[1].length);
           }
         }
         weaponEntries.push({
@@ -4311,7 +4311,7 @@ async function exportPDF() {
     let pdfSpecialtyTalent;
     if (specSummary) {
       pdfSpecialtyTalent = ch.specialty + ' - Rank ' + specRankPdf + '\n'
-        + specSummary.slice(0, specRankPdf).map((s, i) => 'Rank ' + (i + 1) + '\n' + String(s).replace(/\{rank2\}/g, specRankPdf * 2).replace(/\{rank\}/g, specRankPdf)).join('\n')
+        + specSummary.slice(0, specRankPdf).map((s, i) => 'Rank ' + (i + 1) + '\n' + String(s).replace(/\{rank3\}/g, specRankPdf * 3).replace(/\{rank2\}/g, specRankPdf * 2).replace(/\{rank\}/g, specRankPdf)).join('\n')
         + '\nFull details: Classes & Specialties chapter, Core Rulebook.';
       if (ch.specialty === 'Warlock') {
         const warlockStudy = (ch.talents || []).find(t => WARLOCK_STUDIES.includes(t));
@@ -5045,8 +5045,8 @@ function renderLevelUp() {
           const ws = (ch.talents || []).find(t => WARLOCK_STUDIES.includes(t));
           if (ws) summary = summary.map(s => s.replace('your chosen Study of Sorcery', ws));
         }
-        const boldTitles = s => esc(s).replace(/([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+){0,3}(?: \([^)]*\))?):/g, '<strong style="color:var(--text)">$1:</strong>');
-        const subRank = s => String(s).replace(/\{rank2\}/g, sr * 2).replace(/\{rank\}/g, sr);
+        const boldTitles = s => esc(s).replace(/(?<=(?:^|\n|\. ))([A-Z][A-Za-z'’-]*(?: (?:[A-Z][A-Za-z'’-]*|and|the|of|or)){0,5}(?: \([^)]*\))?):/g, '<strong style="color:var(--text)">$1:</strong>');
+        const subRank = s => String(s).replace(/\{rank3\}/g, sr * 3).replace(/\{rank2\}/g, sr * 2).replace(/\{rank\}/g, sr);
         if (summary) {
           return summary.slice(0, sr).map((s, i) => `<div style="margin-top:12px"><div style="font-family:var(--font-ui);font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--safe)">Rank ${i + 1}${i + 1 === sr ? ' — current' : ''}</div><div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-dim);line-height:1.55;white-space:pre-line">${boldTitles(subRank(s))}</div></div>`).join('');
         }

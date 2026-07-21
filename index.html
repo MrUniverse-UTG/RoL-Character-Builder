@@ -1346,10 +1346,10 @@ const LEVEL19_RECOVERY_TEXT = "All Recovery Dice are now d8s instead of d6s.";
 const SPECIALTY_PDF_SUMMARY = {
   Guardian: [
     "Learn 1 Martial Talent. Armored: armor sets you wear gain +5 max DP.",
-    "Stamina Points. Hardened: reduce physical dmg taken by 2x Rank while you have Stamina. Iron Reflex: 1 SP to Block/Parry as a Free Action.",
-    "Defensive Stance: 2 SP when taking physical dmg - halve physical dmg until your next turn (no harmful Reactions).",
-    "Intercept: 3 SP Free Action - run to a hit ally within half your Speed and halve the physical dmg they take.",
-    "Bulwark: Quick action, 1 min - Stamina refreshes each turn & abilities are empowered (see book). 1/Rest."
+    "Stamina: As a Guardian, you can gain and expend Stamina Points to use Guardian Abilities.\nHardened: While you have Stamina, you reduce all physical damage you receive by an amount equal to double your rank in this specialty talent.\nIron Reflex: When you are targeted by a Melee or Ranged Attack, you can spend 1 Stamina Point to Block or Parry the attack as a Free Action.",
+    "Defensive Stance: When you take physical Damage you can spend 2 Stamina Points as a Free action to enter a Defensive Stance until the start of your next turn. While in Defensive Stance, you halve all physical damage taken but can't perform Opportunity strikes or other harmful Reactions.",
+    "Intercept: When an ally within half your speed in distance from you is hit by a melee or ranged attack, you can spend 3 Stamina Points as a Free action to run within 5 feet of the ally and reduce the physical damage they take from the attack by half.",
+    "Bulwark: You can use a Quick action to enter this state for 1 minute. When Bulwark is active your Stamina Points refresh at the start of your turn, Iron Reflex grants a +2 bonus, Defensive Stance works against all damage types, and Allies you use Intercept on benefit from Hardened. You cannot use this again until you finish a Light or Full Rest."
   ],
   Berserker: [
     "Learn 1 Martial Talent. Thicker Skin: +8 max HP.",
@@ -4204,11 +4204,13 @@ async function exportPDF() {
     // Page 3 - Talents (small font size for compact display)
     // Strip HTML tags from a string (for plain text PDF fields)
     const stripHtml = s => String(s||'').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+    // Same as stripHtml but keeps line breaks (collapses only spaces/tabs).
+    const stripHtmlNL = s => String(s||'').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim();
 
-    const setSmall = (fieldName, val, size) => {
+    const setSmall = (fieldName, val, size, keepNL) => {
       try {
         const field = form.getTextField(fieldName);
-        const cleanVal = winansi(stripHtml(val));
+        const cleanVal = winansi(keepNL ? stripHtmlNL(val) : stripHtml(val));
         // For multiline fields setFontSize may fail - try both approaches
         try {
           field.setFontSize(size || 7);
@@ -4312,7 +4314,7 @@ async function exportPDF() {
     let pdfSpecialtyTalent;
     if (specSummary) {
       pdfSpecialtyTalent = ch.specialty + ' - Rank ' + specRankPdf + '\n'
-        + specSummary.slice(0, specRankPdf).map((s, i) => 'R' + (i + 1) + ': ' + s).join('\n')
+        + specSummary.slice(0, specRankPdf).map((s, i) => 'Rank ' + (i + 1) + '\n' + s).join('\n')
         + '\nFull details: Classes & Specialties chapter, Core Rulebook.';
       if (ch.specialty === 'Warlock') {
         const warlockStudy = (ch.talents || []).find(t => WARLOCK_STUDIES.includes(t));
@@ -4321,7 +4323,7 @@ async function exportPDF() {
     } else {
       pdfSpecialtyTalent = '(Rank ' + specRankPdf + ') ' + (ch.specialtyTalent || '');
     }
-    setSmall('SPECIALTY TALENT', pdfSpecialtyTalent, specRankPdf >= 4 ? 7 : specRankPdf >= 2 ? 8 : 10);
+    setSmall('SPECIALTY TALENT', pdfSpecialtyTalent, specRankPdf >= 4 ? 6 : specRankPdf >= 2 ? 8 : 10, true);
     const talentFields = ['TALENT','TALENT_2','TALENT_3','TALENT_4','TALENT_5','TALENT_6','TALENT_7','TALENT_8','TALENT_9'];
     const stripTags = s => s.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
     // Full talent text for every unlocked rank (ranks stack, so include all up to current)

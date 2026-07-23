@@ -792,284 +792,284 @@ const LIFEPATH = {
 // -- Talent rank-by-rank data (verbatim from the Core Rulebook) ---------
 const TALENT_DATA = {
   "Boar Style": [
-    "You unlock Boar’s Temper (A). You can spend 2 Sorce Points to make this attack. You charge up to 10 feet in a line and make a melee attack against a creature. If you moved at least 10 feet in a straight line before the attack, your base damage on this attack increases by 2.",
+    "Unlock Boar’s Temper (A): spend 2 Sorce to charge up to 10 feet in a line and make a melee attack. If you moved at least 10 feet straight beforehand, base damage +2.",
     "Boar’s Temper now lets you charge up to 20 feet.",
-    "If you moved at least 10 feet in a straight line while using Boar’s Temper before making the attack, your base damage now increases by 4 instead of 2.",
-    "When you use Boar’s Temper, you can spend 2 additional Sorce Points to enhance it, having it deal 2 additional damage for every 5 feet you moved in a straight line up to 12 extra damage. The additional damage type is equal to the base damage type.\nBoar’s Temper also now lets you charge up to 30 feet.",
-    "When you use Boar’s Temper, you can spend 4 additional Sorce Points to enhance it further. While enhanced with this you charge through hostile creatures’ spaces. Creatures you charge through take damage as if you hit them with a Melee Weapon Attack. This can be combined with the rank 3 feature of this talent, but creatures you charge through do not take the damage from the rank 4 feature. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Boar’s Temper’s straight-line bonus is now +4 base damage instead of +2.",
+    "Boar’s Temper: spend 2 extra Sorce to deal +2 damage (base type) per 5 feet moved straight, up to +12. It now also lets you charge up to 30 feet.",
+    "Boar’s Temper: spend 4 extra Sorce to charge through hostile creatures’ spaces; each takes damage as if hit by a Melee Weapon Attack. Combines with the Rank 3 feature, but creatures charged through don’t take the Rank 4 damage. (See Talents chapter, Core Rulebook.)"
   ],
   "Brawler": [
-    "You can spend 2 Sorce Points to attempt a Grapple on an Opportunity Strike instead of a Melee Weapon Attack.",
-    "You can Grapple creatures one size larger than you with a -1 modifier.",
-    "While you are Grappling a creature, they now gain a -3 modifier when trying to attack a creature that is not grappling them.",
-    "You can attempt to Grapple a creature two sizes larger than you with a -2 modifier.",
-    "While you have a creature Grappled, you can spend 6 Sorce Points to give them the Restrained Condition until the end of the Grapple."
+    "Spend 2 Sorce to attempt a Grapple on an Opportunity Strike instead of a Melee Weapon Attack.",
+    "You can Grapple creatures one size larger than you at a -1 modifier.",
+    "A creature you're Grappling has a -3 modifier to attack any creature that isn't grappling it.",
+    "You can Grapple creatures two sizes larger than you at a -2 modifier.",
+    "While Grappling a creature, spend 6 Sorce to give it Restrained until the Grapple ends."
   ],
   "Calvary Fighter": [
-    "While you are mounted on a creature, all physical damage your mount receives is halved.",
-    "When a creature targets your mount with a Melee or Ranged Weapon Attack, you can spend 2 Sorce Points as a Free action to redirect it to target you instead.",
-    "If your mount is a Beast, it can now use any of its melee attacks with a -3 modifier while you're mounted on it. If it has a trait that allows this already, then instead this Talent allows it to ignore the negative modifiers that trait would impose when it makes a melee attack while you’re mounted on it.",
-    "When you move at least 10 ft. in a straight line while mounted on a creature right before making a Melee Weapon Attack, your attack’s base damage increase by 4.",
-    "If your mount is a Beast, your Melee Weapon Attacks while mounted have their base damage increased by 2. When you make a Melee Weapon Attack against unmounted creatures whose sizes are smaller than your mount’s, then the base damage is increased by 4 instead."
+    "While mounted, all physical damage your mount takes is halved.",
+    "When your mount is targeted by a Melee or Ranged Weapon Attack, spend 2 Sorce (Free action) to redirect it to you.",
+    "If your mount is a Beast, it can use its melee attacks at a -3 modifier while you're mounted. If a trait already allows that, this instead removes that trait's negative modifiers for attacking while mounted.",
+    "When you move at least 10 ft. straight while mounted right before a Melee Weapon Attack, its base damage +4.",
+    "If your mount is a Beast, your mounted Melee Weapon Attacks deal +2 base damage — or +4 against unmounted creatures smaller than your mount."
   ],
   "Crane Style": [
-    "You unlock Crane’s Grace (P). You can spend 2 Sorce Points and a Quick action to use this ability. You leap 10 feet in a line. This leap does not provoke Opportunity Strikes. You can leap over hostile creatures the same size as you or smaller.",
-    "Crane’s Grace now allows you to leap up to 15 feet.",
-    "You unlock Flutter (A). You can spend 4 Sorce Points to make a Melee Weapon Attack. On a success or failure, you can then leap 15 feet away from the target without provoking Opportunity Strikes.",
-    "After using Crane’s Grace or Flutter, you gain the benefits of the Disengage action until the end of your next turn.",
-    "You may now use Crane’s Grace as a Minor Action instead of a Quick Action. Flutter now becomes a Power (P) that can be activated as a Free Action after you make any Melee Weapon Attack, allowing you to combine it with Attacks (A) from other talents. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Unlock Crane’s Grace (P): spend 2 Sorce (Quick action) to leap 10 feet in a line without provoking Opportunity Strikes. You can leap over hostile creatures your size or smaller.",
+    "Crane’s Grace now lets you leap up to 15 feet.",
+    "Unlock Flutter (A): spend 4 Sorce to make a Melee Weapon Attack, then (hit or miss) leap 15 feet away from the target without provoking Opportunity Strikes.",
+    "After using Crane’s Grace or Flutter, gain the Disengage action's benefits until the end of your next turn.",
+    "Crane’s Grace is now a Minor Action. Flutter becomes a Power (P) usable as a Free Action after any Melee Weapon Attack, so it can combine with Attacks (A) from other talents. (See Talents chapter, Core Rulebook.)"
   ],
   "Defender": [
-    "You unlock Guard (P). When a creature within 5 feet of you is attacked by a Melee or Ranged Weapon Attack, you can use a Reaction to perform a Guard. When you Guard an ally, you can attempt to Block or Parry the attack for them. The creature you are trying to Guard must be willing to be Guarded. You must wield a weapon or shield to Guard. If you are using a weapon, you can only Guard against Attacks you can Parry. The ally takes any damage if you don’t fully Block or Parry the attack. A creature being Guarded cannot Dodge, Parry, or Block the attack.",
-    "You can now spend 2 Sorce Points instead of a Reaction to use Guard.",
-    "When you attempt to Guard a creature and that creature still gets hit, you can spend 3 Sorce Points to redirect half of the attack’s damage to you. The damage redirected is calculated before resistances, vulnerabilities, and immunities.",
-    "When a creature within 5 feet of you makes a Might or Move save, you can spend 2 Sorce Points as a Free Action to Assist that skill save with your Might or Move.",
-    "You can spend 4 Sorce Points to enter a Defender Stance until the start of your next turn. While in Defender stance, you can Guard without needing to spend Sorce or a Reaction. You also can Block or Parry attacks against you without spending a Reaction. During this time, any attacks you make gain a -4 modifier."
+    "Unlock Guard (P): when a willing creature within 5 feet is hit by a Melee or Ranged Weapon Attack, use a Reaction to Block or Parry it for them. You must wield a weapon or shield (a weapon only Guards attacks you can Parry). The ally takes any damage you don't fully Block/Parry and can't Dodge, Parry, or Block it themselves.",
+    "You can spend 2 Sorce instead of a Reaction to use Guard.",
+    "When a creature you Guard still gets hit, spend 3 Sorce to redirect half the attack's damage to you (calculated before resistances, vulnerabilities, and immunities).",
+    "When a creature within 5 feet makes a Might or Move save, spend 2 Sorce (Free Action) to Assist it with your Might or Move.",
+    "Spend 4 Sorce to enter Defender Stance until the start of your next turn: Guard without spending Sorce or a Reaction, and Block or Parry attacks on you without a Reaction. Your own attacks take a -4 modifier during it."
   ],
   "Dragon Style": [
-    "You unlock Piercing Blow (P). You can spend 3 Sorce Points to use this ability. You shoot or throw a powerful attack in a 20-foot line. All creatures in the path of the blow take damage as if you hit them with a Ranged Weapon Attack.",
-    "Piercing Blow’s line now has a range of 40 feet.",
-    "You unlock Spread Blow (P). You can spend 6 Sorce Points to use this ability. When you do, you fire a shot or throw a weapon infused with Sorce that splinters and spreads out at all creatures in a cone with a range of 20 feet. Each creature in the cone takes damage as if you hit them with a Ranged Weapon Attack. This does not break or destroy the weapon or ammo used.",
-    "All Powers from this talent deal an additional 4 damage of the weapon’s base damage type.",
-    "You unlock Explosive Blow (P). You can spend 9 Sorce Points to fire a shot or throw a weapon infused with Sorce at a point you see within your weapon’s max range. The ammo or weapon’s Sorce infusion explodes in a 20-foot-radius sphere once it reaches that point. This does not break or destroy the weapon or ammo used. Each creature in the sphere takes damage as if you hit them with a Ranged Weapon Attack with the weapon equipped. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Unlock Piercing Blow (P): spend 3 Sorce to shoot or throw in a 20-foot line; every creature in the path takes damage as if hit by a Ranged Weapon Attack.",
+    "Piercing Blow’s line is now 40 feet.",
+    "Unlock Spread Blow (P): spend 6 Sorce to fire or throw a Sorce-infused weapon in a 20-foot cone; each creature in it takes damage as if hit by a Ranged Weapon Attack. The weapon or ammo isn't destroyed.",
+    "All Powers from this talent deal +4 damage of the weapon's base type.",
+    "Unlock Explosive Blow (P): spend 9 Sorce to fire or throw a Sorce-infused weapon at a point within max range; it explodes in a 20-foot-radius sphere. Each creature in it takes damage as if hit by a Ranged Weapon Attack with that weapon. The weapon or ammo isn't destroyed. (See Talents chapter, Core Rulebook.)"
   ],
   "Duelist": [
-    "You unlock Riposte (P). If your Parry prevents a melee attack from hitting, you can spend 2 Sorce Points to deal the attacker half the damage you would deal if you hit with a Melee Weapon Attack with the weapon you parried with. This includes the weapon’s Features, Poisons, and any additional damage from spells, oils, or effects. This does not count as a Melee Weapon Attack to activate other abilities. The attacker must be within your weapon’s reach.",
+    "Unlock Riposte (P): if your Parry stops a melee attack, spend 2 Sorce to deal the attacker half the damage of a Melee Weapon Attack with the weapon you parried with (including its Features, Poisons, and any spell/oil/effect damage). This doesn't count as a Melee Weapon Attack for other abilities. The attacker must be within your reach.",
     "You can Parry Ranged Weapon and Spell attacks.",
-    "When targeted by a Melee or Ranged Weapon Attack, you can spend 3 Sorce Points as a Free Action instead of a Reaction to Parry.",
-    "When you use Riposte, it now deals the full damage of your attack instead of half.",
-    "When you Parry an attack, you can spend 4 Sorce Points to reroll up to three dice in the check. If you Pushed the check, you can’t use this ability to reroll the Pushed dice.\nDuelist Notes:\nYou can’t use this Talent’s abilities while wielding weapons with the Heavy Feature."
+    "When targeted by a Melee or Ranged Weapon Attack, spend 3 Sorce (Free Action) instead of a Reaction to Parry.",
+    "Riposte now deals your attack's full damage instead of half.",
+    "When you Parry, spend 4 Sorce to reroll up to three dice in the check (not the Pushed dice if you Pushed)."
   ],
   "Ignore Pain": [
-    "You unlock Toughen Up (P). When you take damage, you can spend a Reaction to reduce the damage taken by 4 to a minimum of 1. You can’t reduce Fear or Psychic damage with this ability.",
-    "You can spend 2 Sorce Points as a Free Action instead of a Reaction to use Toughen Up.",
-    "You can now use Toughen Up against Fear and Psychic damage.",
-    "When you use Toughen Up, you can spend 2 Sorce Points as a Free Action to increase the reduced damage taken to 12 (to a minimum of 1).",
-    "You unlock Didn’t Hear No Bell (P). If damage would reduce your HP or MP to 0, you can spend 2 Sorce Points as a Free Action to regain up to 24 HP or MP (whichever was reduced to 0) after rolling for the Wound or Trauma gained. If that Wound or Trauma would kill you, you can’t use this ability. The Sorce Point cost for this power increases by 2 for each Wound or Trauma you have before you gain the new one (only count Wounds if replenishing HP, only count Traumas if replenishing MP)."
+    "Unlock Toughen Up (P): when you take damage, spend a Reaction to reduce it by 4 (minimum 1). Not against Fear or Psychic damage.",
+    "Spend 2 Sorce (Free Action) instead of a Reaction to use Toughen Up.",
+    "Toughen Up now works against Fear and Psychic damage.",
+    "When using Toughen Up, spend 2 Sorce (Free Action) to reduce the damage by 12 instead (minimum 1).",
+    "Unlock Didn’t Hear No Bell (P): if damage would reduce your HP or MP to 0, spend 2 Sorce (Free Action) to regain up to 24 of whichever hit 0, after rolling the Wound or Trauma. Can't be used if that Wound/Trauma would kill you. Cost rises by 2 per Wound (for HP) or Trauma (for MP) you already have."
   ],
   "Mantis Style": [
-    "You unlock Multi Strike (A). You can spend 3 Sorce Points to attempt to hit the enemy twice in quick succession with two different 1h weapons in one attack. On a hit, your attack deals the full effects of your first weapon and additional damage equal to half the damage your second weapon would normally deal. The additional damage from the second weapon does not benefit from a critical or supercritical success. If you are using weapons that use Ammo, you can spend an additional 2 sorce to reload the weapons after the attack as a Free Action.",
-    "Your first Off-Hand Attack on your turn only has a -2 modifier.",
-    "Your first Off-Hand Attack on your turn only has a -1 modifier.",
-    "When you Multi Strike, the additional damage your second weapon would deal is equal to what it would normally deal if it made its own a successful weapon attack instead of half.",
-    "If you successfully hit with Multi Strike, you can use it again as a Quick action with a -1 modifier until the end of your turn.\nMantis Style Notes:\nThe Attack (A) this style grants require you to have a 1h weapon in each hand. You can substitute a weapon with an Unarmed Strike if nothing is equipped in that hand.\nWhen you use this Talent’s Attack (A), before rolling, designate which weapon strikes first and which strikes second.\nAny effects that add, lower, or change your weapons’ damage are applied to this Attack (A)."
+    "Unlock Multi Strike (A): spend 3 Sorce to strike twice with two different 1h weapons in one attack. On a hit, deal the first weapon's full effects plus half the second weapon's damage (that half doesn't benefit from crits). With Ammo weapons, spend 2 more Sorce to reload after the attack as a Free Action.",
+    "Your first Off-Hand Attack each turn has only a -2 modifier.",
+    "Your first Off-Hand Attack each turn has only a -1 modifier.",
+    "Multi Strike's second weapon now deals its full attack damage instead of half.",
+    "On a successful Multi Strike, use it again as a Quick action at a -1 modifier until end of turn."
   ],
   "Master of Defense": [
-    "While wearing an armor set or natural armor, your max DP increases by 4.",
-    "While wearing an armor set or natural armor, your max DP increases by an additional 8.",
-    "While wearing an armor set or natural armor, your max DP increases by an additional 12.",
-    "While wearing an armor set or natural armor, your max DP increases by an additional 16.",
-    "While wearing an armor set or natural armor, your max DP increases by an additional 20."
+    "While wearing an armor set or natural armor, max DP +4.",
+    "While wearing an armor set or natural armor, max DP +8 more.",
+    "While wearing an armor set or natural armor, max DP +12 more.",
+    "While wearing an armor set or natural armor, max DP +16 more.",
+    "While wearing an armor set or natural armor, max DP +20 more."
   ],
   "Opportunist": [
-    "When a creature willingly enters your weapon’s reach for the first time on a turn, you can make an Opportunity Strike against them.",
-    "When you can make an Opportunity Strike, you can spend 2 Sorce Points as a Free Action instead of spending a Reaction.",
-    "You can spend 4 Sorce Points as a Free Action to be able to make an Opportunity Strike on a creature that has Disengaged.",
-    "You unlock Cripple (P). When you hit with an Opportunity Strike, you can spend 3 Sorce Points as a Free Action to reduce the enemy’s Speed by half until the start of their next turn. Enemies that are 2 or more sizes larger than you or can’t have their speeds reduced instead take 4 additional damage of the weapon’s base damage type. Once you use Cripple on a creature, you can’t use it on that same creature again until the end of your next turn.",
-    "Cripple now reduces the enemy’s Speed to 0 until the start of their next turn. Enemies that are 2 or more sizes larger than you or can’t have their speeds reduced instead have the extra damage they take from Cripple increased to 8."
+    "When a creature willingly enters your weapon's reach for the first time on a turn, you can make an Opportunity Strike against it.",
+    "When you can make an Opportunity Strike, spend 2 Sorce (Free Action) instead of a Reaction.",
+    "Spend 4 Sorce (Free Action) to make an Opportunity Strike on a creature that has Disengaged.",
+    "Unlock Cripple (P): on an Opportunity Strike hit, spend 3 Sorce (Free Action) to halve the enemy's Speed until the start of its next turn. Enemies 2+ sizes larger, or that can't be slowed, instead take +4 damage of the weapon's base type. Once used on a creature, not again on it until the end of your next turn.",
+    "Cripple now reduces Speed to 0 until the start of the enemy's next turn; for enemies 2+ sizes larger or that can't be slowed, its extra damage rises to 8."
   ],
   "Porcupine Style": [
-    "When wielding a shield, you can use it as a melee weapon. The shield has a base Blunt damage equal to double its defense modifier. You cannot use the shield’s modifier on the attack’s check.",
-    "You unlock Counter (P). When you successfully Block a melee attack and the attacker is within 5 feet of you, you can spend 4 Sorce Points as a Free Action to deal damage to the attacker as if you hit them with the shield as a Melee Weapon Attack.",
-    "Whenever you Block a melee attack and the attacker is within 5 feet of you, the attacker takes 2 blunt damage regardless if they succeed or fail the attack.",
-    "The base damage of shields you wield increases by 4.",
-    "You unlock Pummel (P). When you successfully attack with a shield, you can spend 6 Sorce Points as a Free Action to attempt to Shove the creature Prone. If you succeed the Shove, until the end of your turn you may use a Quick Action to deal your shield’s base damage against that creature while it’s prone."
+    "While wielding a shield, you can use it as a melee weapon with base Blunt damage equal to double its defense modifier. You can't add the shield's modifier to the attack check.",
+    "Unlock Counter (P): when you successfully Block a melee attack from within 5 feet, spend 4 Sorce (Free Action) to hit the attacker as if with a shield Melee Weapon Attack.",
+    "Whenever you Block a melee attack from within 5 feet, the attacker takes 2 Blunt damage whether it hit or missed.",
+    "Shields you wield deal +4 base damage.",
+    "Unlock Pummel (P): on a successful shield attack, spend 6 Sorce (Free Action) to attempt to Shove the creature Prone. On a successful Shove, until end of turn you may use a Quick Action to deal your shield's base damage to it while it's Prone."
   ],
   "Primal Style": [
-    "You unlock Cleave (P). After you successfully hit with a Melee Weapon Attack, you can spend 3 Sorce Points as a Quick action to follow up with a Cleave. When you do, choose another creature within your melee weapon’s reach. That creature takes damage as if you hit them with a Melee Weapon Attack. If you move before using Cleave, you cannot use Cleave. Once you use Cleave, you can’t use it again until the start of your next turn.",
-    "You can now use a Minor action to spend the Sorce Points to activate Cleave.",
-    "You can now use a Free action to spend the Sorce Points to activate Cleave.",
-    "When you would use Cleave, you can spend 6 Sorce Points instead of 3 to target up to two different creatures within your melee weapon’s reach instead of one after your attack.",
-    "When you use Cleave, you can spend 9 Sorce Points instead of 3 and target up to four different creatures within your melee weapon’s reach instead of one after your attack. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Unlock Cleave (P): after a successful Melee Weapon Attack, spend 3 Sorce (Quick action) to hit another creature within your reach as if with a Melee Weapon Attack. Can't be used if you moved first, or again until the start of your next turn.",
+    "You can now activate Cleave as a Minor action.",
+    "You can now activate Cleave as a Free action.",
+    "Cleave: spend 6 Sorce instead of 3 to target up to two creatures within reach instead of one.",
+    "Cleave: spend 9 Sorce instead of 3 to target up to four creatures within reach instead of one. (See Talents chapter, Core Rulebook.)"
   ],
   "Rabbit Style": [
-    "You unlock With Haste (P). Once on your turn, you can spend 2 Sorce Points as a Free action, increasing your Speed by 10 feet until the end of your turn.",
-    "When under the effects of With Haste, you can also run across water and up walls. If you stop moving on water or up a wall to perform an action, you fall after the action resolves.",
-    "When under the effects of With Haste, you can Hasten as a Quick Action on your turn.",
-    "When under the effects of With Haste, you can spend 2 Sorce Points to Hasten as a Free Action once per turn.",
-    "When you activate With Haste, the bonus speed you gain is increased to 30 and you benefit from the Disengage Action until the end of your turn."
+    "Unlock With Haste (P): once per turn, spend 2 Sorce (Free action) to increase your Speed by 10 feet until end of turn.",
+    "Under With Haste, you can run across water and up walls; if you stop on either to act, you fall after the action resolves.",
+    "Under With Haste, you can Hasten as a Quick Action on your turn.",
+    "Under With Haste, spend 2 Sorce to Hasten as a Free Action once per turn.",
+    "With Haste's bonus Speed rises to 30, and you gain the Disengage action's benefits until end of turn."
   ],
   "Rubber Style": [
-    "You unlock Bounce Strike (P). After you successfully hit with a Ranged Weapon Attack, you can spend 3 Sorce Points as a Quick action to enhance it as a Bounce Stike. When you do, choose another creature that you can see within 15 feet of the creature you hit. That creature takes damage as if you hit them with a Ranged Weapon Attack. If you move or perform any other actions before using Bounce Strike, you cannot use Bounce Strike. Once you use Bounce Strike, you can’t use it again until the start of your next turn.",
-    "You can now use a Minor action to spend the Sorce Points to activate Bounce Strike.",
-    "You can now use a Free action to spend the Sorce Points to activate Bounce Strike.",
-    "When you use Bounce Strike, you can spend 6 Sorce Points instead of 3 and target a third creature you can see within 15 feet of the second target. You cannot choose the creature you hit with the attack that allowed you to use Bounce Strike.",
-    "When you use Bounce Strike, you can spend 9 Sorce Points instead of 3 and target a third creature you can see within 15 feet of the second target and then a fourth creature you can see within 15 feet of the third target. You cannot choose the creature you hit with the attack that allowed you to use Bounce Strike nor a previous target of Bounce Strike. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Unlock Bounce Strike (P): after a successful Ranged Weapon Attack, spend 3 Sorce (Quick action) to hit another creature you see within 15 feet of the first as if with a Ranged Weapon Attack. Can't be used if you moved or acted first, or again until the start of your next turn.",
+    "You can now activate Bounce Strike as a Minor action.",
+    "You can now activate Bounce Strike as a Free action.",
+    "Bounce Strike: spend 6 Sorce instead of 3 to add a third target within 15 feet of the second. You can't reuse the creature hit by the triggering attack.",
+    "Bounce Strike: spend 9 Sorce instead of 3 to add a third target (within 15 feet of the second) and a fourth (within 15 feet of the third). No target may repeat, including the creature hit by the triggering attack. (See Talents chapter, Core Rulebook.)"
   ],
   "Sniper Style": [
-    "When your ranged attack is benefiting from Aim, it gains an additional +1 modifier.",
-    "You can spend 2 Sorce Points on your turn to Aim as a Free action. You can only do this once per turn.",
-    "When you make a Ranged Weapon Attack that benefits from the Aim action, you can spend 2 Sorce Points to reroll one of the dice. If you Pushed the check, you can’t use this ability on the Pushed dice. You can only use this once per turn.",
-    "When you hit with a Ranged Weapon Attack that is benefiting from the Aim action, its base damage is increased by 2.",
-    "When you Aim, you can spend the remainder of your speed as a Free Action to enhance it. Until the end of your turn, your next ranged attack that benefits from that Aim has its base damage increased by 2 to a max of 10 for every 10 speed you spent."
+    "When your ranged attack benefits from Aim, it gains an extra +1 modifier.",
+    "Spend 2 Sorce on your turn to Aim as a Free action, once per turn.",
+    "On an Aim-boosted Ranged Weapon Attack, spend 2 Sorce to reroll one die (not the Pushed dice), once per turn.",
+    "An Aim-boosted Ranged Weapon Attack that hits deals +2 base damage.",
+    "When you Aim, spend the rest of your Speed (Free Action) to enhance it: until end of turn, your next Aim-boosted ranged attack deals +2 base damage per 10 Speed spent, up to +10."
   ],
   "Tiger Style": [
-    "When you hit with a Melee Weapon Attack that is benefitting from the Wind-Up action, its base damage is increased by 2.",
-    "You can spend 2 Sorce Points on your turn to Wind-Up as a Free action. You can only do this once per turn.",
-    "When you make a Melee Weapon Attack that benefits from the Wind-Up action, you can spend 2 Sorce Points to reroll one of the dice. If you Pushed the check, you can’t use this ability on the Pushed dice. You can only use this once per turn.",
-    "When you hit with a Melee Weapon Attack that is benefitting from the Wind-Up action, its base damage is increased by an additional 2 (total of 4).",
-    "If you use Wind-Up while already benefitting from Wind-Up, you gain a Mega-Wind-Up. Mega-Wind-Up still counts as a normal Wind-Up for all other abilities, but changes the following bonuses within this talent:\nYou may reroll up to two dice (instead of one).\nThe Base Damage increase is now 8.\nIf you do something that would make you lose the benefit of a Wind-Up, you lose the Mega-Wind-Up."
+    "A Wind-Up-boosted Melee Weapon Attack that hits deals +2 base damage.",
+    "Spend 2 Sorce on your turn to Wind-Up as a Free action, once per turn.",
+    "On a Wind-Up-boosted Melee Weapon Attack, spend 2 Sorce to reroll one die (not the Pushed dice), once per turn.",
+    "A Wind-Up-boosted Melee Weapon Attack that hits deals +2 more base damage (total +4).",
+    "Using Wind-Up while already benefiting from it grants a Mega-Wind-Up (still counts as Wind-Up for other abilities), which changes this talent's bonuses:\nReroll up to two dice instead of one.\nBase damage increase is now 8.\nAnything that would end a Wind-Up ends the Mega-Wind-Up."
   ],
   "Tortoise Style": [
-    "You unlock Fortify (P). When you are wielding a shield, you can spend up to 3 Sorce Points as a Quick action to Fortify, gaining 12 Temp DP for 1 minute or until you are no longer wielding the shield. The Temp DP shares the resistances, vulnerabilities, and immunities of your DP.",
-    "When you make a Move save to reduce or avoid damage, you can apply your shield’s modifier as a positive modifier to your save.",
-    "You can spend 2 Sorce Points instead of a Reaction to Block a melee or ranged attack with a shield.",
-    "When you use Fortify, the Temp DP it grants has resistance against Slash, Pierce, and Blunt damage.",
-    "When you Block an attack, you can spend 4 Sorce Points to reroll up to three dice in the check. If you Pushed the check, you can’t use this ability to reroll the Pushed dice."
+    "Unlock Fortify (P): while wielding a shield, spend up to 3 Sorce (Quick action) to gain 12 Temp DP for 1 minute or until you stop wielding the shield. This Temp DP shares your DP's resistances, vulnerabilities, and immunities.",
+    "On a Move save to reduce or avoid damage, add your shield's modifier as a positive modifier.",
+    "Spend 2 Sorce instead of a Reaction to Block a melee or ranged attack with a shield.",
+    "Fortify's Temp DP now resists Slash, Pierce, and Blunt damage.",
+    "When you Block, spend 4 Sorce to reroll up to three dice in the check (not the Pushed dice)."
   ],
   "Viper Style": [
-    "You unlock Leg Strike (A). You aim to cripple the enemy’s movement. You can use a Standard action to make this attack with a -3 modifier. On a success, all of the creature’s Speeds are reduced by 20 feet until the start of your next turn. This cannot reduce their Speeds to less than half their normal amount.",
-    "You unlock Arm Strike (A). You aim to weaken the enemy’s attacks. You can use a Standard action to make this attack with a -3 modifier. On a success, the creature’s base damage on attacks are reduced by 4 until the start of your next turn.",
-    "Leg Strike and Arm Strike now only inflict a -2 modifier instead of a -3 modifier on your attack when you use them.",
-    "Creatures affected by Leg Strike also gain a -2 modifier to all Agility checks until the start of your next turn. Creatures affected by Arm Strike also gain a -2 modifier to all Strength checks until the start of your next turn.",
-    "You unlock Head Strike (A). You aim for the head. When you would make a Melee or Ranged Weapon Attack as a Standard action, you can choose to take a -4 modifier to have it become a Head Strike. If you do, on a hit, the creature gains the Slowed Condition until the start of your next turn. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "Unlock Leg Strike (A): a Standard-action attack at a -3 modifier. On a success, all the creature's Speeds drop by 20 feet until the start of your next turn (never below half normal).",
+    "Unlock Arm Strike (A): a Standard-action attack at a -3 modifier. On a success, the creature's attack base damage drops by 4 until the start of your next turn.",
+    "Leg Strike and Arm Strike now take only a -2 modifier instead of -3.",
+    "Leg Strike also gives -2 to the creature's Agility checks, and Arm Strike -2 to its Strength checks, until the start of your next turn.",
+    "Unlock Head Strike (A): on a Standard-action Melee or Ranged Weapon Attack, take a -4 modifier to make it a Head Strike; on a hit, the creature is Slowed until the start of your next turn. (See Talents chapter, Core Rulebook.)"
   ],
   "Wolf Style": [
-    "You unlock Flank (P). When you and an ally are both within 5 feet of a hostile creature, you are considered to be Flanking that creature. When you Flank a creature, you get a +1 modifier to melee attacks against that creature.",
-    "When you Flank a creature, the base damage of your melee attacks increases by 2 against that creature.",
-    "You unlock Team Effort (P). When you first Flank an enemy on your turn, choose an ally within 5 feet of the creature. The ally chosen gains the Rank 1 and Rank 2 benefits of this Talent against the creature you are Flanking until the start of your next turn. This does nothing if they already have those Ranks in Wolf Style.",
-    "You and the chosen ally in Team Effort now gain a +2 modifier and have your base damage on melee attacks increase by 4 when benefitting from Flank and Team Effort.",
-    "You unlock Team Strike (A). While you Flank an enemy, you can spend 4 Sorce Points to perform this special attack. You make a melee attack against the creature you are Flanking. Hit or miss, you then choose an ally that is also within 5 feet of the enemy you are Flanking. They may make an Opportunity Strike with a -3 modifier against the target being Flanked as a Free action."
+    "Unlock Flank (P): while you and an ally are both within 5 feet of a hostile creature, you're Flanking it and get a +1 modifier to melee attacks against it.",
+    "While Flanking a creature, your melee attacks against it deal +2 base damage.",
+    "Unlock Team Effort (P): the first time you Flank an enemy on your turn, pick an ally within 5 feet of it; they gain this Talent's Rank 1–2 benefits against that enemy until the start of your next turn (nothing if they already have those Ranks).",
+    "While benefiting from Flank and Team Effort, you and the chosen ally get a +2 modifier and +4 base damage on melee attacks.",
+    "Unlock Team Strike (A): while Flanking an enemy, spend 4 Sorce to make a melee attack against it; hit or miss, an ally within 5 feet of it may then make an Opportunity Strike against it at a -3 modifier as a Free action."
   ],
   "Elemental Attunement": [
-    "When you first learn this Talent, pick one of the following elements: Fire, Frost, Electric, or Acid. The element you choose becomes your Elemental Attunement. When you deal damage from a Spell with the same type as your Elemental Attunement, you deal an additional 4 damage of that damage type.",
-    "Your Spells that deal the same type of damage as your Elemental Attunement ignore resistances against that damage type.",
-    "When you deal damage from a Spell with the same type as your Elemental Attunement, you now deal 8 additional damage of that damage type.",
-    "Your HP and DP gains resistance to the damage type that matches your Elemental Attunement. If either already have resistance to it, they instead gain immunity.",
-    "When you deal damage from a Spell with the same type of damage as your Elemental Attunement, you now deal 12 additional damage of that damage type.\nElemental Attunement Notes:\nRank 0 Spells only gain half the amount of additional damage this Talent grants."
+    "When you learn this Talent, pick an element — Fire, Frost, Electric, or Acid — as your Elemental Attunement. Spells you cast that deal that damage type deal +4 damage of it.\nElemental Attunement Notes:\nRank 0 Spells gain only half this Talent's bonus damage.",
+    "Your Spells of your Attunement's type ignore resistances to it.",
+    "Spells of your Attunement's type now deal +8 damage of it.",
+    "Your HP and DP gain resistance to your Attunement's type (immunity if either is already resistant).",
+    "Spells of your Attunement's type now deal +12 damage of it."
   ],
   "Innate Magic": [
     "You innately learn a Rank 1 Spell.",
     "You innately learn a Rank 2 Spell.",
     "You innately learn a Rank 3 Spell.",
     "You innately learn a Rank 4 Spell.",
-    "You innately learn a Rank 5 Spell. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "You innately learn a Rank 5 Spell. (See Talents chapter, Core Rulebook.)"
   ],
   "Megamind": [
-    "Choose 1 Rank 1 Spell you know when you gain this Talent. This Spell becomes your first Signature Spell.",
-    "All Rank 0 Spells you know are always prepared without them counting against the number of Spells you can prepare.",
-    "Choose a Rank 2 Spell you know when you gain this Talent Rank. That Spell becomes your second Signature Spell.",
+    "Choose a Rank 1 Spell you know; it becomes your first Signature Spell.\nMegamind Notes:\nSignature Spells are always prepared and don't count against your prepared limit. Each also gains a benefit when cast:\nWith a Power Level: it gains 2 additional Power Levels.\nWithout one: its Sorce cost drops by the Rank it's cast at (never below half its normal cost).",
+    "All Rank 0 Spells you know are always prepared and don't count against your prepared limit.",
+    "Choose a Rank 2 Spell you know; it becomes your second Signature Spell.",
     "All Spells you know are now always prepared.",
-    "Choose a Rank 3 Spell you know when you gain this Talent Rank. That Spell becomes your third Signature Spell.\nMegamind Notes:\nSignature Spells are always prepared and don’t count against the number of Spells you can prepare. They also gain a specific benefit when you cast them:\nIf the Signature Spell has a Power Level, it gains 2 additional Power Levels when cast.\nIf the Signature Spell does not have a Power Level, its Sorce Point cost is reduced by an amount equal to the Rank it is being cast at. This reduction can’t bring the cost below half its normal amount."
+    "Choose a Rank 3 Spell you know; it becomes your third Signature Spell."
   ],
   "Mental Shield": [
-    "When you take damage that isn’t Fear or Psychic damage, you can use a Reaction to redirect up to 10 of the damage to your MP. You cannot redirect more than half the damage taken.",
-    "The amount of damage you can redirect increases to 20. You cannot redirect more than half the damage taken.",
-    "When you take Fear damage, you can use a Reaction to halve the damage taken. You can’t use this if and transfer damage at the same time.",
-    "The amount of damage you can redirect is any amount so long as it’s not more than half the damage taken.",
-    "You can spend 2 Sorce Points as a Free Action instead of a Reaction to transfer half the damage taken.\nMental Shield Notes:\nWhen you redirect damage, you must calculate the redirected damage before applying Resistances, Immunities, Vulnerabilities, or any other effects that would change the damage amount."
+    "When you take non-Fear, non-Psychic damage, use a Reaction to redirect up to 10 of it to your MP (never more than half the damage taken).\nMental Shield Notes:\nCalculate redirected damage before any Resistances, Immunities, Vulnerabilities, or other effects that change the amount.",
+    "You can now redirect up to 20 (never more than half the damage taken).",
+    "When you take Fear damage, use a Reaction to halve it. You can't do this and redirect damage at the same time.",
+    "You can now redirect any amount, up to half the damage taken.",
+    "Spend 2 Sorce (Free Action) instead of a Reaction to transfer half the damage taken."
   ],
   "Runic Magic": [
-    "You gain the ability to inscribe runes on objects and surfaces. You learn a Runic Inscription.",
+    "You can inscribe runes on objects and surfaces, and learn a Runic Inscription.",
     "You learn a second Runic Inscription.",
     "You learn a third Runic Inscription.",
-    "You may now have up to two Runes active at once. If you already have 2, inscribing a new rune disables the oldest rune you inscribed.",
-    "While you have a Rune active, you can use a Quick Action to move it to a new location or object without needing to spend sorce to recreate it. (For the full list of options and details, see the Talents chapter in the Core Rulebook.)"
+    "You can now have up to two Runes active at once; inscribing a third disables the oldest.",
+    "While a Rune is active, use a Quick Action to move it to a new location or object without spending Sorce to recreate it. (See Talents chapter, Core Rulebook.)"
   ],
   "Spell Slinger": [
-    "When you make an initiative check, you can choose to make a Spell check instead with a specific Study of Sorcery you know. The Spell you plan to cast on your first turn must be from that Study. You treat the Spell check as a Skill check that can be Pushed. You must be wielding an Arcane Foci to make this kind of initiative check.",
-    "You no longer need to be wielding an Arcane Foci to make this kind of initiative check. You gain a +2 modifier on the initiative check.",
-    "The Spell check for initiative can be based on the Rank of your highest Study of Sorcery Talent, even if you plan to cast a Spell from a different Study. You gain an additional +1 modifier on the initiative check (for a total +3 modifier on the check).",
-    "On a successful initiative check with this Talent, you choose whether the first Spell cast on your first turn in combat gains 2 Power Levels or has its Sorce Point cost reduced by 3 (to a minimum of 1).",
-    "On a successful initiative check with this Talent, if your first Spell cast has a casting time of Standard or Quick action, you can cast it as a Minor action on your first turn in the combat. If you do so, you can’t cast that same spell again for the rest of that turn."
+    "You can make an initiative check as a Spell check with a Study of Sorcery you know (the Spell you plan to cast first turn must be from that Study). It counts as a Skill check that can be Pushed. Requires wielding an Arcane Foci.",
+    "You no longer need an Arcane Foci for it, and gain a +2 modifier on the initiative check.",
+    "The initiative Spell check can use your highest Study of Sorcery's Rank even when casting from another Study, and gains another +1 modifier (total +3).",
+    "On a successful initiative check, your first Spell that turn either gains 2 Power Levels or has its Sorce cost reduced by 3 (minimum 1), your choice.",
+    "On a successful initiative check, if your first Spell has a Standard- or Quick-action cast time, you may cast it as a Minor action that turn — but not that same Spell again for the rest of the turn."
   ],
   "Study of Aeromancy": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Aeromancy.\nJolt: Shoot a small bolt of lightning in a line.\nBellowing Shout: Shout a thunderous, deafening phrase.\nLightning Arc: Fire a beam of lightning that jumps from one creature to another.\nFast as Light: Temporarily increase a creature’s Speed.",
-    "You learn and can prepare the following Spells:\nReflux: Reactively enhance a creature’s reflexes against danger.\nSmall Nimbus: Summon a mountable nimbus cloud.",
-    "You learn and can prepare the following Spells:\nLighting Beam: Fire a long, powerful line of lighting.\nFlash Step: Teleport to another location, electrifying those in your path.",
-    "You learn and can prepare the following Spells:\nEnraged Nimbus: Summon a large storm cloud to shock those inside.\nSpear of Voltara: Hurl a powerful spear of lighting at a creature.",
-    "You learn and can prepare the following Spells:\nStorm of Fury: Summon a mighty storm in the sky to strike down your enemies.\nMagnetivus: Attract all things in a large sphere to be pulled and restrained toward a specific point."
+    "Spells learned:\nJolt: Shoot a small bolt of lightning in a line.\nBellowing Shout: Shout a thunderous, deafening phrase.\nLightning Arc: Fire a beam of lightning that jumps from one creature to another.\nFast as Light: Temporarily increase a creature’s Speed.",
+    "Spells learned:\nReflux: Reactively enhance a creature’s reflexes against danger.\nSmall Nimbus: Summon a mountable nimbus cloud.",
+    "Spells learned:\nLighting Beam: Fire a long, powerful line of lighting.\nFlash Step: Teleport to another location, electrifying those in your path.",
+    "Spells learned:\nEnraged Nimbus: Summon a large storm cloud to shock those inside.\nSpear of Voltara: Hurl a powerful spear of lighting at a creature.",
+    "Spells learned:\nStorm of Fury: Summon a mighty storm in the sky to strike down your enemies.\nMagnetivus: Attract all things in a large sphere to be pulled and restrained toward a specific point."
   ],
   "Study of Blood": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Blood.\nVampiric Slash: Slash with blood claws to regain HP.\nInfatuate: Compliment a creature with enchanting words to gain favor.\nEnthrall Person: Force a Humanoid’s attitude toward you to be positive.\nInfuse Confuse: Confuse a creature to not be reactive.",
-    "You learn and can prepare the following Spells:\nAdrenaline Boost: Increase a creature’s Speed temporarily.\nStir Emotions: Enchant a creature to follow a course of action.",
-    "You learn and can prepare the following Spells:\nHot Head: Force a creature to give in to their violent rage.\nBrain Freeze: Shut down a Spellcaster’s focus on their Spells.",
-    "You learn and can prepare the following Spells:\nSurge Flow: Increase the muscle mass of a creature immensely.\nSlow Flow: Cripple a creature’s movement and actions.",
-    "You learn and can prepare the following Spells:\nBend Blood: Force a creature to attack targets you choose.\nBrain Rot: Attack a creature’s mind to severely hinder or potentially kill them."
+    "Spells learned:\nVampiric Slash: Slash with blood claws to regain HP.\nInfatuate: Compliment a creature with enchanting words to gain favor.\nEnthrall Person: Force a Humanoid’s attitude toward you to be positive.\nInfuse Confuse: Confuse a creature to not be reactive.",
+    "Spells learned:\nAdrenaline Boost: Increase a creature’s Speed temporarily.\nStir Emotions: Enchant a creature to follow a course of action.",
+    "Spells learned:\nHot Head: Force a creature to give in to their violent rage.\nBrain Freeze: Shut down a Spellcaster’s focus on their Spells.",
+    "Spells learned:\nSurge Flow: Increase the muscle mass of a creature immensely.\nSlow Flow: Cripple a creature’s movement and actions.",
+    "Spells learned:\nBend Blood: Force a creature to attack targets you choose.\nBrain Rot: Attack a creature’s mind to severely hinder or potentially kill them."
   ],
   "Study of Contagion": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Contagion.\nAcid Dart: Fire a dart of acid at a creature.\nSicken Pulse: Hinder a creature trying to resist a Poison or Disease.\nToxic Wave: Release a cone of poisonous acid.\nWitherplague: Infect a creature with a Disease that hinders their attacks and healing.",
-    "You learn and can prepare the following Spells:\nBlindblight: Infect a creature with a Disease that reduces their vision.\nProliferate: Spread a disease that a creature is suffering from to other creatures.",
-    "You learn and can prepare the following Spells:\nFeral Pox: Infect a creature with a Disease that forces them to get provoked easily.\nEroding Sludge: Create a pool of sludge that burns and weakens creatures.",
-    "You learn and can prepare the following Spells:\nMindflare: Infect a creature with a Disease that makes casting Spells painful.\nStonefever: Infect a creature with a Disease that turns them into stone.",
-    "You learn and can prepare the following Spells:\nPlague Requiem: Consume the diseases on nearby creatures to deal massive damage.\nBone Rot: Infect a creature with a Disease that makes their HP susceptible to damage."
+    "Spells learned:\nAcid Dart: Fire a dart of acid at a creature.\nSicken Pulse: Hinder a creature trying to resist a Poison or Disease.\nToxic Wave: Release a cone of poisonous acid.\nWitherplague: Infect a creature with a Disease that hinders their attacks and healing.",
+    "Spells learned:\nBlindblight: Infect a creature with a Disease that reduces their vision.\nProliferate: Spread a disease that a creature is suffering from to other creatures.",
+    "Spells learned:\nFeral Pox: Infect a creature with a Disease that forces them to get provoked easily.\nEroding Sludge: Create a pool of sludge that burns and weakens creatures.",
+    "Spells learned:\nMindflare: Infect a creature with a Disease that makes casting Spells painful.\nStonefever: Infect a creature with a Disease that turns them into stone.",
+    "Spells learned:\nPlague Requiem: Consume the diseases on nearby creatures to deal massive damage.\nBone Rot: Infect a creature with a Disease that makes their HP susceptible to damage."
   ],
   "Study of Cryomancy": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Cryomancy.\nIce Spear: Fire a spear of ice at a creature.\nSculpt Ice: Summon and shape different structures made of ice.\nDaggers of Ice: Fire multiple homing daggers made of ice.\nIce Barrier: Summon ice to brace yourself against Slash, Pierce, or Blunt damage.",
-    "You learn and can prepare the following Spells:\nFrostbite: Blast a creature with frost, potentially slowing them.\nIce Armor: Conjure Temp DP made of ice that resists Slash and Frost damage.",
-    "You learn and can prepare the following Spells:\nFlash Freeze: Freeze a large surface area while damaging creatures on it.\nCryostasis: Prevent yourself from taking lethal damage by freezing in place.",
-    "You learn and can prepare the following Spells:\nUnstable Shard: Fire a large shard of ice that then explodes upon impact.\nBoreal Binds: Summon large frost shackles to restrain creatures around you.",
-    "You learn and can prepare the following Spells:\nBlizzard: Summon a large, harsh blizzard that encompasses an area.\nAvalanche: Bury your enemies by summoning a ton of snow upon them."
+    "Spells learned:\nIce Spear: Fire a spear of ice at a creature.\nSculpt Ice: Summon and shape different structures made of ice.\nDaggers of Ice: Fire multiple homing daggers made of ice.\nIce Barrier: Summon ice to brace yourself against Slash, Pierce, or Blunt damage.",
+    "Spells learned:\nFrostbite: Blast a creature with frost, potentially slowing them.\nIce Armor: Conjure Temp DP made of ice that resists Slash and Frost damage.",
+    "Spells learned:\nFlash Freeze: Freeze a large surface area while damaging creatures on it.\nCryostasis: Prevent yourself from taking lethal damage by freezing in place.",
+    "Spells learned:\nUnstable Shard: Fire a large shard of ice that then explodes upon impact.\nBoreal Binds: Summon large frost shackles to restrain creatures around you.",
+    "Spells learned:\nBlizzard: Summon a large, harsh blizzard that encompasses an area.\nAvalanche: Bury your enemies by summoning a ton of snow upon them."
   ],
   "Study of Death": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Death.\nReaper Scythe: Create a scythe you can use that harnesses the powers of Necropolis.\nRecompose: Extend the time a corpse stays fresh.\nSummon Skeleservant: Summon a faithful skeleton servant.\nDeath Speech: Speak with the dead from beyond the Veil.",
-    "You learn and can prepare the following Spells:\nReap: Conjure two reaper blades to slash in a line.\nCurse Creature: Place a debilitating Curse upon a creature.",
-    "You learn and can prepare the following Spells:\nRaise Dead: Raise the corpse of a fallen ally to temporarily fight for you.\nUndying Rune: Prevent a lethal Wound from taking effect.",
-    "You learn and can prepare the following Spells:\nDrain Youth: Siphon a creature’s life with necrotic lightning.\nDeath Guillotine: Summon a large blade that deals extra damage to Bloodied creatures.",
-    "You learn and can prepare the following Spells:\nDark Exchange: Curse a creature to take damage when you take damage.\nAura of Undeath: Prevent yourself and your nearby allies from gaining Wounds."
+    "Spells learned:\nReaper Scythe: Create a scythe you can use that harnesses the powers of Necropolis.\nRecompose: Extend the time a corpse stays fresh.\nSummon Skeleservant: Summon a faithful skeleton servant.\nDeath Speech: Speak with the dead from beyond the Veil.",
+    "Spells learned:\nReap: Conjure two reaper blades to slash in a line.\nCurse Creature: Place a debilitating Curse upon a creature.",
+    "Spells learned:\nRaise Dead: Raise the corpse of a fallen ally to temporarily fight for you.\nUndying Rune: Prevent a lethal Wound from taking effect.",
+    "Spells learned:\nDrain Youth: Siphon a creature’s life with necrotic lightning.\nDeath Guillotine: Summon a large blade that deals extra damage to Bloodied creatures.",
+    "Spells learned:\nDark Exchange: Curse a creature to take damage when you take damage.\nAura of Undeath: Prevent yourself and your nearby allies from gaining Wounds."
   ],
   "Study of Displacement": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Displacement.\nPocketswap: Pick a creature’s pocket from a distance.\nInfini Pocket: Create your own personal pocket dimension to store small items.\nBody Swap: Swap places with an ally.\nMinor Portals: Summon two small, linked portals to reach and shoot through.",
-    "You learn and can prepare the following Spells:\nTactical Retreat: Disappear into the Shroud to reposition yourself safely.\nCreate Hole: Create a dark hole to move past a wall.",
-    "You learn and can prepare the following Spells:\nReposition: Teleport yourself and an ally up to 100 feet.\nRescue: Teleport an ally away from damage.",
-    "You learn and can prepare the following Spells:\nMajor Portals: Create two linked portals across long distances that you can move through.\nSkip Stride: Gain the ability to teleport as a Quick action.",
-    "You learn and can prepare the following Spells:\nControl Space: Decide the placement of all creatures within a large space.\nShroud Sanctum: Temporarily create a haven in the Shroud you can teleport to and from."
+    "Spells learned:\nPocketswap: Pick a creature’s pocket from a distance.\nInfini Pocket: Create your own personal pocket dimension to store small items.\nBody Swap: Swap places with an ally.\nMinor Portals: Summon two small, linked portals to reach and shoot through.",
+    "Spells learned:\nTactical Retreat: Disappear into the Shroud to reposition yourself safely.\nCreate Hole: Create a dark hole to move past a wall.",
+    "Spells learned:\nReposition: Teleport yourself and an ally up to 100 feet.\nRescue: Teleport an ally away from damage.",
+    "Spells learned:\nMajor Portals: Create two linked portals across long distances that you can move through.\nSkip Stride: Gain the ability to teleport as a Quick action.",
+    "Spells learned:\nControl Space: Decide the placement of all creatures within a large space.\nShroud Sanctum: Temporarily create a haven in the Shroud you can teleport to and from."
   ],
   "Study of Divinity": [
-    "Rank 1\nYou learn and can prepare the following Spells in this Talent from the Study of Divinity.\nBlessing of Protection: Bless a creature to prevent some of the damage they take.\nSearing Flare: Fire a bolt of radiant light at an enemy.\nVengeful Smite: Empower your next attack against those that tried to harm you.\nBlessing of Pacifism: Bless a creature to make it harder to target them with an attack.",
-    "You learn and can prepare the following Spells:\nBlessing of Guardian: Bless a creature to transfer damage they take to you.\nExplosive Smite: Empower your next attack to deal an explosive amount of damage.",
-    "You learn and can prepare the following Spells:\nBlessing of Radiance: Bless a creature to become a beacon of Divine Light.\nHoly Smite: Empower your next attack to bolster your defenses.",
-    "You learn and can prepare the following Spells:\nDivine Sanctuary: Create a bubble of safety for yourself and your allies.\nBlessing of Flight: Bless a creature to gain the ability to fly.",
-    "You learn and can prepare the following Spells:\nPrimal Smite: Cleave a creature and those behind it with a powerful attack.\nDivine Intervention: Ensure a creature succeeds on their saves."
+    "Spells learned:\nBlessing of Protection: Bless a creature to prevent some of the damage they take.\nSearing Flare: Fire a bolt of radiant light at an enemy.\nVengeful Smite: Empower your next attack against those that tried to harm you.\nBlessing of Pacifism: Bless a creature to make it harder to target them with an attack.",
+    "Spells learned:\nBlessing of Guardian: Bless a creature to transfer damage they take to you.\nExplosive Smite: Empower your next attack to deal an explosive amount of damage.",
+    "Spells learned:\nBlessing of Radiance: Bless a creature to become a beacon of Divine Light.\nHoly Smite: Empower your next attack to bolster your defenses.",
+    "Spells learned:\nDivine Sanctuary: Create a bubble of safety for yourself and your allies.\nBlessing of Flight: Bless a creature to gain the ability to fly.",
+    "Spells learned:\nPrimal Smite: Cleave a creature and those behind it with a powerful attack.\nDivine Intervention: Ensure a creature succeeds on their saves."
   ],
   "Study of Geomancy": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Geomancy.\nEarth Bend: Extend pillars of earth to craft a unique battlefield.\nRock Catapault: Hurl a rock at a creature.\nRepair Minerals: Repair the DP of an armor set.\nSpiked Terrain: Summon spikes of earth from the ground to hinder enemies.",
-    "You learn and can prepare the following Spells:\nDebris Sandstorm: Summon a sandstorm to harm and hinder your foe’s vision.\nPropel Creature: Hurl a creature across the field and against a wall.",
-    "You learn and can prepare the following Spells:\nEarth Structure: Summon and create a unique structure of stone walls.\nSummon Earth Warrior: Summon an Earth Warrior to fight for you.",
-    "You learn and can prepare the following Spells:\nSummon Earth Knight: Summon a Large Earth Knight to fight for you.\nHurl Boulder: Summon and hurl a huge boulder that rolls over foes.",
-    "You learn and can prepare the following Spells:\nEntomb: Crush a creature by burying them deep inside compressed earth.\nSummon Earth Golem: Summon a Huge Earth Golem to fight for you."
+    "Spells learned:\nEarth Bend: Extend pillars of earth to craft a unique battlefield.\nRock Catapault: Hurl a rock at a creature.\nRepair Minerals: Repair the DP of an armor set.\nSpiked Terrain: Summon spikes of earth from the ground to hinder enemies.",
+    "Spells learned:\nDebris Sandstorm: Summon a sandstorm to harm and hinder your foe’s vision.\nPropel Creature: Hurl a creature across the field and against a wall.",
+    "Spells learned:\nEarth Structure: Summon and create a unique structure of stone walls.\nSummon Earth Warrior: Summon an Earth Warrior to fight for you.",
+    "Spells learned:\nSummon Earth Knight: Summon a Large Earth Knight to fight for you.\nHurl Boulder: Summon and hurl a huge boulder that rolls over foes.",
+    "Spells learned:\nEntomb: Crush a creature by burying them deep inside compressed earth.\nSummon Earth Golem: Summon a Huge Earth Golem to fight for you."
   ],
   "Study of Illusion": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Illusion.\nLesser Illusion: Create a small sound or image.\nFashionate: Change how your character looks.\nGreater Illusion: Create a large image you can speak through.\nCreate Disguise: Disguise yourself as another creature.",
-    "You learn and can prepare the following Spells:\nInvisibility: Become Invisible so long as you don’t harm anyone.\nCreate Duplicate: Create a copy of yourself that you can cast Spells through.",
-    "You learn and can prepare the following Spells:\nPlay Dead: Create an illusion to take part of a hit for you.\nPowerful Illusion: Create a huge illusion with sounds.",
-    "You learn and can prepare the following Spells:\nGreater Invisibility: Remain Invisible even if you harm creatures.\nMass Disguise: Disguise yourself and multiple creatures to look like other creatures.",
-    "You learn and can prepare the following Spells:\nMass Duplicate: Create multiple copies of yourself that you can swap positions with.\nDisguised Domain: Take complete control over a large area."
+    "Spells learned:\nLesser Illusion: Create a small sound or image.\nFashionate: Change how your character looks.\nGreater Illusion: Create a large image you can speak through.\nCreate Disguise: Disguise yourself as another creature.",
+    "Spells learned:\nInvisibility: Become Invisible so long as you don’t harm anyone.\nCreate Duplicate: Create a copy of yourself that you can cast Spells through.",
+    "Spells learned:\nPlay Dead: Create an illusion to take part of a hit for you.\nPowerful Illusion: Create a huge illusion with sounds.",
+    "Spells learned:\nGreater Invisibility: Remain Invisible even if you harm creatures.\nMass Disguise: Disguise yourself and multiple creatures to look like other creatures.",
+    "Spells learned:\nMass Duplicate: Create multiple copies of yourself that you can swap positions with.\nDisguised Domain: Take complete control over a large area."
   ],
   "Study of Pyromancy": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Pyromancy.\nDancing Flame: Summon a small mote of flame to light your way.\nFire Ray: Fire a small beam of flame.\nBurst Self: Explode in a fiery burst.\nFire Missile: Fire a homing ball of flame.",
-    "You learn and can prepare the following Spells:\nFire Aura: Gain Temp DP that is immune to Fire damage.\nFire Breath: Breathe a large cone of fire.",
-    "You learn and can prepare the following Spells:\nExplosion: Make another creature explode in a fiery burst.\nFlame Jettison: Fly across the field with fire thrusters while breaking out of restraints.",
-    "You learn and can prepare the following Spells:\nImmolate: Ignite a creature to be continuously on fire.\nWall of Fire: Create a large wall of made of fire that burns those that touch it and obscures sight.",
-    "You learn and can prepare the following Spells:\nFire Blossom: Make three separate points to explode in a fiery blaze.\nFire Storm: Summon a huge fire tornado to overtake your foes."
+    "Spells learned:\nDancing Flame: Summon a small mote of flame to light your way.\nFire Ray: Fire a small beam of flame.\nBurst Self: Explode in a fiery burst.\nFire Missile: Fire a homing ball of flame.",
+    "Spells learned:\nFire Aura: Gain Temp DP that is immune to Fire damage.\nFire Breath: Breathe a large cone of fire.",
+    "Spells learned:\nExplosion: Make another creature explode in a fiery burst.\nFlame Jettison: Fly across the field with fire thrusters while breaking out of restraints.",
+    "Spells learned:\nImmolate: Ignite a creature to be continuously on fire.\nWall of Fire: Create a large wall of made of fire that burns those that touch it and obscures sight.",
+    "Spells learned:\nFire Blossom: Make three separate points to explode in a fiery blaze.\nFire Storm: Summon a huge fire tornado to overtake your foes."
   ],
   "Study of Recovery": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Recovery.\nTransfer Life: Transfer some of your HP to another creature.\nDislocate: Hit a creature with force and push them back.\nReinvigorate: Replenish a creature’s HP.\nCalm Emotions: Replenish a creature’s MP.",
-    "You learn and can prepare the following Spells:\nFortify: Grant a creature Temp HP and Temp MP.\nPurify: Cleanse a creature of a Poison or Disease.",
-    "You learn and can prepare the following Spells:\nRemove Bane: Remove a specific Condition from a creature.\nMend Injuries: Recover a creature’s HP and cleanse a Wound or Doom Stack.",
-    "You learn and can prepare the following Spells:\nRegeneration: Greatly enhance a creature’s natural regeneration.\nHealing Mist: Replenish multiple creatures’ HP around you.",
-    "You learn and can prepare the following Spells:\nRepair Body: Replenish a massive amount of HP and heal harsh Wounds.\nDeny Death: Attempt to revive a creature from death."
+    "Spells learned:\nTransfer Life: Transfer some of your HP to another creature.\nDislocate: Hit a creature with force and push them back.\nReinvigorate: Replenish a creature’s HP.\nCalm Emotions: Replenish a creature’s MP.",
+    "Spells learned:\nFortify: Grant a creature Temp HP and Temp MP.\nPurify: Cleanse a creature of a Poison or Disease.",
+    "Spells learned:\nRemove Bane: Remove a specific Condition from a creature.\nMend Injuries: Recover a creature’s HP and cleanse a Wound or Doom Stack.",
+    "Spells learned:\nRegeneration: Greatly enhance a creature’s natural regeneration.\nHealing Mist: Replenish multiple creatures’ HP around you.",
+    "Spells learned:\nRepair Body: Replenish a massive amount of HP and heal harsh Wounds.\nDeny Death: Attempt to revive a creature from death."
   ],
   "Study of Shadows": [
-    "You learn and can prepare the following Spells in this Talent from the Study of Shadows.\nFeed Fear: Enhance your next Fear based spell against a creature.\nManipulate Darkness: Create and manipulate darkness.\nTerrifying Gloom: Summon a Shadow Gloom that deals Fear damage to those within.\nFall: Rattle a creature’s mind with Fear, potentially forcing them Prone.",
-    "You learn and can prepare the following Spells:\nShadow Walk: Teleport into darkness and become Hidden.\nTerrorizing Shadows: Invoke fear in a creature’s mind, making it painful to come near you.",
-    "You learn and can prepare the following Spells:\nCloak of Shadows: Create a cloak that makes you Invisible while in darkness.\nMind Reave: Infuse fear into a creature’s mind, making them want to retreat from you.",
-    "You learn and can prepare the following Spells:\nConsume Fears: Rip the fears out of a creature’s mind and use them to heal.\nMenacing Aura: Have a creature emit an aura of intimidation to instill fear in those near them.",
-    "You learn and can prepare the following Spells:\nNightmare’s Grasp: Terrify a creature from the shadows with heavy Fear damage.\nDark Domain: Summon a large amount of Shadow Gloom you and your allies can see through."
+    "Spells learned:\nFeed Fear: Enhance your next Fear based spell against a creature.\nManipulate Darkness: Create and manipulate darkness.\nTerrifying Gloom: Summon a Shadow Gloom that deals Fear damage to those within.\nFall: Rattle a creature’s mind with Fear, potentially forcing them Prone.",
+    "Spells learned:\nShadow Walk: Teleport into darkness and become Hidden.\nTerrorizing Shadows: Invoke fear in a creature’s mind, making it painful to come near you.",
+    "Spells learned:\nCloak of Shadows: Create a cloak that makes you Invisible while in darkness.\nMind Reave: Infuse fear into a creature’s mind, making them want to retreat from you.",
+    "Spells learned:\nConsume Fears: Rip the fears out of a creature’s mind and use them to heal.\nMenacing Aura: Have a creature emit an aura of intimidation to instill fear in those near them.",
+    "Spells learned:\nNightmare’s Grasp: Terrify a creature from the shadows with heavy Fear damage.\nDark Domain: Summon a large amount of Shadow Gloom you and your allies can see through."
   ],
   "Twist Magicka": [
-    "You gain the ability to twist your Spells to bend to your will. You gain one Magicka.",
+    "You can twist your Spells to your will. You gain one Magicka.\nDistant Magicka: Spend 2 extra Sorce to double a Spell's range (touch becomes 10 feet). No effect on self-range or self-target Spells.\nExtend Magicka: Spend 2 extra Sorce to double the duration of a Spell lasting longer than instant.\nElemental Magicka: Spend 2 extra Sorce to change a non-Fear, non-Psychic damage Spell's type to Fire, Ice, Acid, or Electric.",
     "You gain a second Magicka.",
-    "You gain a third Magicka.",
-    "You gain a fourth Magicka.",
-    "You can use up to 2 Magicka per turn.\nTwist Magicka Notes:\nYou can only use one Magicka in a round until Rank 5.\nCertain Magicka options require you to have a certain Rank in this Talent to pick them.\nYou can change your Magicka options when you finish a Light or Full Rest.\nDistant Magicka: When you cast a Spell, you can spend 2 additional Sorce Points to double its range. If the Spell has a range of touch, you increase it to a range of 10 feet. This Magicka has no effect on Spells with a range or target of self.\nExtend Magicka: When you cast a Spell with a duration longer than instant, you can spend 2 additional Sorce Points to double the duration.\nElemental Magicka: When you cast a Spell that deals damage that isn’t Fear or Psychic, you can spend 2 additional Sorce Points to change the damage type to either Fire, Ice, Acid, or Electric.\nCareful Magicka: You can spend up to 6 additional Sorce Points when you cast a Spell. For every 2 Sorce Points you spend, you can pick a creature to be immune to the Spell if they would be hit or affected by it.\nQuick Magicka (requires Rank 3): You can spend an additional 4 Sorce Points to cast a Spell with a casting time of Standard action as a Quick action.\nSubtle Magicka (requires Rank 3): When you cast a Spell, you can spend 4 additional Sorce Points to ignore the Hand and Tongue components of a spell.\nDouble Magicka (requires Rank 4): When you cast a Spell that targets a single creature, you can spend 6 additional Sorce Points to target 1 additional creature.\nExplosive Magicka (requires Rank 4): You can spend 6 additional Sorce Points to double the size of the Spell’s shape when you cast a Spell that creates a shape."
+    "You gain a third Magicka.\nCareful Magicka: Spend up to 6 extra Sorce; per 2 spent, pick a creature to be immune to the Spell if it would be hit or affected.\nQuick Magicka: Spend 4 extra Sorce to cast a Standard-action Spell as a Quick action.\nSubtle Magicka: Spend 4 extra Sorce to ignore a Spell's Hand and Tongue components.",
+    "You gain a fourth Magicka.\nDouble Magicka: Spend 6 extra Sorce to have a single-target Spell target 1 more creature.\nExplosive Magicka: Spend 6 extra Sorce to double the size of a shape-creating Spell's shape.",
+    "You can use up to 2 Magicka per turn."
   ],
   "War Caster": [
-    "When you must make an Endure save to keep your focus after taking damage that isn’t Fear or Psychic, you gain a +2 modifier.",
-    "You gain the ability to Encant as a Quick action. When you Encant, your next Spell check gains a +1 modifier. If you perform any other action besides a casting a Spell with a Spell check, you lose this benefit.",
-    "When you perform an Opportunity Strike, you can cast a Rank 1 or lower Spell. The Spell must only target the creature that triggered the Opportunity Strike.",
+    "You gain a +2 modifier on Endure saves to keep focus after taking non-Fear, non-Psychic damage.",
+    "You can Encant as a Quick action: your next Spell check gains a +1 modifier. Any action other than casting a Spell with a Spell check loses this benefit.",
+    "On an Opportunity Strike, you can cast a Rank 1 or lower Spell that targets only the creature that triggered it.",
     "You can ignore the Hand component of casting Spells.",
-    "If you fail an Endure save to keep your focus on a Spell, you can use this trait to gain 1 success. You cannot use this ability again until you finish a Light or Full Rest. Psychic damage no longer inflicts an additional -2 modifier on your Endure saves to maintain focus."
+    "If you fail an Endure save to keep focus on a Spell, use this trait to gain 1 success (once per Light or Full Rest). Psychic damage no longer inflicts its extra -2 modifier on your Endure saves to maintain focus."
   ],
   "Academic": [
     "Increase your max MP by 4.",
@@ -1080,54 +1080,54 @@ const TALENT_DATA = {
     "You become resistant to Radiant damage but vulnerable to Necrotic damage. You also gain the Celestial creature type and you can speak Solari. You cannot take this Talent if your creature type is Demon."
   ],
   "Animal Ally": [
-    "You gain the ability to talk with animals. If you can already speak with animals, you gain a +2 modifier to all Empathy checks with Beasts."
+    "You can talk with animals; if you already can, you gain a +2 modifier on Empathy checks with Beasts."
   ],
   "Animal Companion": [
-    "You easily befriend small Beasts in the wild. You can spend a day during downtime to find and bond with a Small Beast with a CL of -2. Work with your GM to determine the Beasts available in the area. When you bond yourself with the Beast:\nThey becomes an NPC Companion. This Companion does not count against the number of NPCs Companions your group of can have at once. The creature will generally listen to your commands when you are near, but if you are out of sight, it will do what is best for self-preservation.\nThe beast gains the ability to wear Beast Armor.\nIf you bond with another Beast, you lose your previous bonded Companion.\nThis bonded creature can be trained during a downtime pursuit to raise its CL, following the standard rules for training a Companion as a Downtime Pursuit.\nWhen it is targeted by a Melee or Ranged attack and the Beast can hear you, you can spend a Reaction to oppose the attack with your Tame, commanding the Beast to dodge.\nYou may use a Reaction to Assist your Beast companion’s skill checks with your Tame as long as it is within 120 ft. of you and can hear you."
+    "You can spend a downtime day to find and bond with a Small Beast of CL -2 (the GM sets what's available). While bonded:\nIt becomes an NPC Companion that doesn't count against your group's NPC Companion limit. It obeys you when near, but acts on self-preservation when out of sight.\nIt can wear Beast Armor.\nBonding with a new Beast replaces the old one.\nIt can be trained during downtime to raise its CL (standard Companion training rules).\nWhen it's targeted by a Melee or Ranged attack and can hear you, spend a Reaction to oppose the attack with your Tame (it dodges).\nWhile it's within 120 ft. and can hear you, spend a Reaction to Assist its skill checks with your Tame."
   ],
   "Backseat Braining": [
-    "When you Assist another creature with a Skill check, you can use this Talent to use your Analyze Skill regardless of the Skill you are Assisting. Once you use this Talent, you can’t use it again until you finish an Intermission."
+    "When you Assist a creature's Skill check, use this Talent to Assist with your Analyze regardless of the Skill. Once per Intermission."
   ],
   "Caster Initiate": [
-    "You learn 1 Sorcery Talent of your choice. If you gain a Study of Sorcery or Innate Magic but don’t have Spellcasting, you gain Spellcasting and can choose to have either Empathy or Wits be your Spellcasting Attribute. You can rank up the Talent you gained from Caster Initiate with Talent Points, but you cannot access other Sorcery Talents if you do not have the Magi or Druid Class."
+    "You learn 1 Sorcery Talent of your choice. If it grants a Study of Sorcery or Innate Magic and you lack Spellcasting, you gain Spellcasting with either Empathy or Wits as your Spellcasting Attribute. You can rank up this gained Talent with Talent Points, but can't access other Sorcery Talents without the Magi or Druid Class."
   ],
   "Demonic Blood": [
     "You become resistant to Necrotic damage but vulnerable to Radiant damage. You also gain the Demon creature type and can speak Demoid. You cannot take this Talent if your creature type is Celestial."
   ],
   "Field Medic": [
-    "You can patch up a creature or yourself in the middle of a battle. You can use a Quick action to Stanch a creature that is missing HP within 5 feet of you (including yourself). You need to have a medical kit equipped to Stanch a creature. When you Stanch a creature, make a Medical check.\nOn a success, you restore 12 HP.\nOn a critical success you heal 24 HP.\nOn a supercritical success you heal 48 HP.\nIf you fail the check, you instead restore 1d8+4 HP to your target.\nYou cannot Stanch the same creature again until you finish a Light or Full Rest.",
-    "You can Bandage as a Quick Action. When you successfully Bandage or Stanch a creature, the amount of HP restored is doubled."
+    "With a medical kit equipped, use a Quick action to Stanch a creature missing HP within 5 feet (including yourself); make a Medical check.\nSuccess: restore 12 HP.\nCritical: 24 HP.\nSupercritical: 48 HP.\nFailure: restore 1d8+4 HP.\nYou can't Stanch the same creature again until a Light or Full Rest.",
+    "You can Bandage as a Quick Action, and a successful Bandage or Stanch restores double the HP."
   ],
   "Full Dodge": [
-    "When you Dodge an attack and get at least one success, you can choose to become Prone after the Move check. If you do, your Dodge gains two additional successes. You cannot use this if you are Prone, Restrained, Exhausted, or Grappled.\nThis cannot be used while wearing Plate armor. You also can’t use this if you are in a form that is immune to Prone."
+    "When your Dodge gets at least one success, you may drop Prone after the Move check to gain two additional successes. Can't be used while Prone, Restrained, Exhausted, Grappled, wearing Plate armor, or in a form immune to Prone."
   ],
   "Heckler": [
     "When you Heckle, you can target up to 2 creatures. When targeting multiple NPCs, only the creature with the largest opposing Insight modifier opposes your check. PCs oppose your check individually."
   ],
   "Inspiring": [
-    "You can reignite the spark in someone’s heart in the darkest times. You can use a Quick action to Inspire a creature that is missing MP within 30 feet of you (including yourself). The creature must be able to hear you. When you Inspire a creature, make a Perform check. On a success, you grant them 10 Temp MP for 1 minute. On a critical success you grant them 20 Temp MP instead, and on a supercritical success you grant them 30 Temp MP instead. If you fail the check, you instead grant 1d8+4 Temp MP to your target. You cannot Inspire the same creature again until you finish an intermission.\nYou can also Galvanize as a Quick Action and the range you can Galvanize a creature increases by 30 ft."
+    "Use a Quick action to Inspire a creature missing MP within 30 feet that can hear you (including yourself); make a Perform check.\nSuccess: grant 10 Temp MP for 1 minute.\nCritical: 20 Temp MP.\nSupercritical: 30 Temp MP.\nFailure: grant 1d8+4 Temp MP.\nYou can't Inspire the same creature again until an Intermission.\nYou can also Galvanize as a Quick Action, and your Galvanize range increases by 30 ft."
   ],
   "Intimidating": [
     "When you Taunt, you can target up to 2 creatures. When targeting multiple NPCs, only the creature with the largest opposing Insight modifier opposes your check."
   ],
   "Keen Eyes": [
-    "You gain the following:\nYou increase your Ranged attacks and spells by 30 feet, and you double the range of any special visions you have.\nYou can use the Find action as a Quick action.",
-    "If you fail a Sense Motive check, you can use this Talent to gain a success so long as your target is within 5 feet of you. But relying on this Talent is not subtle; others that see you can tell that you are suspicious of whomever you are using Sense Motive on. You can decide what kind of visual tell your character gives. Once you use this ability, you can’t use it again until you finish an Intermission."
+    "Your Ranged attacks and spells gain 30 feet of range, you double the range of any special visions, and you can use the Find action as a Quick action.",
+    "If you fail a Sense Motive check against a target within 5 feet, use this Talent to gain a success. It's not subtle — onlookers can tell you're suspicious of the target (you choose the visual tell). Once per Intermission."
   ],
   "Linguist": [
-    "If you spend a Light or Full Rest engaging with a creature that speaks a language you don’t understand or studying a script that you can’t read, you gain the ability to speak that language and read its script. If you use this talent on another language or script, you lose the ability to speak or read the last language you studied with this talent."
+    "Spend a Light or Full Rest with a creature speaking a language you don't know, or studying a script you can't read, to gain that language and script. Learning a new one this way replaces the last one you studied."
   ],
   "Look Over There": [
-    "You can use a Quick action to make a Perform check to distract any number of creatures within 60 feet that can hear you. The one with the highest Insight can oppose your check. You cannot use this Talent on the same creature again for 24 hours.\nSuccess: The creatures are distracted and can’t take Reactions against you until the start of their next turn.\nCritical Success: You also gain the Hidden Condition, which will go away at the end of your turn if you are not obscured from the target creatures.\nSupercritical Success: Your allies gain the same benefits and can move up to their Speed during your turn as a Free action."
+    "Use a Quick action and a Perform check to distract any number of creatures within 60 feet that can hear you (the highest Insight opposes). Not usable on the same creature again for 24 hours.\nSuccess: they can't take Reactions against you until the start of their next turn.\nCritical: you also gain Hidden (lost at end of turn if not obscured from them).\nSupercritical: your allies gain the same benefits and may move up to their Speed during your turn as a Free action."
   ],
   "Luck of the Gods": [
-    "After you roll for a Wound or Trauma, you can use this Talent to turn all the dice rolled into 1s. You cannot use this Talent again until you finish a Light or Full Rest."
+    "After rolling for a Wound or Trauma, use this Talent to turn all those dice into 1s. Once per Light or Full Rest."
   ],
   "Master Spy": [
-    "You excel at looking and acting like someone else. You can replicate your voice to sound exactly like someone you’ve heard before. You also can transform Luxury Clothes into a Disguise over an Intermission, looking exactly like a specific outfit you’ve seen before."
+    "You can mimic the voice of someone you've heard, and over an Intermission turn Luxury Clothes into a Disguise of a specific outfit you've seen."
   ],
   "Min Max": [
-    "When you gain this Talent, you can decrease one of your Attribute Ranks by 1. Then you can increase a different Attribute Rank by 2. You cannot raise an Attribute Rank beyond 6 by doing this."
+    "When you gain this Talent, decrease one Attribute Rank by 1 and increase a different one by 2 (never above 6)."
   ],
   "Mobile": [
     "Increase all your Speeds by 5 feet. This includes any Swim or Fly Speed you have.",
@@ -1144,13 +1144,13 @@ const TALENT_DATA = {
     "When performing an Ambush, you gain a +2 modifier to the check. When you successfully Ambush, you gain 4 additional successes on your initiative check instead of 2."
   ],
   "Steady Hands": [
-    "This talent grants you the following abilities:\nWhen you fail your Finesse check when picking someone’s pocket, you are not noticed.\nIf you fail a Finesse check when picking a lock, you do not break the lock or set off any alarms.\nIf you fail your Finesse check when disarming traps, you do not trigger the trap.\nAfter using one of these three abilities, you can't use that ability again until you finish an Intermission. You may still use the other abilities that haven’t been used yet."
+    "On a failed Finesse check, you avoid the consequence:\nPicking a pocket: you aren't noticed.\nPicking a lock: you don't break it or trip alarms.\nDisarming a trap: you don't trigger it.\nAfter using one of these, you can't use that same one again until an Intermission (the others stay available)."
   ],
   "Steel Saves": [
-    "Choose one Skill between Endure, Might, Move, or Insight to become your Steel Skill. You gain a +1 modifier on Skill saves with your Steel Skill. The die gained from the +1 modifier is a Proficiency die.\nIf a negative modifier brings your Steel Skill save to 0 dice, you gain a Proficiency Die instead of the Base die. You still can’t Push the check with that Proficiency die."
+    "Choose Endure, Might, Move, or Insight as your Steel Skill: gain a +1 modifier (a Proficiency die) on Skill saves with it.\nIf a negative modifier reduces that save to 0 dice, you roll a Proficiency die instead of the Base die (still can't Push it)."
   ],
   "Strategic Purchase": [
-    "As a Standard Action, choose one basic piece of Gear that isn’t a weapon, arcane foci, armor, shield, or alchemy item and has a weight of Bulky, Light, or Tiny. You have planned for when you would need this item and pull it from your backpack as if you always had it. Whatever item you choose, you must have enough currency to pay for said item and lose that amount as if you already paid for it. You may use this on custom gear not listed in the book at the GM’s discretion, but the GM sets the price.\nOnce you use this ability, you can’t use it again until you’ve visited an area with a general store available."
+    "As a Standard Action, pull from your backpack one basic piece of Gear (not a weapon, arcane foci, armor, shield, or alchemy item) of Bulky, Light, or Tiny weight, as if you'd always had it — you must afford it and lose that currency now. Custom gear is allowed at the GM's price. Once used, not again until you've visited an area with a general store."
   ],
   "Strong Arm": [
     "The max range of all your Throwing weapons is now 60 feet. If your thrown weapon attack is benefitting from Aim, its range increases to 90 feet."
@@ -1161,16 +1161,16 @@ const TALENT_DATA = {
     "Increase your max HP by an additional 12."
   ],
   "Take Your Turn": [
-    "When you would roll initiative, you can choose to fail the check. If you do, you gain a +2 modifier on all Skill checks to Block, Parry, and Dodge and also on any Skill save until the start of your first turn. If you are not successfully hit by an Attack, Restrained, Prone, Impaired, or Unconscious by the start of your first turn in combat, your next Skill or Spell check on you first turn gains two successes."
+    "When you'd roll initiative, you may choose to fail it. If you do, you gain a +2 modifier on Blocks, Parries, Dodges, and Skill saves until the start of your first turn. If by then you haven't been hit by an Attack or made Restrained, Prone, Impaired, or Unconscious, your next Skill or Spell check on your first turn gains two successes."
   ],
   "Toss a Friend": [
-    "As a Standard Action, you may Grapple a willing ally and throw them up to 10 ft plus an additional 5 ft for each Rank you have in Strength above 2 in a direction of your choice. The ally thrown does not take damage as long as they do not fall more than 15 ft down and always lands on their feet. If the ally lands within 5 feet of another creature, the ally may use a Reaction to make an Opportunity Strike."
+    "As a Standard Action, Grapple a willing ally and throw them up to 10 ft, +5 ft per Rank of Strength above 2, in a direction you choose. They take no damage if they don't fall more than 15 ft and always land on their feet. If they land within 5 feet of a creature, they may use a Reaction to make an Opportunity Strike."
   ],
   "Vigilant": [
-    "You and your allies within 60 feet gain a +2 modifier on initiative checks. If you fail an initiative check, you can choose to gain a success. You cannot do so again until you finish a Light or Full Rest."
+    "You and allies within 60 feet gain a +2 modifier on initiative checks. On a failed initiative check, you may choose to gain a success. Once per Light or Full Rest."
   ],
   "Warfare Initiate": [
-    "You learn 1 Martial Talent of your choice. You can rank up the Martial Talent you gained from Warfare Initiate with Talent Points, but you cannot access other Martial Talents if you do not have the Fighter or Vagabond Class."
+    "You learn 1 Martial Talent of your choice. You can rank it up with Talent Points, but can't access other Martial Talents without the Fighter or Vagabond Class."
   ],
 };
 

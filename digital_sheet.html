@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms of Legacy - Digital Character Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Additional sheet specific styles */
+#sheet-content {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--r);
+    padding: 24px;
+    backdrop-filter: blur(4px);
+    margin-bottom: 30px;
+}
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--border-gold);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+.sheet-name {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    color: var(--gold-pale);
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+.sheet-subtitle {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    color: var(--text-dim);
+}
+.sheet-level {
+    text-align: right;
+}
+.sheet-level-num {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--gold);
+    line-height: 1;
+}
+.sheet-level-label {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+}
+
+.sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+@media (max-width: 768px) {
+    .sheet-grid { grid-template-columns: 1fr; }
+}
+
+.sheet-section {
+    margin-bottom: 24px;
+}
+.sheet-section h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-family: var(--font-ui); font-size: 0.9rem; color: var(--text-dim); }
+.stat-value { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--text); }
+.stat-value.highlight { color: var(--gold-pale); }
+
+/* Editable fields */
+.edit-input {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-ui);
+    padding: 4px 8px;
+    width: 60px;
+    text-align: center;
+    font-weight: 700;
+}
+.edit-input:focus { border-color: var(--cyan); outline: none; }
+.edit-textarea {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-ui);
+    padding: 8px;
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+}
+.edit-textarea:focus { border-color: var(--cyan); outline: none; }
+
+.spell-entry {
+    background: rgba(17,27,58,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.spell-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+.spell-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--cyan);
+}
+.spell-notes {
+    margin-top: 10px;
+    display: none;
+}
+.spell-notes.open { display: block; }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<header id="topbar">
+  <div>
+    <h1>Realms of Legacy <span class="subtitle">Digital Character Sheet</span></h1>
+  </div>
+  <div style="margin-left: auto; display: flex; gap: 10px;">
+    <button class="btn btn-secondary" onclick="document.getElementById('load-json').click()">📂 Load JSON</button>
+    <input type="file" id="load-json" accept=".json" style="display:none" onchange="loadSheet(event)">
+    <button class="btn btn-primary" onclick="exportSheet()">💾 Export JSON</button>
+    <button class="btn btn-secondary" onclick="openLevelUp()" style="padding:10px 26px;">Builder / Level Up</button>
+  </div>
+</header>
+
+<div id="main">
+    <div id="placeholder" style="text-align:center; padding: 50px;">
+        <h2 style="font-family:var(--font-display); color:var(--gold-pale);">No Character Loaded</h2>
+        <p style="color:var(--text-dim); margin-top:10px;">Please load a character JSON from the Character Builder.</p>
+    </div>
+    
+    <div id="sheet-content" style="display:none;">
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-name" id="ds-name">Character Name</div>
+                <div class="sheet-subtitle" id="ds-subtitle">Lineage Class Specialty</div>
+            </div>
+            <div class="sheet-level">
+                <div class="sheet-level-label">Level</div>
+                <div class="sheet-level-num" id="ds-level">1</div>
+            </div>
+        </div>
+
+        <div class="sheet-grid">
+            <!-- Left Column -->
+            <div>
+                <div class="sheet-section">
+                    <h3>Status Points</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Current / Max HP</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="edit-input" id="ds-hp-current" onchange="updateSheetData('hpCurrent', this.value)">
+                            <span class="stat-value highlight">/ <span id="ds-hp-max"></span></span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Current / Max MP</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="edit-input" id="ds-mp-current" onchange="updateSheetData('mpCurrent', this.value)">
+                            <span class="stat-value highlight" style="color:var(--cyan)">/ <span id="ds-mp-max"></span></span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Current / Max DP</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="edit-input" id="ds-dp-current" onchange="updateSheetData('dpCurrent', this.value)">
+                            <span class="stat-value highlight" style="color:var(--safe)">/ <span id="ds-dp-max"></span></span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Current / Max Sorce</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="edit-input" id="ds-sp-current" onchange="updateSheetData('spCurrent', this.value)">
+                            <span class="stat-value highlight" style="color:#c084fc">/ <span id="ds-sp-max"></span></span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Recovery Dice</span>
+                        <span class="stat-value" id="ds-recovery"></span>
+                    </div>
+                </div>
+
+                <div class="sheet-section">
+                    <h3>Attributes</h3>
+                    <div id="ds-attributes"></div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <div class="sheet-section">
+                    <h3>Skills</h3>
+                    <div id="ds-skills"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sheet-grid" style="margin-top:24px;">
+            <div>
+                <div class="sheet-section">
+                    <h3>Talents & Abilities</h3>
+                    <div id="ds-talents"></div>
+                </div>
+                <div class="sheet-section">
+                    <h3>Notes</h3>
+                    <textarea class="edit-textarea" id="ds-notes" onchange="updateSheetData('notes', this.value)"></textarea>
+                </div>
+            </div>
+            <div>
+                <div class="sheet-section" id="spells-section" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--border); margin-bottom:12px; padding-bottom:6px;">
+                        <h3 style="border-bottom:none; margin-bottom:0; padding-bottom:0;">Spells</h3>
+                        <a href="https://spellbook.realmsoflegacy.com/" target="_blank" rel="noopener" style="color:var(--cyan); font-family:var(--font-ui); font-size:0.85rem; font-weight:600; text-decoration:underline;">View Spellbook ↗</a>
+                    </div>
+                    <div id="ds-spells"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="shared.js"></script>
+<script src="digital_sheet.js"></script>
+</body>
+</html>

@@ -1039,21 +1039,21 @@ function renderLineageDetail() {
         const sel = ch.mixedAssignment[field] === lgName;
         return '<button onclick="setMixedAssignment(\'' + field + '\',\'' + lgName + '\')" '
           + 'style="padding:9px 14px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:6px;text-align:left;max-width:340px;'
-          + 'border:2px solid ' + (sel ? 'var(--accent)' : 'var(--rule)') + ';'
-          + 'background:' + (sel ? 'rgba(79,195,247,0.1)' : 'var(--surface)') + ';'
-          + 'color:' + (sel ? 'var(--accent-dk)' : 'var(--ink)') + '">'
+          + 'border:2px solid ' + (sel ? 'var(--cyan)' : 'var(--border)') + ';'
+          + 'background:' + (sel ? 'rgba(79,195,247,0.1)' : 'var(--card-bg)') + ';'
+          + 'color:' + (sel ? 'var(--cyan)' : 'var(--text)') + '">'
           + '<strong>' + lgName + '</strong> &mdash; <span style="font-size:.8rem;font-weight:600">' + traitName + '</span>'
-          + (traitDesc ? '<br><span style="font-size:.75rem;font-weight:400;color:' + (sel ? 'var(--accent-dk)' : 'var(--muted)') + ';line-height:1.3;display:block;margin-top:3px">' + traitDesc + '</span>' : '')
+          + (traitDesc ? '<br><span style="font-size:.75rem;font-weight:400;color:' + (sel ? 'var(--cyan)' : 'var(--text-dim)') + ';line-height:1.3;display:block;margin-top:3px">' + traitDesc + '</span>' : '')
           + '</button>';
       };
       const assignRow = (label, field, opts) =>
         '<div style="margin-bottom:12px">'
-        + '<label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px">' + label + '</label>'
+        + '<label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:6px">' + label + '</label>'
         + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + opts.map(o => aBtn(field, o.l, o.t, o.desc||'')).join('') + '</div></div>';
 
       html += '<div style="margin-top:20px;background:var(--card-bg);border:2px solid var(--cyan);border-radius:var(--r);padding:16px">'
-        + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--accent-dk);margin-bottom:12px">Assign Lineage Benefits</div>'
-        + '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">Choose which lineage provides your Features, Major Trait, and Minor Trait.</p>'
+        + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--cyan);margin-bottom:12px">Assign Lineage Benefits</div>'
+        + '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Choose which lineage provides your Features, Major Trait, and Minor Trait.</p>'
         + assignRow('Features (size, speed, languages)', 'features', [
             {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft', desc: (lg1?.langs?.speak||[]).join(', ')},
             {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft', desc: (lg2?.langs?.speak||[]).join(', ')},
@@ -2156,131 +2156,6 @@ function getWeaponName(item) {
 
 // ── Spell data by Study ──────────────────────────────────────────────
 // Each spell: {name, study, pl (power level or '-'), range, ct (casting time), shape, dur, focus (bool)}
-const STUDY_SPELLS = {
-  'Study of Aeromancy': {
-    rank0: [
-      {name:'Jolt',            study:'Aeromancy', pl:'-',  range:'15-ft. line', ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Bellowing Shout', study:'Aeromancy', pl:'-',  range:'Self',        ct:'Quick',  shape:'-', dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Lightning Arc',   study:'Aeromancy', pl:'3',  range:'40 ft.',      ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Fast as Light',   study:'Aeromancy', pl:'-',  range:'Touch',       ct:'Quick',  shape:'-', dur:'instant',  focus:false},
-    ],
-  },
-  'Study of Blood': {
-    rank0: [
-      {name:'Vampiric Slash',  study:'Blood', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Infatuate',       study:'Blood', pl:'-',  range:'10 ft.',  ct:'Quick',  shape:'-', dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Enthrall Person', study:'Blood', pl:'0',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'8 Hours',  focus:true},
-      {name:'Infuse Confuse',  study:'Blood', pl:'0',  range:'60 ft.',  ct:'Quick',  shape:'-', dur:'instant',  focus:false},
-    ],
-  },
-  'Study of Contagion': {
-    rank0: [
-      {name:'Acid Dart',       study:'Contagion', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Sicken Pulse',    study:'Contagion', pl:'-',  range:'20 ft.',  ct:'React',  shape:'-', dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Toxic Wave',      study:'Contagion', pl:'3',  range:'Self',    ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Witherplague',    study:'Contagion', pl:'0',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-    ],
-  },
-  'Study of Cryomancy': {
-    rank0: [
-      {name:'Sculpt Ice',      study:'Cryomancy', pl:'-',  range:'20 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Ice Spear',       study:'Cryomancy', pl:'-',  range:'60 ft.',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Ice Barrier',     study:'Cryomancy', pl:'-',  range:'Self',     ct:'React',  shape:'-', dur:'instant',  focus:false},
-      {name:'Daggers of Ice',  study:'Cryomancy', pl:'3',  range:'120 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-    ],
-  },
-  'Study of Death': {
-    rank0: [
-      {name:'Reaper Scythe',   study:'Death', pl:'-',  range:'Self',    ct:'Quick',  shape:'-', dur:'1 Min',          focus:false},
-      {name:'Recompose',       study:'Death', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant',        focus:false},
-    ],
-    rank1: [
-      {name:'Summon Skeleservant', study:'Death', pl:'-',  range:'15 ft.', ct:'Stan.',  shape:'-', dur:'Until Dispelled', focus:true},
-      {name:'Death Speech',    study:'Death', pl:'-',  range:'15 ft.', ct:'Stan.',  shape:'-', dur:'5 Min',           focus:false},
-    ],
-  },
-  'Study of Displacement': {
-    rank0: [
-      {name:'Pocketswap',      study:'Displacement', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-      {name:'Infini Pocket',   study:'Displacement', pl:'-',  range:'Touch',   ct:'Quick',  shape:'-', dur:'1 Week',  focus:false},
-    ],
-    rank1: [
-      {name:'Body Swap',       study:'Displacement', pl:'-',  range:'30 ft.',  ct:'Quick',  shape:'-', dur:'instant', focus:false},
-      {name:'Minor Portals',   study:'Displacement', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:true},
-    ],
-  },
-  'Study of Divinity': {
-    rank0: [
-      {name:'Blessing of Protection', study:'Divinity', pl:'-',  range:'10 ft.',  ct:'React',  shape:'-', dur:'instant', focus:false},
-      {name:'Searing Flare',   study:'Divinity', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-    ],
-    rank1: [
-      {name:'Vengeful Smite',  study:'Divinity', pl:'-',  range:'Self',    ct:'Quick',  shape:'-', dur:'1 Min',   focus:false},
-      {name:'Blessing of Pacifism', study:'Divinity', pl:'-',  range:'15 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:false},
-    ],
-  },
-  'Study of Geomancy': {
-    rank0: [
-      {name:'Earth Bend',      study:'Geomancy', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Rock Catapault',  study:'Geomancy', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Repair Minerals', study:'Geomancy', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant',  focus:false},
-      {name:'Spiked Terrain',  study:'Geomancy', pl:'-',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',    focus:false},
-    ],
-  },
-  'Study of Illusion': {
-    rank0: [
-      {name:'Lesser Illusion', study:'Illusion', pl:'-',  range:'30 ft.',  ct:'Stan.',  shape:'-', dur:'1 Min',   focus:false},
-      {name:'Fashionate',      study:'Illusion', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:false},
-    ],
-    rank1: [
-      {name:'Greater Illusion',study:'Illusion', pl:'0',  range:'60 ft.',  ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:true},
-      {name:'Create Disguise', study:'Illusion', pl:'-',  range:'Self',    ct:'Stan.',  shape:'-', dur:'1 Hour',  focus:false},
-    ],
-  },
-  'Study of Pyromancy': {
-    rank0: [
-      {name:'Dancing Flame',   study:'Pyromancy', pl:'-',  range:'30 ft.',   ct:'Stan.',  shape:'-',              dur:'1 Hour',  focus:false},
-      {name:'Fire Ray',        study:'Pyromancy', pl:'-',  range:'60 ft.',   ct:'Stan.',  shape:'-',              dur:'instant', focus:false},
-    ],
-    rank1: [
-      {name:'Burst Self',      study:'Pyromancy', pl:'3',  range:'Self',     ct:'Stan.',  shape:'5-ft. radius',  dur:'instant', focus:false},
-      {name:'Fire Missile',    study:'Pyromancy', pl:'4',  range:'120 ft.',  ct:'Stan.',  shape:'-',              dur:'instant', focus:false},
-    ],
-  },
-  'Study of Recovery': {
-    rank0: [
-      {name:'Transfer Life',   study:'Recovery', pl:'-',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-      {name:'Dislocate',       study:'Recovery', pl:'-',  range:'5 ft.',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-    ],
-    rank1: [
-      {name:'Reinvigorate',    study:'Recovery', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-      {name:'Calm Emotions',   study:'Recovery', pl:'4',  range:'Touch',   ct:'Stan.',  shape:'-', dur:'instant', focus:false},
-    ],
-  },
-  'Study of Shadows': {
-    rank0: [
-      {name:'Feed Fear',           study:'Shadows', pl:'-',  range:'15 ft.',   ct:'Quick',  shape:'-',                   dur:'instant',  focus:false},
-      {name:'Manipulate Darkness', study:'Shadows', pl:'-',  range:'30 ft.',   ct:'Stan.',  shape:'-',                   dur:'instant',  focus:false},
-    ],
-    rank1: [
-      {name:'Terrifying Gloom',    study:'Shadows', pl:'-',  range:'120 ft.',  ct:'Stan.',  shape:'15-ft. radius sphere', dur:'10 Min',   focus:true},
-      {name:'Fall',                study:'Shadows', pl:'0',  range:'60 ft.',   ct:'Stan.',  shape:'-',                   dur:'instant',  focus:false},
-    ],
-  },
-};
-
-
-
 function compactLineageBenefitsForPdf(text) {
   let out = String(text || '');
   // Save space in the PDF field without changing the actual rule text.
@@ -2874,16 +2749,16 @@ function renderGearStep() {
         const lockedAmmo = ch.specialty === 'Sharpshooter' && i === 1;
         if (options.length === 1 || lockedAmmo) {
           const shown = lockedAmmo ? (ch.gearSelections[i] || options[0]) : options[0];
-          const note = lockedAmmo ? ' <span style="color:var(--muted);font-size:.78rem">(matches your weapon)</span>' : '';
+          const note = lockedAmmo ? ' <span style="color:var(--text-dim);font-size:.78rem">(matches your weapon)</span>' : '';
           return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${lockedAmmo ? 'Ammo' : label}</label>
-            <div style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-family:var(--font-ui);font-size:.88rem">${shown}${note}</div>
+            <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;min-width:80px">${lockedAmmo ? 'Ammo' : label}</label>
+            <div style="flex:1;padding:8px 12px;background:rgba(0,0,0,0.2);border:1px solid transparent;border-radius:6px;font-family:var(--font-ui);font-size:.88rem;color:var(--text-dim)">${shown}${note}</div>
           </div>`;
         }
         return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-          <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:80px">${label}</label>
+          <label style="font-family:var(--font-ui);font-size:.82rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;min-width:80px">${label}</label>
           <select onchange="updateGearSlot(${i}, this.value)"
-                  style="flex:1;padding:8px 12px;border:1px solid var(--rule);border-radius:6px;font-family:var(--font-ui);font-size:.88rem;background:var(--mid);color:var(--text)">
+                  style="flex:1;padding:8px 12px;border:1px solid var(--cyan);border-radius:6px;font-family:var(--font-ui);font-size:.88rem;background:rgba(12, 20, 42, 0.5);color:var(--text);box-shadow: 0 0 10px rgba(79,195,247,0.15);cursor:pointer;">
             ${options.map(opt => `<option value="${opt}" ${selected===opt?'selected':''}>${opt}</option>`).join('')}
           </select>
         </div>`;
@@ -2891,13 +2766,13 @@ function renderGearStep() {
     </div>
     <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:16px;margin-bottom:16px">
       <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:8px">Auto DP</h3>
-      <div id="dp-display" style="font-family:var(--font-ui);font-size:.9rem;color:var(--accent-dk)">${getArmorDP()}</div>
+      <div id="dp-display" style="font-family:var(--font-ui);font-size:.9rem;color:var(--cyan)">${getArmorDP()}</div>
     </div>
     <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:16px">
       <h3 style="font-family:var(--font-ui);font-size:.95rem;font-weight:700;margin-bottom:8px">Starting Currency</h3>
       <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-ui)">
-        <span style="font-size:1.2rem;font-weight:700;color:var(--accent-dk)">${silver} Silver</span>
-        <span style="color:var(--muted);font-size:.88rem">automatically granted by your ${ch.specialty} Specialty</span>
+        <span style="font-size:1.2rem;font-weight:700;color:var(--cyan)">${silver} Silver</span>
+        <span style="color:var(--text-dim);font-size:.88rem">automatically granted by your ${ch.specialty} Specialty</span>
       </div>
     </div>
   `;

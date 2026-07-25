@@ -1,5 +1,11 @@
 let currentJSON = null;
 
+const DEFAULT_WOUNDS = 5;
+const DEFAULT_TRAUMAS = 4;
+const DEFAULT_PACK_SLOTS = 16;
+const DEFAULT_EQUIP_SLOTS = 6;
+const DEFAULT_POUCH_SLOTS = 6;
+
 function loadSheet(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -11,18 +17,7 @@ function loadSheet(event) {
             currentJSON = data;
             ch = mergeCharacterState(data.ch);
             
-            if (!ch.sheetData) {
-                ch.sheetData = {
-                    hpCurrent: calcHP(),
-                    mpCurrent: calcMP(),
-                    spCurrent: calcSP(),
-                    notes: ch.notes || "",
-                    spellNotes: {}
-                };
-            }
-            // Ensure spellNotes exists for backwards compatibility
-            if(!ch.sheetData.spellNotes) ch.sheetData.spellNotes = {};
-            
+            initSheetData();
             renderSheet();
         } catch (err) {
             alert("Error loading JSON: " + err.message);
@@ -31,8 +26,62 @@ function loadSheet(event) {
     reader.readAsText(file);
 }
 
+function initSheetData() {
+    if (!ch.sheetData) ch.sheetData = {};
+    const d = ch.sheetData;
+    
+    d.hpCurrent = d.hpCurrent ?? calcHP();
+    d.mpCurrent = d.mpCurrent ?? calcMP();
+    d.spCurrent = d.spCurrent ?? calcSP();
+    d.dpCurrent = d.dpCurrent ?? ((typeof calcDP === 'function') ? calcDP() : '0');
+    
+    d.specResName = d.specResName || "";
+    d.specResCurrent = d.specResCurrent || 0;
+    d.specResMax = d.specResMax || 0;
+    
+    if(!d.wounds) d.wounds = Array(DEFAULT_WOUNDS).fill().map(()=>({injury:'', effect:'', rec:''}));
+    if(!d.traumas) d.traumas = Array(DEFAULT_TRAUMAS).fill().map(()=>({injury:'', effect:'', rec:''}));
+    
+    if(!d.equipInv) d.equipInv = Array(DEFAULT_EQUIP_SLOTS).fill('');
+    if(!d.pouchInv) d.pouchInv = Array(DEFAULT_POUCH_SLOTS).fill('');
+    if(!d.packInv) d.packInv = Array(DEFAULT_PACK_SLOTS).fill('');
+    
+    d.coinSilver = d.coinSilver ?? ch.currency?.silver ?? 0;
+    d.coinGold = d.coinGold ?? 0;
+    d.coinPluther = d.coinPluther ?? 0;
+    
+    d.lifepathNotes = d.lifepathNotes || _deriveLifepathDefaults();
+    d.characters = d.characters || "";
+    d.loot = d.loot || "";
+    d.curses = d.curses || "";
+    d.notes = d.notes || "";
+    d.spellNotes = d.spellNotes || {};
+    
+    if(!d.customAttacks) d.customAttacks = [];
+}
+
+function _deriveLifepathDefaults() {
+    if(!ch.lifepath) return "";
+    let s = "";
+    if(ch.lifepath.upbringing) s += `Upbringing: ${ch.lifepath.upbringing}\n`;
+    if(ch.lifepath.culture) s += `Culture: ${ch.lifepath.culture}\n`;
+    if(ch.lifepath.decisions) s += `Decisions: ${ch.lifepath.decisions}\n`;
+    if(ch.lifepath.viewOfOthers) s += `View of Others: ${ch.lifepath.viewOfOthers}\n`;
+    if(ch.lifepath.personality) s += `Personality: ${ch.lifepath.personality}\n`;
+    if(ch.lifepath.value) s += `Values: ${ch.lifepath.value}\n`;
+    if(ch.lifepath.upset) s += `Upsets: ${ch.lifepath.upset}\n`;
+    return s.trim();
+}
+
 function escapeHtml(unsafe) {
     return (unsafe || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
 }
 
 function renderSheet() {
@@ -47,93 +96,198 @@ function renderSheet() {
     
     document.getElementById('ds-hp-max').textContent = calcHP();
     document.getElementById('ds-mp-max').textContent = calcMP();
-    // Assuming calcDP exists, if not we will just skip it or set to 0. It's normally calculated in builder.js or shared.js.
-    document.getElementById('ds-dp-max').textContent = (typeof calcDP === 'function') ? calcDP() : '0';
+    document.getElementById('ds-dp-max').textContent = ch.dp || '0';
     document.getElementById('ds-sp-max').textContent = calcSP();
-    
     document.getElementById('ds-recovery').textContent = lvl >= 19 ? lvl + 'd8' : lvl;
     
-    document.getElementById('ds-hp-current').value = ch.sheetData.hpCurrent ?? calcHP();
-    document.getElementById('ds-mp-current').value = ch.sheetData.mpCurrent ?? calcMP();
-    document.getElementById('ds-dp-current').value = ch.sheetData.dpCurrent ?? ((typeof calcDP === 'function') ? calcDP() : '0');
-    document.getElementById('ds-sp-current').value = ch.sheetData.spCurrent ?? calcSP();
+    document.getElementById('ds-hp-current').value = ch.sheetData.hpCurrent;
+    document.getElementById('ds-mp-current').value = ch.sheetData.mpCurrent;
+    document.getElementById('ds-dp-current').value = ch.sheetData.dpCurrent;
+    document.getElementById('ds-sp-current').value = ch.sheetData.spCurrent;
     
-    let attrHtml = '';
+    document.getElementById('ds-spec-res-name').value = ch.sheetData.specResName;
+    document.getElementById('ds-spec-res-current').value = ch.sheetData.specResCurrent;
+    document.getElementById('ds-spec-res-max').value = ch.sheetData.specResMax;
+
+    // Attributes and Skills
+    let attrSkillHtml = '';
     ATTRIBUTES.forEach(a => {
-        attrHtml += `<div class="stat-row"><span class="stat-label">${a.name}</span><span class="stat-value highlight">${getEffectiveAttr(a.key)}</span></div>`;
+        attrSkillHtml += `<div class="attr-group">
+            <div class="attr-header"><span>${a.name}</span><span>${getEffectiveAttr(a.key)}</span></div>`;
+        const skillsForAttr = Object.values(SKILLS).flat().filter(s => s.attr === a.key);
+        skillsForAttr.forEach(s => {
+            let rank = getSkillRank(s.key);
+            if (rank > 0) {
+                attrSkillHtml += `<div class="skill-item"><span>${s.name}</span><span class="val">${rank}</span></div>`;
+            }
+        });
+        attrSkillHtml += `</div>`;
     });
-    document.getElementById('ds-attributes').innerHTML = attrHtml;
+    document.getElementById('ds-attr-skills').innerHTML = attrSkillHtml;
+
+    // Wounds & Traumas
+    document.getElementById('ds-wounds').innerHTML = ch.sheetData.wounds.map((w,i) => `
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+            <input type="text" class="edit-input-text" style="flex:2" placeholder="Injury" value="${escapeHtml(w.injury)}" onchange="updateArray('wounds',${i},'injury',this.value)">
+            <input type="text" class="edit-input-text" style="flex:3" placeholder="Effect" value="${escapeHtml(w.effect)}" onchange="updateArray('wounds',${i},'effect',this.value)">
+            <input type="text" class="edit-input-text" style="flex:1" placeholder="Rec." title="Recovery L F P" value="${escapeHtml(w.rec)}" onchange="updateArray('wounds',${i},'rec',this.value)">
+        </div>`).join('');
     
-    let skillHtml = '';
-    Object.values(SKILLS).flat().forEach(s => {
-        let rank = getSkillRank(s.key);
-        if (rank > 0) {
-            skillHtml += `<div class="stat-row"><span class="stat-label">${s.name}</span><span class="stat-value" style="color:var(--safe)">Rank ${rank}</span></div>`;
-        }
+    document.getElementById('ds-traumas').innerHTML = ch.sheetData.traumas.map((t,i) => `
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+            <input type="text" class="edit-input-text" style="flex:2" placeholder="Injury" value="${escapeHtml(t.injury)}" onchange="updateArray('traumas',${i},'injury',this.value)">
+            <input type="text" class="edit-input-text" style="flex:3" placeholder="Effect" value="${escapeHtml(t.effect)}" onchange="updateArray('traumas',${i},'effect',this.value)">
+            <input type="text" class="edit-input-text" style="flex:1" placeholder="Rec." title="Recovery L F P" value="${escapeHtml(t.rec)}" onchange="updateArray('traumas',${i},'rec',this.value)">
+        </div>`).join('');
+
+    // Weapons & Attacks
+    let wepHtml = '';
+    const equips = (ch.equip || []).filter(e => e && typeof WEAPON_STATS !== 'undefined' && WEAPON_STATS[e]);
+    equips.forEach(eq => {
+        const w = WEAPON_STATS[eq];
+        let dice = w.skill; // Simplified, usually stat + skill
+        wepHtml += `<div class="weapon-card">
+            <div class="weapon-header"><span>${eq}</span></div>
+            <div class="weapon-stats"><span>Range: ${w.range}</span><span>Mod: ${w.mod}</span><span style="color:var(--gold-pale)">Dmg: ${w.damage}</span></div>
+            <div class="weapon-stats" style="margin-top:4px;"><span>Pool: ${dice}</span><span>Feat: ${w.features}</span></div>
+        </div>`;
     });
-    if(!skillHtml) skillHtml = '<div style="color:var(--text-dim);font-size:.85rem;font-family:var(--font-ui);">No skills learned.</div>';
-    document.getElementById('ds-skills').innerHTML = skillHtml;
+    ch.sheetData.customAttacks.forEach((ca, i) => {
+        wepHtml += `<div class="weapon-card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <input type="text" style="width:40%; font-weight:700; color:var(--cyan);" placeholder="Name" value="${escapeHtml(ca.name)}" onchange="updateCustomAttack(${i},'name',this.value)">
+                <input type="text" style="width:20%;" placeholder="Range" value="${escapeHtml(ca.range)}" onchange="updateCustomAttack(${i},'range',this.value)">
+                <input type="text" style="width:15%;" placeholder="Mod" value="${escapeHtml(ca.mod)}" onchange="updateCustomAttack(${i},'mod',this.value)">
+                <input type="text" style="width:20%; color:var(--gold-pale);" placeholder="Damage" value="${escapeHtml(ca.damage)}" onchange="updateCustomAttack(${i},'damage',this.value)">
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <input type="text" style="width:40%;" placeholder="Dice Pool" value="${escapeHtml(ca.pool)}" onchange="updateCustomAttack(${i},'pool',this.value)">
+                <input type="text" style="width:58%;" placeholder="Features" value="${escapeHtml(ca.features)}" onchange="updateCustomAttack(${i},'features',this.value)">
+            </div>
+        </div>`;
+    });
+    if(!wepHtml) wepHtml = '<div style="color:var(--text-dim);font-size:.85rem;font-family:var(--font-ui);">No weapons equipped.</div>';
+    document.getElementById('ds-weapons').innerHTML = wepHtml;
+
+    // Inventory
+    document.getElementById('ds-equip').innerHTML = ch.sheetData.equipInv.map((item,i) => `
+        <div style="margin-bottom:6px"><input type="text" class="edit-input-text" placeholder="Equipped Item..." value="${escapeHtml(item)}" onchange="updateArray('equipInv',${i},null,this.value)"></div>`).join('');
+    document.getElementById('ds-pouch').innerHTML = ch.sheetData.pouchInv.map((item,i) => `
+        <div style="margin-bottom:6px"><input type="text" class="edit-input-text" placeholder="Pouch Item..." value="${escapeHtml(item)}" onchange="updateArray('pouchInv',${i},null,this.value)"></div>`).join('');
+    document.getElementById('ds-backpack').innerHTML = ch.sheetData.packInv.map((item,i) => `
+        <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;">
+            <span style="font-family:var(--font-heading);color:var(--muted);width:20px;text-align:right;">${i+1}</span>
+            <input type="text" class="edit-input-text" placeholder="Backpack Item..." value="${escapeHtml(item)}" onchange="updateArray('packInv',${i},null,this.value)">
+        </div>`).join('');
+    
+    document.getElementById('ds-coin-silver').value = ch.sheetData.coinSilver;
+    document.getElementById('ds-coin-gold').value = ch.sheetData.coinGold;
+    document.getElementById('ds-coin-pluther').value = ch.sheetData.coinPluther;
+    
+    const getSlots = () => {
+        let b = 10;
+        if(ch.gearSelections && Object.values(ch.gearSelections).some(v => v.includes('Backpack'))) b = 16;
+        if(ch.equip && ch.equip.some(v => v.includes('Backpack'))) b = 16;
+        return b;
+    };
+    document.getElementById('ds-pack-slots').textContent = getSlots();
+
+    // Lore & Traits
+    document.getElementById('ds-lineage-traits').innerHTML = escapeHtml(ch.lineageBenefits || "No lineage benefits recorded.");
+    document.getElementById('ds-spec-talent').innerHTML = escapeHtml(ch.specialtyTalent || "No specialty talent recorded.");
     
     let talentHtml = '';
-    const talents = getCharacterTalents();
-    for (const [tName, tRank] of talents.entries()) {
-        talentHtml += `<div class="stat-row"><span class="stat-label">${escapeHtml(tName)}</span><span class="stat-value" style="color:var(--cyan)">Rank ${tRank}</span></div>`;
+    const talentsMap = getCharacterTalents();
+    for (const [tName, tRank] of talentsMap.entries()) {
+        const fullDesc = getTalentFullDescription(tName, tRank);
+        const escapedDesc = escapeHtml(fullDesc).replace(/\n/g, '<br>');
+        talentHtml += `<div class="wound-card">
+            <div style="font-family:var(--font-heading); color:var(--cyan); font-weight:700; margin-bottom:4px;">${escapeHtml(tName)} <span style="color:var(--text-dim); font-size:0.8rem;">(Rank ${tRank})</span></div>
+            <div style="font-family:var(--font-ui); font-size:0.85rem; color:var(--text);">${escapedDesc}</div>
+        </div>`;
     }
     if(!talentHtml) talentHtml = '<div style="color:var(--text-dim);font-size:.85rem;font-family:var(--font-ui);">No talents learned.</div>';
-    document.getElementById('ds-talents').innerHTML = talentHtml;
-    
-    document.getElementById('ds-notes').value = ch.sheetData.notes || '';
-    
-    const spells = [];
+    document.getElementById('ds-full-talents').innerHTML = talentHtml;
+
+    document.getElementById('ds-lifepath').value = ch.sheetData.lifepathNotes;
+    document.getElementById('ds-characters').value = ch.sheetData.characters;
+    document.getElementById('ds-loot').value = ch.sheetData.loot;
+    document.getElementById('ds-curses').value = ch.sheetData.curses;
+    document.getElementById('ds-notes').value = ch.sheetData.notes;
+
+    // Spells
+    let spellGroups = {};
     if(ch.talents) {
         ch.talents.forEach(t => {
             if(t.startsWith('Study of') || t === 'Innate Magic' || t === 'Runic Magic') {
-                if(STUDY_SPELLS[t]) {
-                    spells.push(...STUDY_SPELLS[t]);
+                if(typeof STUDY_SPELLS !== 'undefined' && STUDY_SPELLS[t]) {
+                    Object.keys(STUDY_SPELLS[t]).forEach(rank => {
+                        const rNum = parseInt(rank.replace('rank',''));
+                        if(!spellGroups[rNum]) spellGroups[rNum] = [];
+                        spellGroups[rNum].push(...STUDY_SPELLS[t][rank]);
+                    });
                 }
             }
         });
     }
-    
-    if (spells.length > 0) {
-        document.getElementById('spells-section').style.display = 'block';
-        let spellsHtml = '';
-        spells.forEach((sp, i) => {
-            const noteText = escapeHtml(ch.sheetData.spellNotes[sp.name] || '');
-            spellsHtml += `
-            <div class="spell-entry">
-                <div class="spell-entry-header" onclick="toggleSpellNotes(${i})">
-                    <span class="spell-name">${escapeHtml(sp.name)}</span>
-                    <span style="font-size:0.8rem; color:var(--text-dim);">PL: ${sp.pl} | Cost: ${sp.ct} ${sp.focus ? '(Focus)' : ''}</span>
-                    <span style="color:var(--gold);">▼</span>
-                </div>
-                <div class="spell-notes" id="spell-notes-${i}">
-                    <textarea class="edit-textarea" style="margin-top:10px; min-height:60px;" placeholder="Add notes for this spell..." onchange="updateSpellNote('${escapeHtml(sp.name.replace(/'/g, "\\'"))}', this.value)">${noteText}</textarea>
-                </div>
-            </div>`;
+
+    let spHtml = '';
+    if(Object.keys(spellGroups).length > 0) {
+        Object.keys(spellGroups).sort((a,b)=>a-b).forEach(rank => {
+            spHtml += `<h3 style="margin-top:20px;">Rank ${rank} Spells</h3>`;
+            spellGroups[rank].forEach(sp => {
+                const noteText = escapeHtml(ch.sheetData.spellNotes[sp.name] || '');
+                spHtml += `
+                <div class="spell-entry">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap;">
+                        <span class="spell-name" style="width:30%; min-width:120px;">${escapeHtml(sp.name)}</span>
+                        <span style="font-size:0.8rem; color:var(--text-dim);"><span style="color:var(--gold-pale)">PL:</span> ${sp.pl}</span>
+                        <span style="font-size:0.8rem; color:var(--text-dim);"><span style="color:var(--gold-pale)">Range:</span> ${sp.range}</span>
+                        <span style="font-size:0.8rem; color:var(--text-dim);"><span style="color:var(--gold-pale)">Cast:</span> ${sp.ct}</span>
+                        <span style="font-size:0.8rem; color:var(--text-dim);"><span style="color:var(--gold-pale)">Dur:</span> ${sp.dur}</span>
+                    </div>
+                    <textarea class="edit-textarea" style="margin-top:4px; min-height:40px; padding:4px 8px; font-size:0.85rem;" placeholder="Add notes for this spell..." onchange="updateSpellNote('${escapeHtml(sp.name.replace(/'/g, "\'"))}', this.value)">${noteText}</textarea>
+                </div>`;
+            });
         });
-        document.getElementById('ds-spells').innerHTML = spellsHtml;
     } else {
-        document.getElementById('spells-section').style.display = 'none';
+        spHtml = '<div style="color:var(--text-dim);font-size:.85rem;font-family:var(--font-ui);">No spell studies learned.</div>';
     }
+    document.getElementById('spells-wrapper').innerHTML = spHtml;
 }
 
-function toggleSpellNotes(idx) {
-    const el = document.getElementById(`spell-notes-${idx}`);
-    if(el.classList.contains('open')) {
-        el.classList.remove('open');
-    } else {
-        el.classList.add('open');
+function getTalentFullDescription(name, rank) {
+    if (typeof TALENT_DATA !== 'undefined' && TALENT_DATA[name]) {
+        return TALENT_DATA[name].slice(0, rank).map((desc, i) => `Rank ${i+1}: ${desc}`).join('\n');
     }
+    return "Description not found.";
 }
 
-function updateSheetData(key, value) {
-    if(key === 'hpCurrent' || key === 'mpCurrent' || key === 'dpCurrent' || key === 'spCurrent') value = parseInt(value, 10);
+function updateData(key, value) {
+    if(['hpCurrent','mpCurrent','dpCurrent','spCurrent','specResCurrent','specResMax','coinSilver','coinGold','coinPluther'].includes(key)) {
+        value = parseInt(value, 10) || 0;
+    }
     ch.sheetData[key] = value;
 }
 
+function updateArray(arrName, idx, subKey, value) {
+    if(subKey) {
+        ch.sheetData[arrName][idx][subKey] = value;
+    } else {
+        ch.sheetData[arrName][idx] = value;
+    }
+}
+
+function addCustomAttack() {
+    ch.sheetData.customAttacks.push({name:'', range:'', mod:'', damage:'', pool:'', features:''});
+    renderSheet();
+}
+
+function updateCustomAttack(idx, field, value) {
+    ch.sheetData.customAttacks[idx][field] = value;
+}
+
 function updateSpellNote(spellName, value) {
-    if(!ch.sheetData.spellNotes) ch.sheetData.spellNotes = {};
     ch.sheetData.spellNotes[spellName] = value;
 }
 
@@ -149,13 +303,18 @@ function exportSheet() {
     a.click();
 }
 
+function attemptLevelUp() {
+    document.getElementById('save-reminder-modal').style.display = 'flex';
+}
 
-function openLevelUp() {
-    if (!currentJSON) {
-        alert("Please load a character first.");
-        return;
+function closeSaveReminder() {
+    document.getElementById('save-reminder-modal').style.display = 'none';
+}
+
+function proceedToBuilder() {
+    if (currentJSON) {
+        currentJSON.ch = ch;
+        sessionStorage.setItem('transferJSON', JSON.stringify(currentJSON));
     }
-    currentJSON.ch = ch;
-    sessionStorage.setItem('transferJSON', JSON.stringify(currentJSON));
     window.location.href = 'index.html';
 }

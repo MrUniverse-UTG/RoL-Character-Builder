@@ -2,12 +2,6 @@
 
 A step-by-step character creation wizard for the Realms of Legacy TTRPG.
 
-## Files
-
-- `index.html` — the complete character builder (all game data embedded)
-- `Character_Sheet_Form_Fill.pdf` — the form-fillable character sheet template
-- `_config.yml` — GitHub Pages configuration
-
 ## Features
 
 - 10-step guided character creation

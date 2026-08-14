@@ -141,6 +141,10 @@ function validateStep(step) {
         alert('Please choose a size (Small or Medium) for your ' + ch.lineage + ' character.');
         return false;
       }
+      if (getEffectiveLineageName() === 'Ozonian' && !ch.ozonianLanguage) {
+        alert('Please choose the traditional language your Ozonian speaks and reads.');
+        return false;
+      }
       if (ch.lineage === 'Undead' && ch.undeadRepurposedLineage) {
         const repLg3 = LINEAGES.find(l => l.name === ch.undeadRepurposedLineage);
         if (repLg3?.traitDetails && !(ch.mixedSubTraits && ch.mixedSubTraits['undead_' + ch.undeadRepurposedLineage])) {
@@ -629,6 +633,7 @@ function selectLineage(name) {
   ch.lineageTrait = null;
   ch.undeadRepurposedLineage = null;
   ch.sizeChoice = null;
+  ch.ozonianLanguage = null;
   renderLineageGrid();
   renderLineageDetail();
 }
@@ -769,8 +774,8 @@ function renderLineageDetail() {
         <span class="stat-badge size">Size: ${lg.size}</span>
         <span class="stat-badge">Height: ${lg.height}</span>
         <span class="stat-badge">Speed: ${lg.speed} ft</span>
-        <span class="stat-badge">Speaks: ${lg.langs.speak.join(', ')}</span>
-        <span class="stat-badge">Reads: ${lg.langs.read.join(', ')}</span>
+        <span class="stat-badge">Speaks: ${getLineageLangs(lg).speak.join(', ')}</span>
+        <span class="stat-badge">Reads: ${getLineageLangs(lg).read.join(', ')}</span>
       </div>
       <div style="margin-top:12px">${formatTraitParagraphs(lg.name, ch.lineageTrait)}</div>
     </div>`;
@@ -881,6 +886,11 @@ function renderLineageDetail() {
         </div>
         ${!ch.sizeChoice ? '<div class="warn-box" style="margin-top:10px">Please choose a size to continue.</div>' : ''}
       </div>`;
+  }
+
+  // Ozonian: choose the one traditional language they speak and read
+  if (effectiveLineageName === 'Ozonian') {
+    html += renderOzonianLanguageHtml();
   }
 
   // Undead: pick a Traditional lineage for Repurposed (gains that lineage's major trait)
@@ -1055,8 +1065,8 @@ function renderLineageDetail() {
         + '<div style="font-family:var(--font-ui);font-weight:700;font-size:.95rem;color:var(--cyan);margin-bottom:12px">Assign Lineage Benefits</div>'
         + '<p style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Choose which lineage provides your Features, Major Trait, and Minor Trait.</p>'
         + assignRow('Features (size, speed, languages)', 'features', [
-            {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft', desc: (lg1?.langs?.speak||[]).join(', ')},
-            {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft', desc: (lg2?.langs?.speak||[]).join(', ')},
+            {l:lg1name, t:(lg1?.size||'') + ', ' + (lg1?.speed||'') + ' ft', desc: getLineageLangs(lg1).speak.join(', ')},
+            {l:lg2name, t:(lg2?.size||'') + ', ' + (lg2?.speed||'') + ' ft', desc: getLineageLangs(lg2).speak.join(', ')},
           ])
         + (ch.mixedForcedSmall ? '<div class="warn-box" style="margin:-4px 0 12px">⚠ Your size is <strong>Small</strong> regardless of Features choice — the Fueglin <strong>Small and Nimble</strong> Major Trait forces Small size. Pick a different Major Trait to use your Features size.</div>' : '')
         + assignRow('Major Trait', 'major', [
@@ -1170,6 +1180,32 @@ function setUndeadRepurposed(lgName) {
 function selectLineageTrait(traitKey) {
   ch.lineageTrait = traitKey;
   renderLineageDetail();
+}
+
+function renderOzonianLanguageHtml() {
+  const picked = ch.ozonianLanguage;
+  const script = picked ? getReadScript(picked) : null;
+  const outcome = picked
+    ? `<div class="info-box" style="margin-top:12px">
+         You speak <strong>${esc(picked)}</strong> and read the <strong>${esc(script)}</strong> script.
+       </div>`
+    : '<div class="warn-box" style="margin-top:12px">Please choose a language to continue.</div>';
+
+  return `
+    <div style="margin-top:16px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:16px">
+      <div style="font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--accent-dk);margin-bottom:6px">
+        Choose Your Traditional Language
+      </div>
+      <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin-bottom:12px">
+        Ozonians learn to speak and read one traditional language of their choice, on top of Gaian.
+      </p>
+      <select class="full" style="max-width:260px" onchange="setOzonianLanguage(this.value)">
+        <option value="">-- choose --</option>
+        ${getOzonianLanguageOptions().map(l =>
+          `<option value="${esc(l)}" ${picked === l ? 'selected' : ''}>${esc(l)}</option>`).join('')}
+      </select>
+      ${outcome}
+    </div>`;
 }
 
 // Global helper: get bloodline-specific trait text for Dryvorn
@@ -1598,7 +1634,7 @@ function renderExtraLanguagesHtml() {
         const val = ch.extraLanguagePicks[idx] || '';
         // Collect languages already spoken from lineage so they can be excluded
         const lg = LINEAGES.find(l => l.name === ch.lineage) || {};
-        const lineageSpeak = new Set(lg.langs?.speak || []);
+        const lineageSpeak = new Set(getLineageLangs(lg).speak);
         // Also exclude languages already chosen in other slots this session
         const otherPicks = new Set(ch.extraLanguagePicks.filter((l, i) => l && i !== idx));
         const available = arr.filter(l => !lineageSpeak.has(l) && !otherPicks.has(l));
@@ -1711,6 +1747,39 @@ function selectExtraLanguage(name) {
 function getReadScript(lang) {
   // Return the script name for reading — some languages use a different script
   return LANGUAGE_SCRIPTS[lang] || lang;
+}
+
+// A lineage's languages with the Ozonian player's-choice placeholder resolved.
+// Until the player picks, the placeholder is left in place so the UI still
+// explains that a choice is owed.
+function getLineageLangs(lg) {
+  const speak = [...(lg?.langs?.speak || [])];
+  const read  = [...(lg?.langs?.read  || [])];
+  const pick  = ch.ozonianLanguage;
+  if (!pick) return {speak, read};
+  return {
+    speak: speak.map(l => l === PLAYER_CHOICE_LANG ? pick : l),
+    read:  read.map(l  => l === PLAYER_CHOICE_LANG ? getReadScript(pick) : l),
+  };
+}
+
+// Traditional languages an Ozonian may still pick — everything their lineage
+// does not already grant outright, minus anything the Lifepath step already
+// spent a pick on, so the two choices cannot be wasted on the same language.
+function getOzonianLanguageOptions() {
+  const lg = LINEAGES.find(l => l.name === 'Ozonian');
+  const taken = new Set([
+    ...(lg?.langs?.speak || []).filter(l => l !== PLAYER_CHOICE_LANG),
+    ...(ch.extraLanguagePicks || []).filter(Boolean),
+  ]);
+  // Never hide the current selection, or the dropdown would disagree with state.
+  taken.delete(ch.ozonianLanguage);
+  return TRADITIONAL_LANGUAGES.filter(l => !taken.has(l));
+}
+
+function setOzonianLanguage(lang) {
+  ch.ozonianLanguage = lang || null;
+  renderLineageDetail();
 }
 
 function setExtraLanguagePick(idx, lang, pool) {
@@ -2083,6 +2152,19 @@ function renderSummary() {
   checks.push({ok: attrSum === expectedAttrSum, msg: `Attribute sum = ${attrSum} (should be ${expectedAttrSum})`});
   const expectedSumCheck = (ch.specialty === 'Berserker' ? 32 : 24) + luSum('hp') + luSum('mp') + 2 * totalLuAttrPoints() + generalHPBonus() + generalMPBonus();
   checks.push({ok: calcHP()+calcMP() === expectedSumCheck, msg: `HP+MP = ${calcHP()+calcMP()} (should be ${expectedSumCheck} at level ${getLevel()}${ch.specialty === 'Berserker' ? ', includes +8 Berserker' : ''})`});
+  // A character levelled up before the Attribute cap was enforced across a single
+  // level-up's choices can be carrying an over-cap Attribute.
+  const overCap = ATTRIBUTES.filter(a => getEffectiveAttr(a.key) > ATTR_RANK_MAX);
+  checks.push({ok: overCap.length === 0, msg: overCap.length
+    ? `${overCap.map(a => a.name + ' = ' + getEffectiveAttr(a.key)).join(', ')} — above the Rank ${ATTR_RANK_MAX} cap; revisit those level-ups`
+    : `All Attributes within the Rank ${ATTR_RANK_MAX} cap`});
+  // A character saved before the Ozonian language picker existed can reach this
+  // step with no choice made, which would export the placeholder text.
+  if (getEffectiveLineageName() === 'Ozonian') {
+    checks.push({ok: !!ch.ozonianLanguage, msg: ch.ozonianLanguage
+      ? `Ozonian language = ${ch.ozonianLanguage} (reads ${getReadScript(ch.ozonianLanguage)})`
+      : 'Ozonian traditional language not chosen — pick one in Step 3'});
+  }
 
   document.getElementById('export-validation').innerHTML = checks.map(c => `
     <div class="${c.ok?'validation-msg ok':'validation-msg error'}">${c.ok?'✓':'✗'} ${c.msg}</div>
@@ -2248,8 +2330,9 @@ async function exportPDF() {
       effectiveSize = ch.sizeChoice;
     }
     set('SIZE', effectiveSize);
-    const baseSpeakLangs = lg.langs?.speak || [];
-    const baseReadLangs  = lg.langs?.read  || [];
+    const baseLangs      = getLineageLangs(lg);
+    const baseSpeakLangs = baseLangs.speak;
+    const baseReadLangs  = baseLangs.read;
     const extraSpeak = ch.extraLanguagePicks?.filter(l=>l) || [];
     const extraRead  = ch.extraLanguageReads?.filter(l=>l) || [];
     // Fixed extras (ESL, Beasts)
@@ -2988,6 +3071,37 @@ function preparedSpellsLimit() {
 let pendingLU = null;
 function freshPendingLU() { return { hp: 0, mp: 0, skills: {}, talent: null, bonusTalent: null, casterAttr: null, attrChoice: null, bonusAttr: null, minMaxDown: null, minMaxUp: null, reliableAttr: null, _view: null, _showSpecialty: false }; }
 
+// getEffectiveAttr() only counts confirmed level-ups, so a picker that consults it
+// cannot see the other choices being made in the *same* level-up. That let a player
+// stack the +1 Attribute Point on top of Naturally Gifted or Min Max targeting the
+// same Attribute and land on Rank 7.
+//
+// This returns the rank an Attribute would end at once the pending level-up is
+// confirmed. Pass the slot being edited as ignoreSlot so a picker measures the
+// headroom left by the *other* slots rather than locking itself out.
+function luProjectedAttr(key, ignoreSlot) {
+  let v = getEffectiveAttr(key);
+  if (!pendingLU) return v;
+  if (ignoreSlot !== 'attrChoice' && pendingLU.attrChoice === key) v += 1;
+  const t = pendingLU.talent;
+  if (t && t.kind === 'new') {
+    if (t.name === 'Naturally Gifted' && ignoreSlot !== 'bonusAttr' && pendingLU.bonusAttr === key) v += 1;
+    if (t.name === 'Min Max') {
+      if (ignoreSlot !== 'minMaxUp'   && pendingLU.minMaxUp   === key) v += 2;
+      if (ignoreSlot !== 'minMaxDown' && pendingLU.minMaxDown === key) v -= 1;
+    }
+  }
+  return v;
+}
+
+// Attributes the pending level-up would push past the cap (or below 0), used as a
+// final guard in case a stale pendingLU slips past the pickers.
+function luAttrCapViolations() {
+  return ATTRIBUTES
+    .map(a => ({ name: a.name, rank: luProjectedAttr(a.key, null) }))
+    .filter(a => a.rank > ATTR_RANK_MAX || a.rank < 0);
+}
+
 function pendingSkillBudget() {
   let b = 2;
   if (EXTRA_SKILL_LEVELS.includes(getLevel() + 1)) b += 1; // +1 additional Skill Point at levels 8 and 14
@@ -3117,6 +3231,14 @@ function confirmLevelUp() {
   }
   if (pendingLU.talent.kind === 'new' && pendingLU.talent.name === 'Naturally Gifted' && !pendingLU.bonusAttr) { alert('Naturally Gifted: choose the Attribute to increase.'); return; }
   if (pendingLU.talent.kind === 'new' && pendingLU.talent.name === 'Min Max' && (!pendingLU.minMaxDown || !pendingLU.minMaxUp || pendingLU.minMaxDown === pendingLU.minMaxUp)) { alert('Min Max: choose one Attribute to decrease and a different one to increase.'); return; }
+  // The pickers already lock out over-cap combinations; this catches a pendingLU
+  // left inconsistent by re-picking (e.g. swapping talents after choosing an Attribute).
+  const capViolations = luAttrCapViolations();
+  if (capViolations.length) {
+    alert('These choices would put ' + capViolations.map(a => a.name + ' at Rank ' + a.rank).join(', ')
+      + '. An Attribute cannot go above Rank ' + ATTR_RANK_MAX + ' or below Rank 0 — change one of this level\'s Attribute choices.');
+    return;
+  }
   const entry = {
     level: target, hp: pendingLU.hp, mp: pendingLU.mp,
     skills: { ...pendingLU.skills }, talent: pendingLU.talent,
@@ -3207,11 +3329,11 @@ function renderLevelUp() {
 
   let html = `
   <div style="background:var(--mid); border: 1px solid var(--border-gold); border-radius: var(--r); padding: 20px; margin-bottom: 30px;">
-    <h2 style="font-family:var(--font-display); color:var(--gold); margin-bottom:16px; border-bottom: 1px solid var(--border-gold); padding-bottom: 8px;">Current Character Status</h2>
+    <h2 style="font-family:var(--font-section); color:var(--gold); margin-bottom:16px; border-bottom: 1px solid var(--border-gold); padding-bottom: 8px;">Current Character Status</h2>
     <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;margin-bottom:20px">
       <div style="background:rgba(201,168,76,0.1);border:1px solid var(--border-gold);border-radius:var(--r);padding:14px 22px;text-align:center;min-width:110px;display:flex;flex-direction:column;justify-content:center">
         <div style="font-family:var(--font-heading);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Level</div>
-        <div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-pale);line-height:1.1">${lvl}</div>
+        <div style="font-family:var(--font-section);font-size:2.4rem;font-weight:700;color:var(--gold-pale);line-height:1.1">${lvl}</div>
         <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--text-dim)">${esc(ch.name || 'Unnamed')} · ${esc(ch.cls)} ${esc(ch.specialty)}</div>
       </div>
       ${stripGroups.map(([groupLabel, cards]) => `
@@ -3338,7 +3460,10 @@ function renderLevelUp() {
         <div style="display:flex;flex-wrap:wrap;gap:7px">
           ${ATTRIBUTES.map(a => {
             const cur = getEffectiveAttr(a.key);
-            const locked = cur >= 6 ? 'Already at Rank 6' : null;
+            const proj = luProjectedAttr(a.key, 'attrChoice');
+            const locked = proj + 1 > ATTR_RANK_MAX
+              ? (cur >= ATTR_RANK_MAX ? 'Already at Rank ' + ATTR_RANK_MAX : 'Would exceed Rank ' + ATTR_RANK_MAX + ' with this level\'s other choices')
+              : null;
             const label = a.name + ' (' + cur + (pendingLU.attrChoice === a.key ? ' → ' + (cur + 1) : '') + ')';
             return chip(label, pendingLU.attrChoice === a.key, locked, "luPickAttr('attrChoice','" + a.key + "')");
           }).join('')}
@@ -3453,17 +3578,37 @@ function renderLevelUp() {
       }
     }
     if (t && t.kind === 'new' && t.name === 'Naturally Gifted') {
-      html += `<div class="info-box" style="margin-top:4px">Naturally Gifted: choose the Attribute to increase by 1 (max Rank 6).</div>
+      html += `<div class="info-box" style="margin-top:4px">Naturally Gifted: choose the Attribute to increase by 1 (max Rank ${ATTR_RANK_MAX}).</div>
         <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px">
-          ${ATTRIBUTES.map(a => { const cur = getEffectiveAttr(a.key); const locked = cur >= 6 ? 'Already at Rank 6' : null; return chip(a.name + ' (' + cur + ')', pendingLU.bonusAttr === a.key, locked, "luPickAttr('bonusAttr','" + a.key + "')"); }).join('')}
+          ${ATTRIBUTES.map(a => {
+            const cur = getEffectiveAttr(a.key);
+            const proj = luProjectedAttr(a.key, 'bonusAttr');
+            const locked = proj + 1 > ATTR_RANK_MAX
+              ? (cur >= ATTR_RANK_MAX ? 'Already at Rank ' + ATTR_RANK_MAX : 'Would exceed Rank ' + ATTR_RANK_MAX + ' with this level\'s Attribute Point')
+              : null;
+            return chip(a.name + ' (' + cur + ')', pendingLU.bonusAttr === a.key, locked, "luPickAttr('bonusAttr','" + a.key + "')");
+          }).join('')}
         </div>`;
     }
     if (t && t.kind === 'new' && t.name === 'Min Max') {
-      html += `<div class="info-box" style="margin-top:4px">Min Max: decrease one Attribute Rank by 1, then increase a different Attribute Rank by 2 (max Rank 6).</div>
+      html += `<div class="info-box" style="margin-top:4px">Min Max: decrease one Attribute Rank by 1, then increase a different Attribute Rank by 2 (max Rank ${ATTR_RANK_MAX}).</div>
         <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:10px 0 6px">Decrease by 1</div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px">${ATTRIBUTES.map(a => { const cur = getEffectiveAttr(a.key); const locked = cur <= 0 ? 'Already at Rank 0' : null; return chip(a.name + ' (' + cur + ')', pendingLU.minMaxDown === a.key, locked, "luPickAttr('minMaxDown','" + a.key + "')"); }).join('')}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">${ATTRIBUTES.map(a => {
+          const cur = getEffectiveAttr(a.key);
+          const locked = luProjectedAttr(a.key, 'minMaxDown') - 1 < 0 ? 'Already at Rank 0' : null;
+          return chip(a.name + ' (' + cur + ')', pendingLU.minMaxDown === a.key, locked, "luPickAttr('minMaxDown','" + a.key + "')");
+        }).join('')}</div>
         <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:10px 0 6px">Increase by 2</div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px">${ATTRIBUTES.map(a => { const cur = getEffectiveAttr(a.key); const locked = a.key === pendingLU.minMaxDown ? 'Same as decreased Attribute' : (cur + 2 > 6 ? 'Would exceed Rank 6' : null); return chip(a.name + ' (' + cur + ')', pendingLU.minMaxUp === a.key, locked, "luPickAttr('minMaxUp','" + a.key + "')"); }).join('')}</div>`;
+        <div style="display:flex;flex-wrap:wrap;gap:7px">${ATTRIBUTES.map(a => {
+          const cur = getEffectiveAttr(a.key);
+          const proj = luProjectedAttr(a.key, 'minMaxUp');
+          const locked = a.key === pendingLU.minMaxDown
+            ? 'Same as decreased Attribute'
+            : (proj + 2 > ATTR_RANK_MAX
+                ? (proj === cur ? 'Would exceed Rank ' + ATTR_RANK_MAX : 'Would exceed Rank ' + ATTR_RANK_MAX + ' with this level\'s Attribute Point')
+                : null);
+          return chip(a.name + ' (' + cur + ')', pendingLU.minMaxUp === a.key, locked, "luPickAttr('minMaxUp','" + a.key + "')");
+        }).join('')}</div>`;
     }
 
     if (pendingLU._view) {

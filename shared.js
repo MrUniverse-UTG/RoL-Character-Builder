@@ -5,6 +5,8 @@
 // Point buy system — no arrays needed
 const POINT_BUY_TOTAL = 7;
 const POINT_BUY_MAX = 3;
+// Hard ceiling on any Attribute Rank, at character creation or through level-ups.
+const ATTR_RANK_MAX = 6;
 
 
 const ATTRIBUTES = [
@@ -24,6 +26,11 @@ const SKILLS = {
   EMP: [{key:'Manipulate', name:'Manipulate'},{key:'Perform',    name:'Perform'},
         {key:'Medical',    name:'Medical'},   {key:'Tame',       name:'Tame'}],
 };
+
+// Ozonians speak and read one traditional language of the player's choice. This
+// placeholder stands in their langs lists until that choice is made; consumers
+// resolve it against ch.ozonianLanguage rather than matching the literal string.
+const PLAYER_CHOICE_LANG = "One traditional language (player's choice)";
 
 const LINEAGES = [
   {name:'Abysian', type:'Traditional', size:'Medium', speed:30, height:"5'–8'",
@@ -159,7 +166,7 @@ Shadow Eyes (Minor Trait): You gain Gloom Vision.
 Unholy: Your HP gains vulnerability to Radiant damage but resistance to Necrotic damage.`},
 
   {name:'Ozonian', type:'Otherworldly', size:'Small or Medium', speed:30, height:"3'–6'",
-   langs:{speak:["One traditional language (player's choice)",'Gaian'], read:["One traditional language (player's choice)",'Gaian']},
+   langs:{speak:[PLAYER_CHOICE_LANG,'Gaian'], read:[PLAYER_CHOICE_LANG,'Gaian']},
    desc:'Humanoid Slimes with the ability to shift and look like other Lineages.',
    traits:['Ozonian'],
    otherworldlyTraits:[
@@ -1025,6 +1032,7 @@ function createDefaultCharacter() {
     mixedAssignment: {features: null, major: null, minor: null},
     undeadRepurposedLineage: null,
     sizeChoice: null,             // 'Small' or 'Medium' for Human/Ozonian
+    ozonianLanguage: null,        // traditional language chosen by an Ozonian
     dryvornBloodline: null,       // chosen Dragon Bloodline for Dryvorn
     mixedForcedSmall: false,
     cls: null,

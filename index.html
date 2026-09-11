@@ -45,7 +45,7 @@
   </div>
   <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
     <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--muted)">Have a saved character?</div>
-    <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-early').click()">📂 Load Saved Progress</button>
+    <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-early').click()">Load Saved Progress</button>
     <input type="file" id="load-file-early" accept=".json" style="display:none" onchange="loadJSON(event)">
   </div>
   <div class="info-box" style="margin-bottom:16px">
@@ -233,7 +233,7 @@
   <div style="text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)">
     <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:12px">
       <button class="btn btn-export" id="export-btn" onclick="exportPDF()">⬇ Download Character Sheet PDF</button>
-      <button class="btn btn-secondary" onclick="saveJSON()">💾 Save Progress (JSON)</button>
+      <button class="btn btn-secondary" onclick="saveJSON()"> Save Progress (JSON)</button>
       <button class="btn btn-export" style="padding:11px 24px" onclick="goToStep(12)">⇧ Level Up</button>
       <button class="btn btn-secondary" onclick="startOver()">Start Over</button>
     </div>
@@ -258,7 +258,7 @@
   <div style="display:flex;align-items:center;gap:10px">
     <button class="btn btn-secondary" id="btn-save" onclick="saveJSON()"
             style="display:none;padding:9px 18px;font-size:.85rem">
-      💾 Save Progress
+       Save Progress
     </button>
     <span id="save-indicator" style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);display:none"></span>
   </div>

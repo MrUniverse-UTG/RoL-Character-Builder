@@ -3297,7 +3297,7 @@ function renderLevelUp() {
   const loadRow = `
     <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
       <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--muted)">Have a saved character (Level 1 or higher)?</div>
-      <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-lu').click()">📂 Load Character JSON</button>
+      <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem" onclick="document.getElementById('load-file-lu').click()"> Load Character JSON</button>
       <input type="file" id="load-file-lu" accept=".json" style="display:none" onchange="loadJSON(event)">
     </div>`;
 
@@ -3409,7 +3409,7 @@ function renderLevelUp() {
   // Export / save row — shown above the next-level editor
   html += `<div style="margin-bottom:20px;text-align:center;border-bottom:1px solid var(--border);padding-bottom:20px">
       <button class="btn btn-export" onclick="exportPDF()">⬇ Download Character Sheet PDF — Level ${lvl}</button>
-      <button class="btn btn-secondary" style="margin-left:12px" onclick="saveJSON()">💾 Save Progress (JSON)</button>
+      <button class="btn btn-secondary" style="margin-left:12px" onclick="saveJSON()"> Save Progress (JSON)</button>
       ${lvl < 20 ? `<p style="font-family:var(--font-ui);font-size:.78rem;color:var(--muted);margin-top:10px">The PDF contains your last confirmed level (${lvl}). Choices for Level ${lvl + 1} below are only included after you confirm them.</p>` : ''}
     </div>`;
 
